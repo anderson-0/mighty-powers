@@ -1,0 +1,23 @@
+{
+  "owner": {
+    "name": "anderson-0",
+    "url": "https://github.com/anderson-0"
+  },
+  "plugins": [
+    {
+      "name": "mighty-powers",
+      "description": "Full-lifecycle development plugin: analysis, planning, solutioning, implementation, auditing, and deployment. 42 skills, 20 tools, 6 agents.",
+      "keywords": [
+        "tdd",
+        "debugging",
+        "code-review",
+        "security",
+        "planning",
+        "architecture",
+        "agile",
+        "brainstorming",
+        "sprint"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "mighty-powers",
+  "version": "1.0.0",
+  "description": "Unified Claude Code plugin for full-lifecycle software development — combining the best of Superpowers, Ultraship, and BMAD Method. 42 skills, 20 tools, 6 agents, 22 commands.",
+  "author": "anderson-0",
+  "homepage": "https://github.com/anderson-0/mighty-powers",
+  "repository": "https://github.com/anderson-0/mighty-powers",
+  "keywords": [
+    "claude-code-plugin",
+    "tdd",
+    "debugging",
+    "code-review",
+    "security-audit",
+    "planning",
+    "architecture",
+    "agile",
+    "full-lifecycle"
+  ],
+  "license": "MIT"
+}
