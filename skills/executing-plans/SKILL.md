@@ -1,13 +1,13 @@
 ---
 name: executing-plans
-description: Use when you have a written implementation plan to execute in a separate session with review checkpoints
+description: Use when you have a written implementation plan to execute, with wave-by-wave parallel dispatch and persistent status tracking for session resilience
 ---
 
 # Executing Plans
 
 ## Overview
 
-Load plan, review critically, execute all tasks, report when complete.
+Load plan, review critically, execute wave-by-wave with parallel subagents, maintain status.yaml for session resilience, report when complete.
 
 **Announce at start:** "I'm using the executing-plans skill to implement this plan."
 
@@ -16,25 +16,105 @@ Load plan, review critically, execute all tasks, report when complete.
 ## The Process
 
 ### Step 1: Load and Review Plan
-1. Read plan file
-2. Review critically - identify any questions or concerns about the plan
-3. If concerns: Raise them with your human partner before starting
-4. If no concerns: Create TodoWrite and proceed
 
-### Step 2: Execute Tasks
+1. Read the plan folder — `plan.md` + `status.yaml` + wave/task files if they exist
+2. If `status.yaml` shows `status: in_progress`, this is a **resume**. Use `mighty-powers:resume` instead.
+3. Review critically — identify any questions or concerns about the plan
+4. If concerns: Raise them with your human partner before starting
+5. If no concerns: Update `status.yaml` to `status: in_progress` and proceed
 
-For each task:
-1. Mark as in_progress
-2. Follow each step exactly (plan has bite-sized steps)
-3. Run verifications as specified
-4. Mark as completed
+### Step 2: Execute Wave by Wave
+
+<EXTREMELY-IMPORTANT>
+After EVERY state change, update `status.yaml`. This is how we survive session crashes.
+If the IDE crashes mid-execution, `/resume` reads this file to pick up exactly where we stopped.
+</EXTREMELY-IMPORTANT>
+
+**For each wave:**
+
+1. Update `status.yaml`: wave status → `in_progress`, `started_at` → now
+2. Read all tasks in the wave (from task files or plan sections)
+3. **Dispatch all tasks as parallel subagents** via the Agent tool:
+   - For medium+ plans: each subagent reads its own task file (self-contained context)
+   - For small plans: provide the task section content in the Agent prompt
+   - Use appropriate model per task complexity (haiku/sonnet/opus)
+   - All Agent tool calls in a single response → concurrent execution
+4. As each task completes:
+   - Update `status.yaml`: task status → `completed`, `completed_at` → now
+5. After ALL tasks in the wave complete:
+   - **Run the full test suite** (wave checkpoint)
+   - Update `status.yaml`: wave checkpoint results
+6. If tests fail:
+   - Update `status.yaml`: wave `checkpoint.tests_passed` → false
+   - Diagnose and fix before proceeding
+7. If tests pass:
+   - Update `status.yaml`: wave status → `completed`, `completed_at` → now
+   - Proceed to next wave
+
+**If no subagents available:** Execute tasks sequentially within the wave. Still update `status.yaml` after each task.
+
+**Status update pattern (run after every state change):**
+```yaml
+# Update the specific field in status.yaml
+# Example: task 2.1 completed
+waves:
+  2:
+    status: in_progress
+    tasks:
+      2.1:
+        status: completed
+        completed_at: "2026-04-01T10:40:00"
+```
 
 ### Step 3: Complete Development
 
-After all tasks complete and verified:
-- Announce: "I'm using the finishing-a-development-branch skill to complete this work."
-- **REQUIRED SUB-SKILL:** Use mighty-powers:finishing-a-development-branch
-- Follow that skill to verify tests, present options, execute choice
+After all waves complete and verified:
+1. Update `status.yaml`: top-level `status` → `completed`
+2. Announce: "I'm using the finishing-branch skill to complete this work."
+3. **REQUIRED SUB-SKILL:** Use mighty-powers:finishing-branch
+4. Follow that skill to verify tests, present options, execute choice
+
+## Subagent Dispatch Pattern
+
+When dispatching parallel tasks in a wave, each subagent gets:
+
+**For medium+ plans (separate task files):**
+```
+Agent tool:
+  description: "Task 2.1: <component name>"
+  model: <haiku|sonnet|opus based on complexity>
+  prompt: |
+    You are implementing a task from an implementation plan.
+    Read and follow the task file at: <path to task-2.1.md>
+
+    The task file contains everything you need: context, file paths,
+    code, tests, and verification commands.
+
+    Use TDD: write the failing test first, then implement, then verify.
+
+    When done, report: what you implemented, which files you changed,
+    and whether all tests pass.
+```
+
+**For small plans (inline tasks):**
+```
+Agent tool:
+  description: "Task 1.2: <component name>"
+  model: <haiku|sonnet|opus>
+  prompt: |
+    You are implementing a task from an implementation plan.
+
+    ## Context
+    <paste project context, goal, architecture from plan.md>
+
+    ## Your Task
+    <paste the full task section from plan.md>
+
+    Use TDD: write the failing test first, then implement, then verify.
+
+    When done, report: what you implemented, which files you changed,
+    and whether all tests pass.
+```
 
 ## When to Stop and Ask for Help
 
@@ -43,6 +123,9 @@ After all tasks complete and verified:
 - Plan has critical gaps preventing starting
 - You don't understand an instruction
 - Verification fails repeatedly
+- Wave checkpoint fails twice after fixes
+
+**Before stopping:** Update `status.yaml` with current state so `/resume` can pick up later.
 
 **Ask for clarification rather than guessing.**
 
@@ -55,6 +138,7 @@ After all tasks complete and verified:
 **Don't force through blockers** - stop and ask.
 
 ## Remember
+- **Update status.yaml after every state change** — this is non-negotiable
 - Review plan critically first
 - Follow plan steps exactly
 - Don't skip verifications
@@ -65,6 +149,7 @@ After all tasks complete and verified:
 ## Integration
 
 **Required workflow skills:**
-- **mighty-powers:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
+- **mighty-powers:git-worktrees** - REQUIRED: Set up isolated workspace before starting
 - **mighty-powers:writing-plans** - Creates the plan this skill executes
-- **mighty-powers:finishing-a-development-branch** - Complete development after all tasks
+- **mighty-powers:finishing-branch** - Complete development after all tasks
+- **mighty-powers:resume** - Resume interrupted execution after session crash

@@ -32,6 +32,28 @@ else
   memory_notice="No memory files found. Consider setting up auto-memory for persistent context."
 fi
 
+# --- In-progress plan detection ---
+plan_notice=""
+if [ -d "$PWD/docs/plans" ]; then
+  in_progress_plans=""
+  for status_file in "$PWD"/docs/plans/*/status.yaml; do
+    if [ -f "$status_file" ]; then
+      # Only detect in_progress plans — skip completed, abandoned, pending, failed
+      if grep -q "^status: in_progress" "$status_file" 2>/dev/null; then
+        plan_dir=$(dirname "$status_file")
+        plan_name=$(basename "$plan_dir")
+        feature=$(grep "^feature:" "$status_file" 2>/dev/null | sed 's/feature: *//' | head -1)
+        current_wave=$(grep "^current_wave:" "$status_file" 2>/dev/null | sed 's/current_wave: *//' | head -1)
+        in_progress_plans="${in_progress_plans}${feature:-$plan_name} (wave ${current_wave:-?}), "
+      fi
+    fi
+  done
+  if [ -n "$in_progress_plans" ]; then
+    in_progress_plans="${in_progress_plans%, }"
+    plan_notice="IN-PROGRESS PLAN DETECTED: ${in_progress_plans}. Tell the user and suggest running /resume to pick up where they left off. If they decline, ask if they want to mark the plan as abandoned so it won't be detected again."
+  fi
+fi
+
 # --- CLAUDE.md freshness check ---
 claudemd_notice=""
 CLAUDE_MD="$PWD/CLAUDE.md"
@@ -62,8 +84,9 @@ escape_for_json() {
 meta_escaped=$(escape_for_json "$meta_skill_content")
 memory_escaped=$(escape_for_json "$memory_notice")
 claudemd_escaped=$(escape_for_json "$claudemd_notice")
+plan_escaped=$(escape_for_json "$plan_notice")
 
-session_context="<EXTREMELY_IMPORTANT>\nYou have mighty-powers.\n\n${memory_escaped}\n${claudemd_escaped}\n\n**Below is the full content of your 'mighty-powers:using-mighty-powers' skill — your guide to using skills. For all other skills, use the 'Skill' tool:**\n\n${meta_escaped}\n</EXTREMELY_IMPORTANT>"
+session_context="<EXTREMELY_IMPORTANT>\nYou have mighty-powers.\n\n${memory_escaped}\n${claudemd_escaped}\n${plan_escaped}\n\n**Below is the full content of your 'mighty-powers:using-mighty-powers' skill — your guide to using skills. For all other skills, use the 'Skill' tool:**\n\n${meta_escaped}\n</EXTREMELY_IMPORTANT>"
 
 # --- Output platform-appropriate JSON ---
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then

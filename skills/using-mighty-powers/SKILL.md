@@ -39,35 +39,34 @@ Quick Track has 4 size tiers. **Pick the smallest tier that fits the task.**
 
 ### Tier 1: Trivial (fix a typo, change a config value, rename something)
 
-No planning, no spec. Just do it with discipline.
+**Ask the user before skipping planning:**
 
-```
-test-driven-development → verification
-```
+> "This looks like a quick change. Want me to jump straight to implementation, or would you prefer an implementation plan first?"
 
+If user says jump in:
 1. Use `mighty-powers:test-driven-development` — write a test if applicable, make the change
 2. Use `mighty-powers:verification` — run tests, confirm everything passes
 
-That's it. No brainstorming, no plans, no review subagents.
+If user wants a plan → treat as Tier 2.
 
 ### Tier 2: Small (clear scope, < 100 lines, one file or a few files)
 
-Light planning, no design exploration needed.
+Planning required. Plan is organized in waves with parallel tasks.
 
 ```
-writing-plans → executing-plans → verification
+writing-plans → executing-plans (parallel per wave) → verification
 ```
 
-1. Use `mighty-powers:writing-plans` — break into 2-5 minute tasks with exact file paths
-2. Use `mighty-powers:executing-plans` — execute with TDD during each task
+1. Use `mighty-powers:writing-plans` — create plan organized into **waves** where tasks within each wave are independent and parallelizable
+2. Use `mighty-powers:executing-plans` or `mighty-powers:subagent-driven-development` — execute wave by wave, dispatching parallel subagents for independent tasks within each wave
 3. Use `mighty-powers:verification` — run tests, confirm complete
 
 ### Tier 3: Medium (single feature, clear scope, multiple files)
 
-Full Quick Track with optional design exploration.
+Full Quick Track with optional design exploration. Plan organized in waves.
 
 ```
-brainstorming → writing-plans → executing-plans → code-review → verification
+brainstorming → writing-plans (waves) → executing-plans (parallel per wave) → code-review → verification
      ↑
   (skip if
   scope is
@@ -75,8 +74,8 @@ brainstorming → writing-plans → executing-plans → code-review → verifica
 ```
 
 1. `mighty-powers:brainstorming` — only if the approach isn't obvious. **Skip if you know what to build.**
-2. `mighty-powers:writing-plans` — detailed plan with bite-sized tasks
-3. `mighty-powers:executing-plans` — execute with TDD. Use `mighty-powers:subagent-driven-development` if tasks are independent.
+2. `mighty-powers:writing-plans` — detailed plan structured in **waves/sprints** with parallelizable tasks per wave
+3. `mighty-powers:executing-plans` or `mighty-powers:subagent-driven-development` — execute wave by wave, dispatching parallel subagents for independent tasks within each wave
 4. `mighty-powers:code-review` — two-stage review before merge
 5. `mighty-powers:verification` — final check
 
@@ -85,13 +84,27 @@ brainstorming → writing-plans → executing-plans → code-review → verifica
 For when the change is small but you need a formal spec document — e.g., the work will span multiple sessions, or you want adversarial review of the approach before coding.
 
 ```
-quick-dev (5-step workflow with spec file)
+quick-dev (5-step workflow with spec file, wave-based plan)
 ```
 
-1. Use `mighty-powers:quick-dev` — clarify intent → plan → implement → adversarial review → present
+1. Use `mighty-powers:quick-dev` — clarify intent → plan (in waves) → implement (parallel per wave) → adversarial review → present
 2. This creates a spec file in `docs/implementation/` that tracks progress
 
 **Use Tier 4 only when Tier 2-3 isn't enough** — when you need the spec as a persistent artifact.
+
+### Wave-Based Execution (applies to all tiers with plans)
+
+All implementation plans are organized into **waves** (also called sprints). Within each wave, tasks are independent and executed in parallel via subagents:
+
+```
+Wave 1: [Task A] [Task B] [Task C]  ← all run in parallel
+            ↓
+Wave 2: [Task D] [Task E]           ← depend on Wave 1, run in parallel with each other
+            ↓
+Wave 3: [Task F]                    ← depends on Wave 2
+```
+
+This maximizes speed while respecting dependencies. See `mighty-powers:writing-plans` for how plans are structured, and `mighty-powers:subagent-driven-development` for how parallel execution works.
 
 ### Bug fixes at any size
 
@@ -180,6 +193,7 @@ brief       design       check-ready    Track skills
 | `mighty-powers:advanced-elicitation` | User wants to push output quality |
 | `mighty-powers:adversarial-review` | User wants a cynical review of a plan/document |
 | `mighty-powers:writing-skills` | User wants to create new skills |
+| `mighty-powers:resume` | Resume an interrupted plan after session crash — auto-detects or point to plan folder |
 | `mighty-powers:help` | User asks for help or "what should I do next?" |
 
 ---
@@ -187,6 +201,19 @@ brief       design       check-ready    Track skills
 # Routing Decision Tree
 
 When a user gives you a task, follow this decision tree:
+
+```
+Session starts
+    │
+    ├─ Session-start hook detected an in-progress plan?
+    │   └─ YES → Tell the user:
+    │       "Found in-progress plan: <name> (wave N). Want to resume?"
+    │       ├─ Yes → /resume
+    │       └─ No → "Want me to mark this plan as abandoned so I don't ask again?"
+    │           ├─ Yes → Update status.yaml: status → abandoned
+    │           └─ No → Leave as-is (will ask again next session)
+    │
+```
 
 ```
 User gives a task
@@ -207,7 +234,7 @@ User gives a task
     │   │   └─ Jump in → Quick Track Tier 3 (brainstorming first)
     │
     ├─ Is it trivial? (typo, config change, rename, < 20 lines)
-    │   └─ YES → Quick Track Tier 1: TDD → verification
+    │   └─ YES → Quick Track Tier 1: Ask user "jump in or plan first?"
     │
     ├─ Is it small? (clear scope, < 100 lines, few files)
     │   └─ YES → Quick Track Tier 2: writing-plans → executing-plans → verification

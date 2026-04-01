@@ -15,7 +15,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Context:** This should be run in a dedicated worktree (created by brainstorming skill).
 
-**Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
+**Save plans to:** `docs/plans/<feature-slug>/` (see Output Structure below)
 - (User preferences for plan location override this default)
 
 ## Scope Check
@@ -31,25 +31,152 @@ Before defining tasks, map out which files will be created or modified and what 
 - Files that change together should live together. Split by responsibility, not by technical layer.
 - In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.
 
-This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
+This structure informs the wave decomposition. Tasks that touch the same files CANNOT be in the same wave.
 
-## Bite-Sized Task Granularity
+## Wave-Based Plan Structure
 
-**Each step is one action (2-5 minutes):**
-- "Write the failing test" - step
-- "Run it to make sure it fails" - step
-- "Implement the minimal code to make the test pass" - step
-- "Run the tests and make sure they pass" - step
-- "Commit" - step
+<EXTREMELY-IMPORTANT>
+ALL plans MUST be organized into waves (sprints). Within each wave, tasks are independent and can be executed in parallel by separate subagents. Between waves, there is a synchronization point where all tasks from the previous wave must complete before the next wave begins.
 
-## Plan Document Header
+This is NOT optional. Every plan must have waves, even if there's only one wave.
+</EXTREMELY-IMPORTANT>
 
-**Every plan MUST start with this header:**
+### How to Decompose into Waves
+
+1. **Identify all tasks** from the spec/requirements
+2. **Build a dependency graph**: which tasks depend on which? A task depends on another if it needs the other's output (file created, API defined, interface established)
+3. **Group into waves by dependency level**:
+   - **Wave 1**: Tasks with NO dependencies (foundations, interfaces, schemas, types)
+   - **Wave 2**: Tasks that depend only on Wave 1 outputs
+   - **Wave 3**: Tasks that depend on Wave 2 outputs
+   - Continue until all tasks are placed
+4. **Within each wave**: Tasks MUST be independent — they cannot touch the same files or depend on each other's output. If two tasks in the same wave would touch the same file, move one to the next wave.
+5. **Maximize parallelism**: The goal is to have as many tasks per wave as possible. If Wave 2 has 5 tasks and only 1 depends on a specific Wave 1 task, the other 4 might belong in Wave 1.
+
+### Wave Rules
+
+- Tasks within a wave touch **different files** — no conflicts
+- Tasks within a wave have **no data dependencies** on each other
+- Each wave is a **synchronization point** — all tasks must pass before next wave
+- After each wave: **run full test suite** to catch integration issues
+- Commit after each wave (not after each task)
+
+## Output Structure
+
+Choose the output format based on plan complexity:
+
+### Medium+ plans (3+ waves, or multi-session work)
+
+Create a folder with separate files for waves and tasks:
+
+```
+docs/plans/<feature-slug>/
+├── plan.md                 # Overview: goal, architecture, wave summary, dependency graph
+├── status.yaml             # Execution state — THE resume file (see mighty-powers:resume)
+├── wave-1/
+│   ├── wave.md             # Wave overview, entry criteria, checkpoint criteria
+│   ├── task-1.1.md         # Self-contained task with ALL context for a subagent
+│   ├── task-1.2.md
+│   └── task-1.3.md
+├── wave-2/
+│   ├── wave.md
+│   ├── task-2.1.md
+│   └── task-2.2.md
+└── wave-3/
+    ├── wave.md
+    └── task-3.1.md
+```
+
+**Each task file is self-contained** — a subagent reading ONLY that file has everything it needs:
+- Project context (goal, architecture, tech stack)
+- What was built in previous waves that this task depends on
+- Exact file paths, code, test code, verification commands
+- Which files to read for additional context
+
+**Task file format:**
+````markdown
+---
+task: "2.2"
+wave: 2
+status: pending
+depends_on: ["1.1", "1.3"]
+files_to_create:
+  - src/services/retry-queue.ts
+  - tests/retry-queue.test.ts
+files_to_read:
+  - src/services/webhook.ts
+  - src/types/webhook.ts
+---
+
+# Task 2.2: Implement Retry Queue
+
+## Context
+Goal: [from plan.md]
+Architecture: [from plan.md]
+This task implements the retry queue that uses the webhook types (Wave 1, Task 1.1)
+and the config schema (Wave 1, Task 1.3).
+
+## Steps
+[Full task steps with code, file paths, verification commands]
+````
+
+**Wave file format:**
+```markdown
+# Wave 2: Core Logic
+
+**Depends on:** Wave 1 (all tasks must be completed)
+**Tasks:** 2.1, 2.2 (independent, execute in parallel)
+
+**Entry criteria:** Wave 1 checkpoint passed (all tests green)
+**Checkpoint criteria:** Run `npm test` — all tests must pass
+```
+
+### Small plans (1-2 waves, single session)
+
+Everything in one plan file + a status.yaml:
+
+```
+docs/plans/<feature-slug>/
+├── plan.md                 # Full plan with waves as sections, tasks inline
+└── status.yaml             # Execution state
+```
+
+### Status File (always created)
+
+The `status.yaml` is created when the plan is saved and updated during execution. It enables `/resume` to pick up exactly where things stopped. See `mighty-powers:resume` for the full format.
+
+**Initial status.yaml (created by writing-plans):**
+```yaml
+feature: <feature-slug>
+created: <ISO timestamp>
+last_updated: <ISO timestamp>
+plan_file: docs/plans/<feature-slug>/plan.md
+plan_type: small | medium  # small = single plan.md, medium = wave folders
+current_wave: 0
+status: pending
+
+waves:
+  1:
+    status: pending
+    tasks:
+      1.1: { status: pending }
+      1.2: { status: pending }
+      1.3: { status: pending }
+  2:
+    status: pending
+    tasks:
+      2.1: { status: pending }
+      2.2: { status: pending }
+```
+
+## Plan Document Format
 
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use mighty-powers:subagent-driven-development (recommended) or mighty-powers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Execute this plan wave-by-wave using mighty-powers:subagent-driven-development.
+> Tasks within each wave are independent and should be dispatched as parallel subagents.
+> Wait for all tasks in a wave to complete before starting the next wave.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -57,13 +184,66 @@ This structure informs the task decomposition. Each task should produce self-con
 
 **Tech Stack:** [Key technologies/libraries]
 
+**Wave Summary:**
+| Wave | Tasks | Focus | Parallel? |
+|------|-------|-------|-----------|
+| 1    | 1.1, 1.2, 1.3 | Foundation: types, schemas, interfaces | Yes — all independent |
+| 2    | 2.1, 2.2 | Core logic: implement interfaces | Yes — different modules |
+| 3    | 3.1 | Integration: wire everything together | Sequential |
+
 ---
+
+## Wave 1: Foundation
+_All tasks in this wave are independent. Execute in parallel._
+
+### Task 1.1: [Component Name]
+...
+
+### Task 1.2: [Component Name]
+...
+
+### Task 1.3: [Component Name]
+...
+
+**Wave 1 checkpoint:** Run full test suite. All Wave 1 tests must pass.
+
+---
+
+## Wave 2: Core Logic
+_Depends on Wave 1. All tasks in this wave are independent. Execute in parallel._
+
+### Task 2.1: [Component Name]
+...
+
+### Task 2.2: [Component Name]
+...
+
+**Wave 2 checkpoint:** Run full test suite. All tests must pass.
+
+---
+
+## Wave 3: Integration
+_Depends on Wave 2._
+
+### Task 3.1: [Integration Component]
+...
+
+**Wave 3 checkpoint:** Run full test suite. All tests must pass.
 ```
+
+## Bite-Sized Task Granularity
+
+**Each step within a task is one action (2-5 minutes):**
+- "Write the failing test" - step
+- "Run it to make sure it fails" - step
+- "Implement the minimal code to make the test pass" - step
+- "Run the tests and make sure they pass" - step
+- "Commit" - step
 
 ## Task Structure
 
 ````markdown
-### Task N: [Component Name]
+### Task N.M: [Component Name]
 
 **Files:**
 - Create: `exact/path/to/file.py`
@@ -94,13 +274,6 @@ def function(input):
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
-```
 ````
 
 ## No Placeholders
@@ -118,16 +291,22 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - Complete code in every step — if a step changes code, show the code
 - Exact commands with expected output
 - DRY, YAGNI, TDD, frequent commits
+- **Wave numbering**: Task 1.1, 1.2 (wave 1), Task 2.1, 2.2 (wave 2), etc.
+- **Dependency annotations**: Each wave header states what it depends on
 
 ## Self-Review
 
-After writing the complete plan, look at the spec with fresh eyes and check the plan against it. This is a checklist you run yourself — not a subagent dispatch.
+After writing the complete plan, check:
 
 **1. Spec coverage:** Skim each section/requirement in the spec. Can you point to a task that implements it? List any gaps.
 
 **2. Placeholder scan:** Search your plan for red flags — any of the patterns from the "No Placeholders" section above. Fix them.
 
-**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
+**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 1.2 but `clearFullLayers()` in Task 2.1 is a bug.
+
+**4. Wave integrity:** For each wave, verify that tasks within it are truly independent — no shared files, no data dependencies between tasks in the same wave. If two tasks touch the same file, they must be in different waves.
+
+**5. Parallelism maximization:** Could any task in Wave N+1 actually run in Wave N? If a task only depends on one specific Wave N task (not all of them), check if it could be restructured to be independent.
 
 If you find issues, fix them inline. If you find a spec requirement with no task, add the task.
 
@@ -145,8 +324,9 @@ Agent tool:
     Review the implementation plan at: {PLAN_PATH}
     The original spec/design is at: {SPEC_PATH}
 
-    Check for: spec coverage gaps, placeholder/vague tasks, task ordering issues,
-    missing verification steps, unrealistic scope per task.
+    Check for: spec coverage gaps, placeholder/vague tasks, wave integrity
+    (no shared files within a wave), dependency ordering, missing verification
+    steps, parallelism opportunities missed.
 ```
 
 If the reviewer finds issues, fix them before presenting execution options.
@@ -155,18 +335,22 @@ If the reviewer finds issues, fix them before presenting execution options.
 
 After saving the plan, offer execution choice:
 
-**"Plan complete and saved to `docs/plans/<filename>.md`. Two execution options:**
+**"Plan complete and saved to `docs/plans/<filename>.md`. It has N waves with M total tasks. Execution options:**
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
+**1. Subagent-Driven (recommended)** — I dispatch parallel subagents per wave. Each wave's tasks run concurrently. Two-stage review after each task. Fastest option.
 
-**2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints
+**2. Inline Execution** — Execute tasks sequentially in this session using executing-plans, with batch checkpoints per wave.
 
 **Which approach?"**
 
 **If Subagent-Driven chosen:**
 - **REQUIRED SUB-SKILL:** Use mighty-powers:subagent-driven-development
-- Fresh subagent per task + two-stage review
+- For each wave: dispatch all tasks as parallel subagents
+- Wait for all tasks + reviews in the wave to complete
+- Run full test suite at wave checkpoint
+- Proceed to next wave only when all tests pass
 
 **If Inline Execution chosen:**
 - **REQUIRED SUB-SKILL:** Use mighty-powers:executing-plans
-- Batch execution with checkpoints for review
+- Execute tasks within each wave sequentially (still respects wave boundaries)
+- Run full test suite at each wave checkpoint
