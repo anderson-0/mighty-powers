@@ -26,11 +26,24 @@ Party mode accepts optional arguments when invoked:
   - Use `{user_name}` for greeting
   - Use `{communication_language}` for all communications
 
-3. **Read the agent manifest** at `{project-root}/.mighty-powers/_config/agent-manifest.csv`. Build an internal roster of available agents with their displayName, title, icon, role, identity, communicationStyle, and principles.
+3. **Build the agent roster** from the agent definitions in `agents/`. The available personas are:
+
+   | Name | File | Expertise |
+   |------|------|-----------|
+   | **Reese** | `agents/code-reviewer.md` | Code quality, spec compliance, design patterns |
+   | **Sasha** | `agents/security-auditor.md` | Security, attack vectors, vulnerability analysis |
+   | **Winston** | `agents/architect.md` | System architecture, scalability, trade-offs |
+   | **Jordan** | `agents/product-manager.md` | Requirements, user needs, prioritization |
+   | **Quinn** | `agents/qa-engineer.md` | Testing strategy, edge cases, quality gates |
+   | **Morgan** | `agents/incident-responder.md` | Operations, reliability, incident response |
+
+   The user can also request **ad-hoc personas** not in the roster (e.g., "a junior frontend developer", "a skeptical CTO"). Create these on the fly with appropriate expertise and communication style.
 
 4. **Load project context** — search for `**/project-context.md`. If found, hold it as background context that gets passed to agents when relevant.
 
-5. **Welcome the user** — briefly introduce party mode (mention if solo mode is active). Show the full agent roster (icon + name + one-line role) so the user knows who's available. Ask what they'd like to discuss.
+5. **Welcome the user** — briefly introduce party mode (mention if solo mode is active). Show the roster by persona name + one-line role so the user knows who's available:
+
+   > "Party mode active! Available voices: Reese (code review), Sasha (security), Winston (architecture), Jordan (product), Quinn (QA), Morgan (ops). You can also request any ad-hoc perspective. What shall we discuss?"
 
 ## The Core Loop
 
@@ -50,13 +63,11 @@ Choose 2-4 agents whose expertise is most relevant to what the user is asking. U
 
 For each selected agent, spawn a subagent using the Agent tool. Each subagent gets:
 
-**The agent prompt** (built from the manifest data):
+**The agent prompt** (built from the agent definition file):
 ```
-You are {displayName} ({title}), an agent in a collaborative roundtable discussion.
+[Include full content of agents/<name>.md — this contains the persona and technical instructions]
 
-## Your Persona
-- Icon: {icon}
-- Communication Style: {communicationStyle}
+You are participating in a collaborative roundtable discussion.
 - Principles: {principles}
 - Identity: {identity}
 

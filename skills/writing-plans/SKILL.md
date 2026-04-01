@@ -331,11 +331,48 @@ Agent tool:
 
 If the reviewer finds issues, fix them before presenting execution options.
 
+## Cost Estimation
+
+Before presenting execution options, estimate the subagent cost:
+
+**Per task, estimate tokens based on complexity:**
+
+| Task Complexity | Est. Input Tokens | Est. Output Tokens | Recommended Model |
+|----------------|-------------------|--------------------|--------------------|
+| Simple (1-2 files, clear spec) | ~2K | ~1K | haiku |
+| Standard (multi-file, some judgment) | ~5K | ~3K | sonnet |
+| Complex (architecture, integration) | ~10K | ~5K | opus |
+
+**Per task, add review overhead:**
+- Spec reviewer: ~2K input + ~1K output (sonnet)
+- Code quality reviewer: ~3K input + ~1K output (sonnet)
+
+**Present to user:**
+
+```
+Execution Cost Estimate:
+  Wave 1: 3 tasks × haiku     ≈ $0.02
+  Wave 2: 2 tasks × sonnet    ≈ $0.08
+  Wave 3: 1 task × sonnet     ≈ $0.04
+  Reviews: 6 tasks × sonnet   ≈ $0.12
+  ─────────────────────────────
+  Estimated total:             ≈ $0.26
+
+  Note: Estimates assume standard task sizes. Actual costs depend on
+  code complexity and review iterations.
+```
+
+This is an estimate, not a gate — the user decides whether to proceed. The purpose is transparency so there are no surprises.
+
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+After saving the plan, offer execution choice with cost estimate:
 
-**"Plan complete and saved to `docs/plans/<filename>.md`. It has N waves with M total tasks. Execution options:**
+**"Plan complete and saved to `docs/plans/<filename>.md`. It has N waves with M total tasks.**
+
+**Estimated cost: ~$X.XX (based on task complexity and model selection)**
+
+**Execution options:**
 
 **1. Subagent-Driven (recommended)** — I dispatch parallel subagents per wave. Each wave's tasks run concurrently. Two-stage review after each task. Fastest option.
 

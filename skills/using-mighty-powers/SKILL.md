@@ -194,6 +194,8 @@ brief       design       check-ready    Track skills
 | `mighty-powers:adversarial-review` | User wants a cynical review of a plan/document |
 | `mighty-powers:writing-skills` | User wants to create new skills |
 | `mighty-powers:resume` | Resume an interrupted plan after session crash — auto-detects or point to plan folder |
+| `mighty-powers:status` | Check plan progress without resuming — read-only view of where things stand |
+| `mighty-powers:init` | First-time project setup — creates config, offers to generate CLAUDE.md |
 | `mighty-powers:help` | User asks for help or "what should I do next?" |
 
 ---

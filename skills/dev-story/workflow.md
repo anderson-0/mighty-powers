@@ -36,6 +36,23 @@ Load config from `.mighty-powers/config.yaml` and resolve:
 
 ---
 
+## WAVE-BASED EXECUTION OPTION
+
+Before starting sequential task execution, check if the story's tasks can benefit from parallel execution:
+
+1. Count the total tasks in the story
+2. If **4+ tasks** AND some are independent (touch different files): offer wave-based execution:
+
+> "This story has N tasks. I can see M of them are independent and could run in parallel.
+> Want me to create a wave-based plan for parallel execution, or execute sequentially?"
+
+If the user chooses wave-based:
+- Use `mighty-powers:writing-plans` to convert the story tasks into a wave-based plan with `status.yaml`
+- Then use `mighty-powers:subagent-driven-development` to execute wave-by-wave with parallel subagents
+- This is faster for larger stories but adds planning overhead
+
+If the user chooses sequential (or story has < 4 tasks): continue with the standard execution below.
+
 ## EXECUTION
 
 <workflow>

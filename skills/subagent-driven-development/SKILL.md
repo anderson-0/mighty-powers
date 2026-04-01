@@ -37,52 +37,87 @@ digraph when_to_use {
 - Two-stage review after each task: spec compliance first, then code quality
 - Faster iteration (no human-in-loop between tasks)
 
-## The Process
+## The Process — Wave-Based Parallel Execution
 
-```dot
-digraph process {
-    rankdir=TB;
+Plans are organized into **waves**. Within each wave, tasks are independent and dispatched as **parallel subagents**. Between waves, there is a synchronization checkpoint.
 
-    subgraph cluster_per_task {
-        label="Per Task";
-        "Dispatch implementer subagent (./implementer-prompt.md)" [shape=box];
-        "Implementer subagent asks questions?" [shape=diamond];
-        "Answer questions, provide context" [shape=box];
-        "Implementer subagent implements, tests, commits, self-reviews" [shape=box];
-        "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [shape=box];
-        "Spec reviewer subagent confirms code matches spec?" [shape=diamond];
-        "Implementer subagent fixes spec gaps" [shape=box];
-        "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [shape=box];
-        "Code quality reviewer subagent approves?" [shape=diamond];
-        "Implementer subagent fixes quality issues" [shape=box];
-        "Mark task complete in TodoWrite" [shape=box];
-    }
-
-    "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
-    "More tasks remain?" [shape=diamond];
-    "Dispatch final code reviewer subagent for entire implementation" [shape=box];
-    "Use mighty-powers:finishing-branch" [shape=box style=filled fillcolor=lightgreen];
-
-    "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
-    "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
-    "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
-    "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
-    "Implementer subagent asks questions?" -> "Implementer subagent implements, tests, commits, self-reviews" [label="no"];
-    "Implementer subagent implements, tests, commits, self-reviews" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)";
-    "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" -> "Spec reviewer subagent confirms code matches spec?";
-    "Spec reviewer subagent confirms code matches spec?" -> "Implementer subagent fixes spec gaps" [label="no"];
-    "Implementer subagent fixes spec gaps" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="re-review"];
-    "Spec reviewer subagent confirms code matches spec?" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="yes"];
-    "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" -> "Code quality reviewer subagent approves?";
-    "Code quality reviewer subagent approves?" -> "Implementer subagent fixes quality issues" [label="no"];
-    "Implementer subagent fixes quality issues" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="re-review"];
-    "Code quality reviewer subagent approves?" -> "Mark task complete in TodoWrite" [label="yes"];
-    "Mark task complete in TodoWrite" -> "More tasks remain?";
-    "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
-    "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
-    "Dispatch final code reviewer subagent for entire implementation" -> "Use mighty-powers:finishing-branch";
-}
 ```
+For each wave:
+  1. Dispatch ALL tasks in the wave as parallel implementer subagents
+     (all Agent tool calls in a single response → concurrent)
+  2. As each implementer completes → dispatch its spec reviewer
+  3. As each spec reviewer passes → dispatch its code quality reviewer
+  4. When ALL tasks in the wave pass both reviews → run wave checkpoint
+  5. Update status.yaml → proceed to next wave
+```
+
+### Wave Execution Detail
+
+**Step 1 — Parallel Implementation:**
+
+For a wave with tasks 2.1, 2.2, 2.3, dispatch all three implementer subagents simultaneously:
+
+```
+Single message with 3 Agent tool calls:
+  Agent 1: implementer for task 2.1 (./implementer-prompt.md + task context)
+  Agent 2: implementer for task 2.2 (./implementer-prompt.md + task context)
+  Agent 3: implementer for task 2.3 (./implementer-prompt.md + task context)
+All three run concurrently.
+```
+
+Each implementer subagent:
+- Gets the task file content (self-contained context)
+- Implements using TDD
+- Commits its changes
+- Self-reviews
+- Reports status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED
+
+**Step 2 — Parallel Review:**
+
+As implementers complete, dispatch their reviewers. You can batch reviews:
+
+```
+Single message with review agents:
+  Agent 1: spec-reviewer for task 2.1 (./spec-reviewer-prompt.md + task diff)
+  Agent 2: spec-reviewer for task 2.2 (./spec-reviewer-prompt.md + task diff)
+  Agent 3: spec-reviewer for task 2.3 (./spec-reviewer-prompt.md + task diff)
+```
+
+If a spec reviewer rejects → re-dispatch implementer for that task only.
+Once spec passes → dispatch code quality reviewer for that task.
+
+**Step 3 — Wave Checkpoint:**
+
+When ALL tasks in the wave pass both reviews:
+1. Run the full test suite
+2. Update `status.yaml`: wave status → completed, checkpoint results
+3. If tests fail: diagnose, fix, re-run (don't proceed to next wave)
+4. If tests pass: proceed to next wave
+
+**Step 4 — Final Review:**
+
+After ALL waves complete:
+1. Dispatch `agents/code-reviewer.md` for the entire implementation (full diff from plan start)
+2. Use `mighty-powers:finishing-branch` to merge/PR
+
+### Status Tracking
+
+Update `status.yaml` after every state change:
+- Wave starts → wave status: in_progress
+- Task dispatched → task status: in_progress, started_at, assigned_model, context_files
+- Task completes → task status: completed, completed_at
+- Wave checkpoint → checkpoint.tests_passed, wave status: completed
+- All done → top-level status: completed
+
+This enables `/resume` to pick up exactly where things stopped if the session crashes.
+
+### Fallback: Sequential Execution
+
+If parallel dispatch isn't possible (e.g., tasks within a wave have unexpected coupling):
+- Execute tasks one at a time within the wave
+- Still do two-stage review (spec then quality) per task
+- Still run wave checkpoint after all tasks complete
+- Still update status.yaml after each state change
 
 ## Model Selection
 
