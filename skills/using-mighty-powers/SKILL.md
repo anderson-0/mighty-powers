@@ -51,14 +51,14 @@ If user wants a plan → treat as Tier 2.
 
 ### Tier 2: Small (clear scope, < 100 lines, one file or a few files)
 
-Planning required. Plan is organized in waves with parallel tasks.
+Planning required. Plan is organized in waves with checkpoints.
 
 ```
-writing-plans → executing-plans (parallel per wave) → verification
+writing-plans → executing-plans (wave by wave) → verification
 ```
 
-1. Use `mighty-powers:writing-plans` — create plan organized into **waves** where tasks within each wave are independent and parallelizable
-2. Use `mighty-powers:executing-plans` or `mighty-powers:subagent-driven-development` — execute wave by wave, dispatching parallel subagents for independent tasks within each wave
+1. Use `mighty-powers:writing-plans` — create plan organized into **waves** (parallel where tasks are independent, sequential where they're not)
+2. Use `mighty-powers:executing-plans` or `mighty-powers:subagent-driven-development` — execute wave by wave, parallelize independent tasks within each wave
 3. Use `mighty-powers:verification` — run tests, confirm complete
 
 ### Tier 3: Medium (single feature, clear scope, multiple files)
@@ -66,7 +66,7 @@ writing-plans → executing-plans (parallel per wave) → verification
 Full Quick Track with optional design exploration. Plan organized in waves.
 
 ```
-brainstorming → writing-plans (waves) → executing-plans (parallel per wave) → code-review → verification
+brainstorming → writing-plans (waves) → executing-plans (wave by wave) → code-review → verification
      ↑
   (skip if
   scope is
@@ -74,8 +74,8 @@ brainstorming → writing-plans (waves) → executing-plans (parallel per wave) 
 ```
 
 1. `mighty-powers:brainstorming` — only if the approach isn't obvious. **Skip if you know what to build.**
-2. `mighty-powers:writing-plans` — detailed plan structured in **waves/sprints** with parallelizable tasks per wave
-3. `mighty-powers:executing-plans` or `mighty-powers:subagent-driven-development` — execute wave by wave, dispatching parallel subagents for independent tasks within each wave
+2. `mighty-powers:writing-plans` — detailed plan structured in **waves** with checkpoints (parallel where tasks are independent)
+3. `mighty-powers:executing-plans` or `mighty-powers:subagent-driven-development` — execute wave by wave, parallelize independent tasks
 4. `mighty-powers:code-review` — two-stage review before merge
 5. `mighty-powers:verification` — final check
 
@@ -94,17 +94,17 @@ quick-dev (5-step workflow with spec file, wave-based plan)
 
 ### Wave-Based Execution (applies to all tiers with plans)
 
-All implementation plans are organized into **waves** (also called sprints). Within each wave, tasks are independent and executed in parallel via subagents:
+All implementation plans are organized into **waves**. Each wave groups tasks at the same dependency level. Tasks within a wave that are independent (different files, no shared state) run in parallel via subagents. Tasks that share files or have ordering requirements run sequentially within the wave. Between waves, there is a checkpoint.
 
 ```
-Wave 1: [Task A] [Task B] [Task C]  ← all run in parallel
-            ↓
-Wave 2: [Task D] [Task E]           ← depend on Wave 1, run in parallel with each other
-            ↓
-Wave 3: [Task F]                    ← depends on Wave 2
+Wave 1: [Task A] [Task B] [Task C]  ← independent → run in parallel
+            ↓ checkpoint
+Wave 2: [Task D] → [Task E]         ← D and E share a file → run sequentially
+            ↓ checkpoint
+Wave 3: [Task F]                    ← single task
 ```
 
-This maximizes speed while respecting dependencies. See `mighty-powers:writing-plans` for how plans are structured, and `mighty-powers:subagent-driven-development` for how parallel execution works.
+Not every wave has parallelism. A plan that is entirely sequential (one task per wave) is fine — waves still provide checkpoints and clear dependency ordering. See `mighty-powers:writing-plans` for how plans are structured.
 
 ### Bug fixes at any size
 

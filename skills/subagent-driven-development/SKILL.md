@@ -39,23 +39,25 @@ digraph when_to_use {
 
 ## The Process — Wave-Based Parallel Execution
 
-Plans are organized into **waves**. Within each wave, tasks are independent and dispatched as **parallel subagents**. Between waves, there is a synchronization checkpoint.
+Plans are organized into **waves**. Each wave groups tasks at the same dependency level. Tasks within a wave may be independent (parallelizable) or sequential — the plan annotates which. Between waves, there is a synchronization checkpoint.
 
 ```
 For each wave:
-  1. Dispatch ALL tasks in the wave as parallel implementer subagents
-     (all Agent tool calls in a single response → concurrent)
-  2. As each implementer completes → dispatch its spec reviewer
-  3. As each spec reviewer passes → dispatch its code quality reviewer
-  4. When ALL tasks in the wave pass both reviews → run wave checkpoint
-  5. Update status.yaml → proceed to next wave
+  1. Check the wave's execution mode (parallel, sequential, mixed, or single task)
+  2. Parallel tasks: dispatch as concurrent implementer subagents
+     (all Agent tool calls in a single response)
+     Sequential tasks: dispatch one at a time
+  3. As each implementer completes → dispatch its spec reviewer
+  4. As each spec reviewer passes → dispatch its code quality reviewer
+  5. When ALL tasks in the wave pass both reviews → run wave checkpoint
+  6. Update status.yaml → proceed to next wave
 ```
 
 ### Wave Execution Detail
 
 **Step 1 — Parallel Implementation:**
 
-For a wave with tasks 2.1, 2.2, 2.3, dispatch all three implementer subagents simultaneously:
+For a wave with independent tasks 2.1, 2.2, 2.3, dispatch all three implementer subagents simultaneously:
 
 ```
 Single message with 3 Agent tool calls:

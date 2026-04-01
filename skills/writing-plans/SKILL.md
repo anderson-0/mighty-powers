@@ -36,9 +36,9 @@ This structure informs the wave decomposition. Tasks that touch the same files C
 ## Wave-Based Plan Structure
 
 <EXTREMELY-IMPORTANT>
-ALL plans MUST be organized into waves (sprints). Within each wave, tasks are independent and can be executed in parallel by separate subagents. Between waves, there is a synchronization point where all tasks from the previous wave must complete before the next wave begins.
+ALL plans MUST be organized into waves. A wave is a group of tasks that share the same dependency level — they depend on the same set of prior tasks being done. Tasks within a wave MAY be independent (and thus parallelizable), or they may need sequential execution if they touch shared files or have subtle ordering requirements.
 
-This is NOT optional. Every plan must have waves, even if there's only one wave.
+Not every wave has parallel tasks. A wave with a single task is perfectly normal. A plan that is entirely sequential (5 waves of 1 task each) is also fine. The wave structure provides checkpoints and clear dependency ordering regardless of parallelism.
 </EXTREMELY-IMPORTANT>
 
 ### How to Decompose into Waves
@@ -50,16 +50,28 @@ This is NOT optional. Every plan must have waves, even if there's only one wave.
    - **Wave 2**: Tasks that depend only on Wave 1 outputs
    - **Wave 3**: Tasks that depend on Wave 2 outputs
    - Continue until all tasks are placed
-4. **Within each wave**: Tasks MUST be independent — they cannot touch the same files or depend on each other's output. If two tasks in the same wave would touch the same file, move one to the next wave.
-5. **Maximize parallelism**: The goal is to have as many tasks per wave as possible. If Wave 2 has 5 tasks and only 1 depends on a specific Wave 1 task, the other 4 might belong in Wave 1.
+4. **Within each wave, check for independence**: Tasks that touch different files and have no data dependencies on each other are **independent** and can run in parallel. Tasks that touch the same file or have ordering requirements must either be in the same wave (executed sequentially) or split across waves.
+5. **Maximize parallelism where possible**: The goal is to have as many independent tasks per wave as possible. But don't force parallelism — a sequential wave is better than a broken parallel one.
+
+### Wave parallelism assessment
+
+For each wave, mark whether it's parallel, sequential, or mixed:
+
+| Wave Pattern | When | Execution |
+|---|---|---|
+| **All independent** | Tasks touch different files, no shared state | Dispatch all as parallel subagents |
+| **All sequential** | Tasks touch the same files or must run in order | Execute one at a time |
+| **Mixed** | Some independent, some dependent | Dispatch independent ones in parallel, then run dependent ones after |
+| **Single task** | Only one task in the wave | Just run it |
 
 ### Wave Rules
 
-- Tasks within a wave touch **different files** — no conflicts
-- Tasks within a wave have **no data dependencies** on each other
-- Each wave is a **synchronization point** — all tasks must pass before next wave
+- Each wave is a **synchronization point** — all tasks must complete before next wave starts
 - After each wave: **run full test suite** to catch integration issues
+- Tasks marked as parallel MUST touch different files and have no data dependencies on each other
+- Tasks that are sequential within a wave are executed in order
 - Commit after each wave (not after each task)
+- A wave with a single task is perfectly fine — it still provides a checkpoint
 
 ## Output Structure
 
@@ -125,7 +137,8 @@ and the config schema (Wave 1, Task 1.3).
 # Wave 2: Core Logic
 
 **Depends on:** Wave 1 (all tasks must be completed)
-**Tasks:** 2.1, 2.2 (independent, execute in parallel)
+**Tasks:** 2.1, 2.2
+**Execution:** Parallel (tasks are independent — different files, no shared state)
 
 **Entry criteria:** Wave 1 checkpoint passed (all tests green)
 **Checkpoint criteria:** Run `npm test` — all tests must pass
@@ -185,16 +198,16 @@ waves:
 **Tech Stack:** [Key technologies/libraries]
 
 **Wave Summary:**
-| Wave | Tasks | Focus | Parallel? |
+| Wave | Tasks | Focus | Execution |
 |------|-------|-------|-----------|
-| 1    | 1.1, 1.2, 1.3 | Foundation: types, schemas, interfaces | Yes — all independent |
-| 2    | 2.1, 2.2 | Core logic: implement interfaces | Yes — different modules |
-| 3    | 3.1 | Integration: wire everything together | Sequential |
+| 1    | 1.1, 1.2, 1.3 | Foundation: types, schemas, interfaces | Parallel — all independent |
+| 2    | 2.1, 2.2 | Core logic: implement interfaces | Parallel — different modules |
+| 3    | 3.1 | Integration: wire everything together | Single task |
 
 ---
 
 ## Wave 1: Foundation
-_All tasks in this wave are independent. Execute in parallel._
+_Tasks 1.1, 1.2, 1.3 are independent — execute in parallel._
 
 ### Task 1.1: [Component Name]
 ...
@@ -210,7 +223,7 @@ _All tasks in this wave are independent. Execute in parallel._
 ---
 
 ## Wave 2: Core Logic
-_Depends on Wave 1. All tasks in this wave are independent. Execute in parallel._
+_Depends on Wave 1. Tasks 2.1, 2.2 are independent — execute in parallel._
 
 ### Task 2.1: [Component Name]
 ...

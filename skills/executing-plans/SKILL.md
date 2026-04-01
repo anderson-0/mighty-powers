@@ -7,7 +7,7 @@ description: Use when you have a written implementation plan to execute, with wa
 
 ## Overview
 
-Load plan, review critically, execute wave-by-wave with parallel subagents, maintain status.yaml for session resilience, report when complete.
+Load plan, review critically, execute wave-by-wave (parallel where tasks are independent, sequential where they're not), maintain status.yaml for session resilience, report when complete.
 
 **Announce at start:** "I'm using the executing-plans skill to implement this plan."
 
@@ -33,12 +33,15 @@ If the IDE crashes mid-execution, `/resume` reads this file to pick up exactly w
 **For each wave:**
 
 1. Update `status.yaml`: wave status → `in_progress`, `started_at` → now
-2. Read all tasks in the wave (from task files or plan sections)
-3. **Dispatch all tasks as parallel subagents** via the Agent tool:
+2. Read all tasks in the wave and check the execution mode (annotated in the plan):
+   - **Parallel tasks** (independent — different files, no shared state): dispatch as concurrent subagents via Agent tool (all in a single response)
+   - **Sequential tasks** (shared files or ordering requirements): execute one at a time in order
+   - **Mixed**: dispatch parallel group first, then sequential tasks after
+   - **Single task**: just run it
+3. For each subagent dispatched:
    - For medium+ plans: each subagent reads its own task file (self-contained context)
    - For small plans: provide the task section content in the Agent prompt
    - Use appropriate model per task complexity (haiku/sonnet/opus)
-   - All Agent tool calls in a single response → concurrent execution
 4. As each task completes:
    - Update `status.yaml`: task status → `completed`, `completed_at` → now
 5. After ALL tasks in the wave complete:
