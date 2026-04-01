@@ -16,6 +16,37 @@ claude plugin install --path /path/to/mighty-powers
 - **22 slash commands** for quick access to common workflows
 - **Safety guardrails** that block destructive commands (rm -rf, git push --force, DROP TABLE)
 
+## How It Works: 3 Tracks
+
+The plugin automatically routes your task to the right level of process. **It defaults to the Quick Track** — BMAD lifecycle skills only activate when you explicitly ask for them or the task genuinely requires it.
+
+### Quick Track (80% of daily work)
+
+For bug fixes, single features, refactors, and anything with clear scope. Has 4 size tiers — **pick the smallest that fits:**
+
+| Tier | When | Flow |
+|------|------|------|
+| **Trivial** | Typo, config, rename, < 20 lines | TDD → verification |
+| **Small** | Clear scope, < 100 lines | `/write-plan` → `/execute-plan` → verification |
+| **Medium** | Single feature, multiple files | `/brainstorm` → `/write-plan` → `/execute-plan` → `/review` |
+| **Structured** | Needs spec artifact across sessions | `/quick-dev` (5-step with adversarial review) |
+
+Bug fixes at any size: always start with `/investigate` (systematic debugging) first.
+
+### Lifecycle Track (new projects, multi-epic features)
+
+Only when you explicitly ask for structured planning or the scope requires it.
+
+```
+create-prd → create-architecture → create-epics → dev-story
+```
+
+You don't need all phases — skip to wherever makes sense. If you already have a PRD, start at architecture.
+
+### Audit Track (on-demand quality gates)
+
+Invoked explicitly at natural checkpoints: `/secure`, `/pentest`, `/ship`, `/rescue`.
+
 ## Skill Catalog
 
 ### Phase 1: Analysis
@@ -109,16 +140,19 @@ claude plugin install --path /path/to/mighty-powers
 | `rescue` | `/rescue` | Incident response and rollback |
 | `help` | `/help` | Phase-aware help and recommendations |
 
-## Scale-Adaptive Routing
+## When to Use What
 
-Not every task needs the full lifecycle:
-
-| Task Size | Route |
-|-----------|-------|
-| Quick fix | `/quick-dev` |
-| Single feature | `/write-plan` → `/execute-plan` |
-| Multi-story feature | `create-prd` → `create-architecture` → `create-epics` → `dev-story` |
-| Large initiative | Full 4-phase: Analysis → Planning → Solutioning → Implementation |
+| Task | Track | Flow |
+|------|-------|------|
+| Fix a typo, rename, config | Quick Tier 1 | Just TDD → verify |
+| Small clear change (< 100 lines) | Quick Tier 2 | `/write-plan` → `/execute-plan` → verify |
+| Single feature, multiple files | Quick Tier 3 | `/brainstorm` → `/write-plan` → `/execute-plan` → `/review` |
+| Small change needing spec tracking | Quick Tier 4 | `/quick-dev` |
+| Fix a bug (any size) | Quick | `/investigate` → fix using appropriate tier |
+| Build a new project from scratch | Lifecycle | `create-prd` → `create-architecture` → `create-epics` → `dev-story` |
+| Multi-epic feature (3+ coordinated features) | Lifecycle | Same as above — user must explicitly opt in |
+| Check if code is secure before deploy | Audit | `/secure` or `/pentest` or `/ship` |
+| Production incident | Audit | `/rescue` |
 
 ## Tools
 

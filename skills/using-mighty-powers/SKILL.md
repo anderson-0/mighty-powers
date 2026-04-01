@@ -7,14 +7,6 @@ description: Use when starting any conversation — establishes how to find and 
 If you were dispatched as a subagent to execute a specific task, skip this skill.
 </SUBAGENT-STOP>
 
-<EXTREMELY-IMPORTANT>
-If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.
-
-IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
-
-This is not negotiable. This is not optional. You cannot rationalize your way out of this.
-</EXTREMELY-IMPORTANT>
-
 ## Instruction Priority
 
 Mighty Powers skills override default system prompt behavior, but **user instructions always take precedence**:
@@ -23,164 +15,245 @@ Mighty Powers skills override default system prompt behavior, but **user instruc
 2. **Mighty Powers skills** — override default system behavior where they conflict
 3. **Default system prompt** — lowest priority
 
-If CLAUDE.md says "don't use TDD" and a skill says "always use TDD," follow the user's instructions.
-
 ## How to Access Skills
 
 **In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.
 
-## Skill Catalog
+---
 
-### Phase 1: Analysis (exploring the problem space)
+# ROUTING: The Most Important Section
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:research` | Market, domain, or technical research to validate assumptions |
-| `mighty-powers:product-brief` | Capture strategic vision when concept is clear |
-| `mighty-powers:document-project` | Analyze and document an existing project |
+<EXTREMELY-IMPORTANT>
+Mighty Powers has 3 tracks. You MUST pick the right track based on the task. Getting this wrong means either wasting the user's time with overkill process OR shipping sloppy work without enough discipline.
 
-### Phase 2: Planning (defining WHAT to build)
+**Default to the Quick Track.** Only escalate to Lifecycle Track when the user explicitly asks for it or the task genuinely requires multi-epic planning.
+</EXTREMELY-IMPORTANT>
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:brainstorming` | Any new feature, design decision, or problem requiring creative exploration |
-| `mighty-powers:create-prd` | Create a Product Requirements Document |
-| `mighty-powers:validate-prd` | Validate an existing PRD for completeness and quality |
-| `mighty-powers:create-ux-design` | Design user experience, journeys, and design system |
+## Track 1: Quick Track (use 80% of the time)
 
-### Phase 3: Solutioning (deciding HOW to build it)
+**For:** Bug fixes, single features, refactors, small-to-medium changes, anything with clear scope.
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:create-architecture` | Technical architecture decisions, patterns, and structure |
-| `mighty-powers:create-epics` | Break requirements into epics and stories |
-| `mighty-powers:generate-project-context` | Generate project context "constitution" for consistent implementation |
-| `mighty-powers:check-readiness` | Gate check: is everything ready for implementation? |
+**How to recognize:** The user says "add X", "fix Y", "change Z", "implement this feature", or describes a single clear task.
 
-### Phase 4: Implementation (building it)
+Quick Track has 4 size tiers. **Pick the smallest tier that fits the task.**
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:writing-plans` | Create detailed implementation plans with bite-sized tasks |
-| `mighty-powers:executing-plans` | Execute an implementation plan step by step |
-| `mighty-powers:subagent-driven-development` | Dispatch subagents for parallel task execution with two-stage review |
-| `mighty-powers:test-driven-development` | ANY code writing — enforces RED-GREEN-REFACTOR cycle |
-| `mighty-powers:systematic-debugging` | ANY bug or unexpected behavior — 4-phase root cause process |
-| `mighty-powers:quick-dev` | Small, well-understood changes that don't need full planning |
-| `mighty-powers:dev-story` | Execute a prepared story with code + tests |
-| `mighty-powers:create-story` | Prepare the next story for implementation |
+### Tier 1: Trivial (fix a typo, change a config value, rename something)
 
-### Git & Branch Workflow
+No planning, no spec. Just do it with discipline.
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:git-worktrees` | Create isolated workspaces for feature branches |
-| `mighty-powers:finishing-branch` | Complete a development branch (merge, PR, cleanup) |
-| `mighty-powers:dispatching-parallel-agents` | Run multiple subagents concurrently |
+```
+test-driven-development → verification
+```
 
-### Code Review
+1. Use `mighty-powers:test-driven-development` — write a test if applicable, make the change
+2. Use `mighty-powers:verification` — run tests, confirm everything passes
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:code-review` | Review code for quality, security, and spec compliance |
+That's it. No brainstorming, no plans, no review subagents.
 
-### Safety & Security
+### Tier 2: Small (clear scope, < 100 lines, one file or a few files)
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:guard` | Safety guardrails — block destructive commands, freeze directories |
-| `mighty-powers:security-audit` | Comprehensive security audit (secrets, OWASP, auth, crypto) |
-| `mighty-powers:pentest` | Penetration testing (XSS, SQLi, SSTI, CORS, JWT) |
+Light planning, no design exploration needed.
 
-### Auditing & Quality
+```
+writing-plans → executing-plans → verification
+```
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:ship` | Pre-deploy scorecard — run all auditors, get a ship/no-ship score |
-| `mighty-powers:architecture-map` | Generate Mermaid diagrams of system architecture |
-| `mighty-powers:verification` | Verify work is actually complete before declaring success |
+1. Use `mighty-powers:writing-plans` — break into 2-5 minute tasks with exact file paths
+2. Use `mighty-powers:executing-plans` — execute with TDD during each task
+3. Use `mighty-powers:verification` — run tests, confirm complete
 
-### Sprint & Project Management
+### Tier 3: Medium (single feature, clear scope, multiple files)
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:sprint` | Sprint pipeline: plan → build → test → review → ship → verify |
-| `mighty-powers:retrospective` | Sprint retrospective analysis |
-| `mighty-powers:correct-course` | Handle mid-sprint changes or pivots |
+Full Quick Track with optional design exploration.
 
-### Knowledge & Learning
+```
+brainstorming → writing-plans → executing-plans → code-review → verification
+     ↑
+  (skip if
+  scope is
+  obvious)
+```
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:learnings` | Save/search/prune project learnings across sessions |
-| `mighty-powers:onboard` | Generate developer onboarding guide |
-| `mighty-powers:revise-claude-md` | Keep CLAUDE.md current with project state |
+1. `mighty-powers:brainstorming` — only if the approach isn't obvious. **Skip if you know what to build.**
+2. `mighty-powers:writing-plans` — detailed plan with bite-sized tasks
+3. `mighty-powers:executing-plans` — execute with TDD. Use `mighty-powers:subagent-driven-development` if tasks are independent.
+4. `mighty-powers:code-review` — two-stage review before merge
+5. `mighty-powers:verification` — final check
 
-### Advanced
+### Tier 4: Structured Small (needs spec tracking across sessions)
 
-| Skill | When to Use |
-|-------|-------------|
-| `mighty-powers:party-mode` | Multi-agent roundtable discussion with diverse perspectives |
-| `mighty-powers:advanced-elicitation` | Iterative refinement to push LLM output quality |
-| `mighty-powers:adversarial-review` | Cynical review to find gaps and flaws |
-| `mighty-powers:writing-skills` | Meta: how to write new skills for this plugin |
-| `mighty-powers:rescue` | Incident response: diagnostics, rollback, post-mortem |
-| `mighty-powers:help` | Phase-aware help — recommends what to do next |
+For when the change is small but you need a formal spec document — e.g., the work will span multiple sessions, or you want adversarial review of the approach before coding.
+
+```
+quick-dev (5-step workflow with spec file)
+```
+
+1. Use `mighty-powers:quick-dev` — clarify intent → plan → implement → adversarial review → present
+2. This creates a spec file in `docs/implementation/` that tracks progress
+
+**Use Tier 4 only when Tier 2-3 isn't enough** — when you need the spec as a persistent artifact.
+
+### Bug fixes at any size
+
+Always start with `mighty-powers:systematic-debugging` — 4-phase root cause process. Then apply the appropriate tier above for the fix.
+
+### Supporting skills (available in all tiers)
+
+| Skill | When |
+|-------|------|
+| `mighty-powers:test-driven-development` | During ANY code writing — write test first, then code |
+| `mighty-powers:systematic-debugging` | ANY bug or unexpected behavior — root cause first |
+| `mighty-powers:git-worktrees` | When you need an isolated workspace |
+| `mighty-powers:finishing-branch` | When branch is ready to merge/PR |
+| `mighty-powers:dispatching-parallel-agents` | When plan has independent parallelizable tasks |
+
+## Track 2: Lifecycle Track (use only when needed)
+
+**For:** New projects from scratch, multi-epic features, unclear/complex scope, team handoff artifacts.
+
+**How to recognize:** The user says "build a new app", "design the architecture for X", "create a PRD", "plan out this large initiative", or explicitly asks for structured planning artifacts. The work will span multiple sessions or involve multiple developers.
+
+<HARD-GATE>
+DO NOT use Lifecycle Track skills unless:
+- The user explicitly requests them (e.g., "create a PRD", "design the architecture")
+- OR the task genuinely requires multi-epic planning (3+ distinct features that must be coordinated)
+- OR the user asks to "start from scratch" on a new project
+
+"Add a login page" is Quick Track, not Lifecycle. "Build a complete authentication system with OAuth, MFA, session management, and admin panel" MIGHT be Lifecycle if the user wants formal planning.
+
+When in doubt, start with Quick Track. You can always escalate later.
+</HARD-GATE>
+
+**Flow:**
+```
+Analysis → Planning → Solutioning → Implementation
+   ↓           ↓           ↓              ↓
+research    create-prd   create-arch    dev-story
+product-    create-ux    create-epics   (uses Quick
+brief       design       check-ready    Track skills
+                         gen-context    during execution)
+```
+
+**Skills in this track:**
+
+| Phase | Skill | When |
+|-------|-------|------|
+| Analysis | `mighty-powers:research` | Validate assumptions with domain/market/technical research |
+| Analysis | `mighty-powers:product-brief` | Capture strategic vision |
+| Analysis | `mighty-powers:document-project` | Document an existing project |
+| Planning | `mighty-powers:create-prd` | Create a Product Requirements Document |
+| Planning | `mighty-powers:validate-prd` | Validate an existing PRD |
+| Planning | `mighty-powers:create-ux-design` | Design user experience and journeys |
+| Solutioning | `mighty-powers:create-architecture` | Technical architecture decisions |
+| Solutioning | `mighty-powers:create-epics` | Break requirements into epics and stories |
+| Solutioning | `mighty-powers:generate-project-context` | Generate project "constitution" |
+| Solutioning | `mighty-powers:check-readiness` | Gate check before implementation |
+| Implementation | `mighty-powers:create-story` | Prepare next story |
+| Implementation | `mighty-powers:dev-story` | Execute a story (uses TDD internally) |
+| Management | `mighty-powers:sprint` | Sprint pipeline: plan → build → test → review → ship → verify |
+| Management | `mighty-powers:retrospective` | Sprint retrospective |
+| Management | `mighty-powers:correct-course` | Mid-sprint pivots |
+
+**You don't need ALL phases.** If the user already has a PRD, skip to Solutioning. If they already have architecture + epics, skip to Implementation.
+
+## Track 3: Audit Track (on-demand)
+
+**For:** Quality gates, security checks, pre-deploy verification, incidents. These are invoked explicitly or at natural checkpoints, not as part of a development flow.
+
+| Skill | When |
+|-------|------|
+| `mighty-powers:guard` | Manage safety guardrails, freeze directories |
+| `mighty-powers:security-audit` | User asks to audit security, or before shipping sensitive changes |
+| `mighty-powers:pentest` | User asks for penetration testing |
+| `mighty-powers:ship` | Pre-deploy scorecard — user asks "are we ready to ship?" |
+| `mighty-powers:architecture-map` | User asks for architecture diagrams |
+| `mighty-powers:rescue` | Production incident — diagnostics, rollback, post-mortem |
+
+## Track 4: Knowledge & Advanced (on-demand)
+
+| Skill | When |
+|-------|------|
+| `mighty-powers:learnings` | User wants to save/search project learnings |
+| `mighty-powers:onboard` | User asks for an onboarding guide |
+| `mighty-powers:revise-claude-md` | User asks to update CLAUDE.md |
+| `mighty-powers:party-mode` | User asks for a multi-agent discussion |
+| `mighty-powers:advanced-elicitation` | User wants to push output quality |
+| `mighty-powers:adversarial-review` | User wants a cynical review of a plan/document |
+| `mighty-powers:writing-skills` | User wants to create new skills |
+| `mighty-powers:help` | User asks for help or "what should I do next?" |
+
+---
+
+# Routing Decision Tree
+
+When a user gives you a task, follow this decision tree:
+
+```
+User gives a task
+    │
+    ├─ Is it a bug fix or unexpected behavior?
+    │   └─ YES → mighty-powers:systematic-debugging → then fix using appropriate tier
+    │
+    ├─ Is it a question, research, or exploration?
+    │   └─ YES → Answer directly (no skill needed) unless user asks for formal research
+    │
+    ├─ Does the user explicitly ask for a PRD, architecture, epics, or lifecycle planning?
+    │   └─ YES → Lifecycle Track (Track 2)
+    │
+    ├─ Is it a new project from scratch with unclear scope?
+    │   └─ YES → Ask the user: "Do you want structured planning (PRD, architecture, epics)
+    │   │         or jump straight to implementation?"
+    │   │   ├─ Structured → Lifecycle Track
+    │   │   └─ Jump in → Quick Track Tier 3 (brainstorming first)
+    │
+    ├─ Is it trivial? (typo, config change, rename, < 20 lines)
+    │   └─ YES → Quick Track Tier 1: TDD → verification
+    │
+    ├─ Is it small? (clear scope, < 100 lines, few files)
+    │   └─ YES → Quick Track Tier 2: writing-plans → executing-plans → verification
+    │
+    ├─ Is it a single feature? (clear scope, multiple files)
+    │   └─ YES → Quick Track Tier 3: brainstorming? → writing-plans → executing-plans
+    │             → code-review → verification
+    │
+    ├─ Does it need a persistent spec artifact? (multi-session, needs adversarial review)
+    │   └─ YES → Quick Track Tier 4: mighty-powers:quick-dev
+    │
+    └─ Default → Quick Track Tier 2 or 3 based on scope
+```
+
+**Key principle: pick the smallest tier that fits.** You can always escalate mid-task if the work turns out to be bigger than expected.
+
+---
 
 # Using Skills
 
 ## The Rule
 
-**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.
+**Invoke the skill for the CORRECT TRACK before any response or action.** The routing decision tree above determines which skill to invoke. Do not invoke Lifecycle Track skills for Quick Track tasks.
 
 ## Red Flags
 
-These thoughts mean STOP—you're rationalizing:
+These thoughts mean STOP—you're making a routing error:
 
 | Thought | Reality |
 |---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for skills. |
+| "Let me create a PRD for this bug fix" | Bug fix = Quick Track. Use `systematic-debugging`. |
+| "I should create architecture docs for this feature" | Single feature = Quick Track unless user asks for it. |
+| "Let me break this into epics" | Epics are Lifecycle Track. Single feature just needs `writing-plans`. |
 | "I need more context first" | Skill check comes BEFORE clarifying questions. |
 | "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
-| "I can check git/files quickly" | Files lack conversation context. Check for skills. |
-| "Let me gather information first" | Skills tell you HOW to gather information. |
-| "This doesn't need a formal skill" | If a skill exists, use it. |
+| "This is just a simple question" | Questions are tasks. Check for applicable skills. |
 | "I remember this skill" | Skills evolve. Read current version. |
-| "This doesn't count as a task" | Action = task. Check for skills. |
-| "The skill is overkill" | Simple things become complex. Use it. |
-| "I'll just do this one thing first" | Check BEFORE doing anything. |
-| "This feels productive" | Undisciplined action wastes time. Skills prevent this. |
-| "I know what that means" | Knowing the concept ≠ using the skill. Invoke it. |
-
-## Skill Priority
-
-When multiple skills could apply, use this order:
-
-1. **Process skills first** (brainstorming, debugging) — these determine HOW to approach the task
-2. **Implementation skills second** — these guide execution
-
-"Let's build X" → brainstorming first, then implementation skills.
-"Fix this bug" → debugging first, then domain-specific skills.
-
-## Scale-Adaptive Routing
-
-Not every task needs the full 4-phase lifecycle:
-
-| Task Size | Route |
-|-----------|-------|
-| Quick fix, small tweak | `mighty-powers:quick-dev` |
-| Single feature, clear scope | `writing-plans` → `executing-plans` or `test-driven-development` |
-| Multi-story feature | `create-prd` → `create-architecture` → `create-epics` → `dev-story` |
-| Large initiative | Full lifecycle: Analysis → Planning → Solutioning → Implementation |
+| "The skill is overkill" | Use the RIGHT track, not the BIGGEST track. Quick Track is not overkill. |
+| "I'll just do this one thing first" | Check routing BEFORE doing anything. |
 
 ## Skill Types
 
 **Rigid** (TDD, debugging, guard): Follow exactly. Don't adapt away discipline.
 
-**Flexible** (patterns, brainstorming): Adapt principles to context.
-
-The skill itself tells you which.
+**Flexible** (brainstorming, patterns): Adapt principles to context.
 
 ## User Instructions
 
-Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows.
+Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows — but it also doesn't mean escalate to Lifecycle Track.
