@@ -5,37 +5,100 @@ description: Use before deploying to run a pre-deploy scorecard across security,
 
 # /ship — Pre-Deploy Quality Gate
 
-Run all Mighty Powers auditors in parallel and produce a screenshot-shareable scorecard.
-
-## What It Runs
-
-4 scored categories from 5 tools, all in parallel:
-
-| Category | Tools | What it checks |
-|---|---|---|
-| **SEO/GEO/AEO** | seo-scanner | Meta tags, headings, structured data, OG tags, llms.txt, AI crawler access, canonical URLs, cross-page analysis |
-| **Security** | secret-scanner | AWS keys, Stripe keys, GitHub tokens, private keys, DB URLs, JWT secrets in source files |
-| **Code Quality** | code-profiler + dep-doctor | N+1 queries, sync I/O in handlers, memory leaks, unbounded queries, unused/outdated dependencies |
-| **Bundle Size** | bundle-tracker | Build output size, heavy dependency detection (moment→dayjs, lodash→native, axios→fetch) |
+Run parallel audit agents and produce a scorecard.
 
 ## How to Run
 
-**In Claude Code:**
+Dispatch **3 audit agents in parallel** using the Agent tool (all in a single response so they run concurrently):
+
+### Agent 1 — Security Audit
+
 ```
-/ship
+Agent tool:
+  description: "Security audit"
+  model: sonnet
+  prompt: |
+    You are a security auditor. Scan this project for vulnerabilities.
+
+    Run this tool:
+    node ${CLAUDE_PLUGIN_ROOT}/tools/secret-scanner.mjs <project-dir>
+
+    Then manually check for:
+    - OWASP Top 10 patterns (eval, innerHTML, SQL concatenation)
+    - Hardcoded CORS wildcards
+    - Missing rate limiting on auth endpoints
+    - JWT without expiry or weak signing
+
+    Report each finding with:
+    - Severity: critical | high | medium | low
+    - File and line
+    - Description
+    - Score deduction: critical=-20, high=-10, medium=-5, low=-2
+
+    Return: JSON with { score: <number>, findings: [...] }
 ```
 
-**Standalone CLI:**
-```bash
-npx mighty-powers ship .
-npx mighty-powers ship /path/to/project
+### Agent 2 — Code Quality
+
+```
+Agent tool:
+  description: "Code quality audit"
+  model: sonnet
+  prompt: |
+    You are a code quality auditor. Analyze this project.
+
+    Run these tools:
+    node ${CLAUDE_PLUGIN_ROOT}/tools/code-profiler.mjs <project-dir>
+    node ${CLAUDE_PLUGIN_ROOT}/tools/dep-doctor.mjs <project-dir>
+
+    Report findings from both tools with:
+    - Severity: critical | high | medium | low
+    - File and line
+    - Description
+    - Score deduction: critical=-20, high=-10, medium=-5, low=-2
+
+    Return: JSON with { score: <number>, findings: [...] }
+```
+
+### Agent 3 — Bundle Size
+
+```
+Agent tool:
+  description: "Bundle size audit"
+  model: haiku
+  prompt: |
+    You are a bundle size auditor.
+
+    Run this tool:
+    node ${CLAUDE_PLUGIN_ROOT}/tools/bundle-tracker.mjs <project-dir>
+
+    Check for heavy dependencies (moment→dayjs, lodash→native, axios→fetch).
+    Score deduction per heavy dep: -10.
+
+    Return: JSON with { score: <number>, findings: [...] }
+```
+
+## After All Agents Return
+
+Aggregate the results into a scorecard:
+
+```
++===========================================+
+|    M I G H T Y   P O W E R S   S C O R E |
++===========================================+
+|  Security        XX/100  ############-    |
+|  Code Quality    XX/100  ############-    |
+|  Bundle Size     XX/100  ############-    |
++===========================================+
+|   OVERALL         XX/100                  |
+|   STATUS          READY TO SHIP           |
++===========================================+
 ```
 
 ## Scoring
 
 - Each category starts at 100, deducts per finding based on severity
-- SEO deduplicates by rule (same issue on N pages = one deduction)
-- Failed tools show as `FAIL` and are excluded from the overall average
+- Failed agents show as `FAIL` and are excluded from the overall average
 - Overall = average of categories that successfully ran
 
 **Status thresholds:**
@@ -47,21 +110,13 @@ npx mighty-powers ship /path/to/project
 
 The scorecard tells you what's wrong. To fix issues:
 
-1. Run individual audit commands for detailed findings:
-   - `mighty-powers seo .` — full SEO findings with file:line locations
-   - `mighty-powers security .` — all detected secrets
-   - `mighty-powers profile .` — N+1 queries, sync I/O, memory leaks
-   - `mighty-powers deps .` — unused and outdated packages
-
-2. In Claude Code, use the corresponding skills which include fix guidance:
-   - `/seo` — SEO audit with fix suggestions
-   - `/secure` — security audit with fix suggestions
-   - `/profile` — code quality fixes
-
-3. Re-run `/ship` to verify your score improved.
+1. Use `/secure` for detailed security findings with fix guidance
+2. Use `/investigate` for code quality issues
+3. Re-run `/ship` to verify improvement
 
 ## Key Principles
 
-- **Detect and report honestly** — tools find issues, Claude helps fix them
-- **Never block on missing tools** — if a tool fails, score excludes it and shows FAIL
-- **Scorecard is evidence** — screenshot-shareable proof of ship-readiness
+- **Parallel execution** — all 3 agents run concurrently for speed
+- **Detect and report honestly** — agents find issues, then help fix them
+- **Never block on failures** — if an agent fails, score excludes it and shows FAIL
+- **Scorecard is evidence** — shareable proof of ship-readiness

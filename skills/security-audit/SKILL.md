@@ -7,6 +7,37 @@ description: Run security audit — dependency vulnerabilities, secret scanning,
 
 Comprehensive security scan. Finds issues AND fixes them.
 
+## Agent + Tool Strategy
+
+This skill uses a two-pronged approach for maximum coverage:
+
+1. **Automated tools** — run `secret-scanner.mjs` and `dep-doctor.mjs` for pattern matching (fast, no false negatives on known patterns)
+2. **Security auditor agent** — dispatch `agents/security-auditor.md` via Agent tool for reasoning-based analysis (catches logic flaws, auth weaknesses, design issues that tools can't detect)
+
+**Dispatch pattern:**
+
+```
+Step 1: Run automated tools yourself (Steps 1-2 below)
+Step 2: Dispatch security-auditor agent with tool results as context:
+
+Agent tool:
+  description: "Security audit — reasoning analysis"
+  model: sonnet
+  prompt: |
+    [Include full content of agents/security-auditor.md]
+
+    The automated secret scanner found: {SCANNER_RESULTS}
+    The dependency doctor found: {DEP_RESULTS}
+
+    Now perform the full 8-category audit on this project at {DIR}.
+    Focus especially on authentication, input validation, and data exposure
+    since those require reasoning that tools can't do.
+
+Step 3: Combine tool findings + agent findings into unified report.
+```
+
+For faster results, you can run the automated tools AND dispatch the agent in parallel — tools as Bash commands and agent via Agent tool in the same response.
+
 ## Process
 
 ### Step 1: Dependency Audit

@@ -257,3 +257,73 @@ These thoughts mean STOP—you're making a routing error:
 ## User Instructions
 
 Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows — but it also doesn't mean escalate to Lifecycle Track.
+
+---
+
+# Agent Orchestration
+
+Many skills dispatch specialized subagents for review, audit, or parallel work. This is a core strength of the plugin — use it whenever possible to improve quality and speed.
+
+## Standard Dispatch Pattern
+
+Use Claude Code's built-in **Agent tool** to dispatch subagents:
+
+```
+Agent tool call:
+  prompt: [Agent role instructions from agents/<name>.md] + [Task-specific context]
+  description: Short label (e.g., "security audit", "code review")
+  model: Choose based on task complexity (see below)
+```
+
+## Parallel Dispatch
+
+When multiple agents are independent, **dispatch them all in a single response** so they run concurrently:
+
+```
+Single message with multiple Agent tool calls:
+  Agent 1: security-auditor → scans for vulnerabilities
+  Agent 2: code-reviewer → reviews code quality
+  Agent 3: bundle audit → checks build size
+All three run in parallel. Collect results when all complete.
+```
+
+## Model Selection
+
+Use the least powerful model that can handle the role:
+
+| Task Type | Model | Examples |
+|-----------|-------|----------|
+| Fast/mechanical | `haiku` | Bundle size check, secret scanning, pattern matching |
+| Standard reasoning | `sonnet` | Code review, security audit, test generation |
+| Deep judgment | `opus` | Architecture review, design decisions, complex debugging |
+
+Pass the model via the Agent tool's `model` parameter.
+
+## Shared Agent Definitions
+
+Reusable agent prompts live in `agents/`:
+
+| Agent | Use For |
+|-------|---------|
+| `agents/code-reviewer.md` | Two-stage code review (spec + quality) with confidence scoring |
+| `agents/security-auditor.md` | 8-category security audit |
+| `agents/architect.md` | Architecture review and ADR recommendations |
+| `agents/product-manager.md` | PRD review and requirements validation |
+| `agents/qa-engineer.md` | Test coverage review and test strategy |
+| `agents/incident-responder.md` | Incident diagnosis, rollback planning, post-mortem |
+
+When a skill dispatches a subagent, it reads the agent definition and includes it in the prompt along with task-specific context. The subagent never inherits the parent session's history.
+
+## Skills That Orchestrate Agents
+
+| Skill | Agents Dispatched | Pattern |
+|-------|-------------------|---------|
+| `code-review` | code-reviewer | Single agent dispatch after implementation |
+| `ship` | security-auditor + code-reviewer + bundle auditor | 3 parallel agents for scorecard |
+| `sprint` | code-reviewer, security-auditor at phase gates | Automatic at BUILD→REVIEW, REVIEW→SHIP |
+| `security-audit` | security-auditor + secret-scanner tool | Agent reasoning + automated scanning |
+| `rescue` | incident-responder | Single agent for diagnosis |
+| `party-mode` | Any combination of agents | 2-4 agents per round, parallel spawn |
+| `subagent-driven-development` | implementer + spec-reviewer + quality-reviewer | Per-task cycle with two-stage review |
+| `brainstorming` | spec-document-reviewer | Single agent after design spec |
+| `writing-plans` | plan-document-reviewer | Single agent after plan written |

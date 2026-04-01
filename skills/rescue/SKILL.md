@@ -34,11 +34,32 @@ If the user is panicking, skip questions and use whatever info is available. Spe
 
 ### Phase 2: Run Diagnostics
 
-```bash
-node ${CLAUDE_PLUGIN_ROOT}/tools/incident-commander.mjs <project-directory> --url=<production-url>
+Run the automated tool AND dispatch the incident-responder agent in parallel:
+
+```
+In a single response, dispatch both:
+
+Bash tool:
+  node ${CLAUDE_PLUGIN_ROOT}/tools/incident-commander.mjs <project-directory> --url=<production-url>
+
+Agent tool:
+  description: "Incident diagnosis"
+  model: sonnet
+  prompt: |
+    [Include full content of agents/incident-responder.md]
+
+    Production incident in progress.
+    URL: {PRODUCTION_URL}
+    Symptoms: {WHAT_IS_HAPPENING}
+    Started: {WHEN_IT_STARTED}
+    Recent changes: {WHAT_CHANGED}
+
+    Run `git log --oneline -20` to find recent commits.
+    Run `node ${CLAUDE_PLUGIN_ROOT}/tools/health-check.mjs {PRODUCTION_URL}` for health data.
+    Diagnose the root cause and prepare rollback commands.
 ```
 
-Parse the JSON output.
+Combine tool output + agent diagnosis for the triage.
 
 ### Phase 3: Triage
 

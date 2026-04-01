@@ -99,6 +99,11 @@ Use the least powerful model that can handle each role to conserve cost and incr
 - Touches multiple files with integration concerns → standard model
 - Requires design judgment or broad codebase understanding → most capable model
 
+**Claude Code model parameter:** Pass the model via the Agent tool's `model` parameter:
+- `haiku` for mechanical implementation tasks
+- `sonnet` for standard tasks and spec review
+- `opus` for architecture-level code quality review
+
 ## Handling Implementer Status
 
 Implementer subagents report one of four statuses. Handle each appropriately:

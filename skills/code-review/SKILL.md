@@ -22,19 +22,47 @@ Dispatch a code-reviewer subagent to catch issues before they cascade. The revie
 - Before refactoring (baseline check)
 - After fixing a complex bug
 
-## How to Request
+## How to Dispatch
 
-**1. Get git SHAs:**
+**1. Gather context:**
 ```bash
 BASE_SHA=$(git merge-base HEAD main)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
+DIFF=$(git diff $BASE_SHA..$HEAD_SHA)
 ```
 
-**2. Dispatch code-reviewer subagent with context:**
-- What was implemented
-- What the plan/requirements were
-- Base and head SHAs
-- Brief description
+**2. Dispatch code-reviewer via Agent tool:**
+
+```
+Agent tool:
+  description: "Code review"
+  model: sonnet (or opus for architecture-heavy changes)
+  prompt: |
+    [Include full content of agents/code-reviewer.md]
+
+    ## Your Task
+
+    Review the changes between {BASE_SHA} and {HEAD_SHA}.
+
+    The implementation plan is at: {PLAN_PATH}
+    What was implemented: {DESCRIPTION}
+
+    Focus areas: {FOCUS_AREAS — e.g., "new auth middleware, touches 5 files"}
+
+    Run `git diff {BASE_SHA}..{HEAD_SHA}` to see the changes.
+    Read the plan file for spec compliance checking.
+```
+
+**3. Read the agent's response** and present findings to the user organized by severity.
+
+**For parallel review** (e.g., at sprint REVIEW gate), dispatch code-reviewer + security-auditor in a single response:
+
+```
+Single message with 2 Agent tool calls:
+  Agent 1: code-reviewer — reviews code quality and spec compliance
+  Agent 2: security-auditor — scans for security issues
+Both run concurrently. Combine findings when both complete.
+```
 
 ## Two-Stage Review Process
 

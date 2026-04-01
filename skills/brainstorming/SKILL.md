@@ -121,7 +121,23 @@ After writing the spec document, look at it with fresh eyes:
 3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
 
-Fix any issues inline. No need to re-review — just fix and move on.
+Fix any issues inline, then dispatch a review subagent for a second opinion:
+
+**Spec Review Agent:**
+
+```
+Agent tool:
+  description: "Design spec review"
+  model: sonnet
+  prompt: |
+    [Include content of ./spec-document-reviewer-prompt.md]
+
+    Review the design spec at: {SPEC_PATH}
+    Check for: completeness, internal consistency, ambiguity, scope creep,
+    missing edge cases, and feasibility.
+```
+
+If the reviewer finds issues, fix them before presenting to the user.
 
 **User Review Gate:**
 After the spec review loop passes, ask the user to review the written spec before proceeding:

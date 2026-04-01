@@ -129,7 +129,27 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
-If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
+If you find issues, fix them inline. If you find a spec requirement with no task, add the task.
+
+**Plan Review Agent:**
+
+After self-review, dispatch a review subagent for a second opinion:
+
+```
+Agent tool:
+  description: "Plan review"
+  model: sonnet
+  prompt: |
+    [Include content of ./plan-document-reviewer-prompt.md]
+
+    Review the implementation plan at: {PLAN_PATH}
+    The original spec/design is at: {SPEC_PATH}
+
+    Check for: spec coverage gaps, placeholder/vague tasks, task ordering issues,
+    missing verification steps, unrealistic scope per task.
+```
+
+If the reviewer finds issues, fix them before presenting execution options.
 
 ## Execution Handoff
 

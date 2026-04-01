@@ -83,9 +83,28 @@ Update this file as you progress through phases.
 
 **Trigger:** Tests pass.
 
-1. Use **`mighty-powers:code-review`** for comprehensive review
-2. Run `/secure` for security scanning
-3. Fix any high-confidence issues found
+**Dispatch 2 review agents in parallel** (single response, concurrent execution):
+
+```
+Agent 1 — Code Review:
+  description: "Sprint code review"
+  model: sonnet
+  prompt: [agents/code-reviewer.md] + "Review all changes on this branch vs main.
+           The implementation plan is at: {PLAN_PATH}."
+
+Agent 2 — Security Audit:
+  description: "Sprint security scan"
+  model: sonnet
+  prompt: [agents/security-auditor.md] + "Audit this project. Run:
+           node ${CLAUDE_PLUGIN_ROOT}/tools/secret-scanner.mjs <dir>
+           Then perform the full 8-category audit."
+```
+
+After both return:
+1. Combine findings, deduplicate
+2. Present to user organized by severity
+3. Fix any critical or high-severity issues
+4. If fixes were needed, re-dispatch code-reviewer on the fixes only
 
 **Artifacts produced:** Review report, security scan results, fixes committed
 
@@ -96,12 +115,12 @@ Update this file as you progress through phases.
 **Trigger:** Review is clean.
 
 1. Use **`mighty-powers:verification`** for final verification
-2. Run `/ship` for the full pre-deploy scorecard
+2. Run **`mighty-powers:ship`** which dispatches 3 parallel audit agents (security, code quality, bundle) — see ship skill for details
 3. Use **`mighty-powers:finishing-branch`** to merge/PR
 
 **Artifacts produced:** PR/merge to main, deploy to production
 
-**Gate:** `/ship` scorecard is READY TO SHIP.
+**Gate:** `/ship` scorecard is READY TO SHIP (score >= 80).
 
 ## Phase 6: Verify
 
