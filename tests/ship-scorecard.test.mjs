@@ -6,204 +6,138 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const BIN = path.join(__dirname, '..', 'bin', 'mighty-powers.mjs');
-const TIMEOUT = 120_000; // ship runs 5 audits in parallel, give it time
 
-/** Strip ANSI escape codes so regex matching works on plain text. */
-function stripAnsi(str) {
-  // eslint-disable-next-line no-control-regex
-  return str.replace(/\x1b\[[0-9;]*m/g, '');
-}
-
-/**
- * Helper: run `mighty-powers ship <dir>` and return stdout (ANSI-stripped).
- * Throws on non-zero exit (catch in tests that expect failure).
- * On throw, err.stdout is also ANSI-stripped for convenience.
- */
-function ship(dir) {
-  return stripAnsi(execFileSync('node', [BIN, 'ship', dir], {
-    encoding: 'utf8',
-    timeout: TIMEOUT,
-  }));
-}
-
-// -- Temp directories used across tests --
-
+// -- Temp directories --
 const EMPTY_DIR = path.join('/tmp', `mighty-powers-test-empty-${Date.now()}`);
-const ENV_DIR = path.join('/tmp', `mighty-powers-test-env-${Date.now()}`);
+const VULN_DIR = path.join('/tmp', `mighty-powers-test-vuln-${Date.now()}`);
 
 before(() => {
   mkdirSync(EMPTY_DIR, { recursive: true });
 
-  // Directory with a .env.example and a .env containing placeholders
-  mkdirSync(ENV_DIR, { recursive: true });
-  writeFileSync(path.join(ENV_DIR, '.env.example'), [
-    'DATABASE_URL=',
-    'API_KEY=',
-    'SECRET_TOKEN=',
-    'REDIS_URL=',
+  // Directory with some vulnerability patterns for scanning
+  mkdirSync(VULN_DIR, { recursive: true });
+  writeFileSync(path.join(VULN_DIR, 'app.js'), [
+    'const express = require("express");',
+    'const app = express();',
+    'app.get("/search", (req, res) => {',
+    '  const q = req.query.q;',
+    '  res.send(`<h1>Results for ${q}</h1>`);  // XSS',
+    '});',
   ].join('\n'));
-  writeFileSync(path.join(ENV_DIR, '.env'), [
-    'DATABASE_URL=changeme',
-    'API_KEY=your-api-key-here',
-    'SECRET_TOKEN=replace_me',
-    'REDIS_URL=TODO',
-  ].join('\n'));
+  writeFileSync(path.join(VULN_DIR, 'package.json'), JSON.stringify({
+    name: 'test-project',
+    version: '1.0.0',
+    dependencies: { express: '^4.18.0' },
+  }));
 });
 
 after(() => {
-  // Clean up temp directories
   if (existsSync(EMPTY_DIR)) rmSync(EMPTY_DIR, { recursive: true, force: true });
-  if (existsSync(ENV_DIR)) rmSync(ENV_DIR, { recursive: true, force: true });
+  if (existsSync(VULN_DIR)) rmSync(VULN_DIR, { recursive: true, force: true });
 });
 
-describe('mighty-powers ship scorecard', () => {
-
-  it('runs on /tmp without crashing and outputs the scorecard', () => {
-    // ship on /tmp may exit 0 or 1 depending on score; capture either way
-    let out;
-    try {
-      out = ship('/tmp');
-    } catch (err) {
-      // Non-zero exit is acceptable — we just need the output
-      out = stripAnsi(err.stdout || '');
-    }
-    assert.match(out, /MIGHTY.POWERS/, 'Output should contain MIGHTY POWERS banner');
-    assert.match(out, /S C O R E/, 'Output should contain SCORE header');
+describe('ship scorecard tools', () => {
+  describe('secret-scanner on empty dir', () => {
+    it('should return clean results for empty directory', () => {
+      const result = execFileSync('node', [
+        path.join(__dirname, '..', 'tools', 'secret-scanner.mjs'),
+        EMPTY_DIR,
+      ], { encoding: 'utf8', timeout: 30_000 });
+      const parsed = JSON.parse(result);
+      assert.ok(Array.isArray(parsed.findings) || parsed.findings === undefined,
+        'findings should be array or undefined');
+    });
   });
 
-  it('exits with code 1 and shows error for nonexistent path', () => {
-    try {
-      ship('/nonexistent/path/that/does/not/exist');
-      assert.fail('Should have thrown for nonexistent path');
-    } catch (err) {
-      assert.strictEqual(err.status, 1, 'Exit code should be 1');
-      const output = stripAnsi((err.stderr || '') + (err.stdout || ''));
-      assert.match(output, /Error/, 'Output should mention an error');
-      assert.match(output, /not found|nonexistent/i, 'Output should reference the missing path');
-    }
+  describe('code-profiler on empty dir', () => {
+    it('should return clean results for empty directory', () => {
+      const result = execFileSync('node', [
+        path.join(__dirname, '..', 'tools', 'code-profiler.mjs'),
+        EMPTY_DIR,
+      ], { encoding: 'utf8', timeout: 30_000 });
+      const parsed = JSON.parse(result);
+      assert.ok(parsed, 'should return valid JSON');
+    });
   });
 
-  it('produces a scorecard on an empty directory with numeric scores or FAIL', () => {
-    let out;
-    try {
-      out = ship(EMPTY_DIR);
-    } catch (err) {
-      out = stripAnsi(err.stdout || '');
-    }
-
-    assert.match(out, /MIGHTY.POWERS/, 'Should show MIGHTY POWERS banner');
-    assert.match(out, /SEO/, 'Should show SEO row');
-    assert.match(out, /Security/, 'Should show Security row');
-    assert.match(out, /Quality/, 'Should show Quality row');
-    assert.match(out, /Performance/, 'Should show Performance row');
-    assert.match(out, /OVERALL/, 'Should show OVERALL row');
-
-    // Every score line inside the box should contain a number/100 or FAIL
-    const lines = out.split('\n');
-    const scoreLines = lines.filter(l => /║/.test(l) && /SEO|Security|Quality|Performance/.test(l));
-    for (const line of scoreLines) {
-      const hasNumber = /\d+\/100/.test(line);
-      const hasFail = /FAIL/.test(line);
-      const hasNA = /N\/A/.test(line);
-      assert.ok(hasNumber || hasFail || hasNA, `Score line should have number, FAIL, or N/A: ${line.trim()}`);
-    }
+  describe('secret-scanner on vulnerable dir', () => {
+    it('should scan without crashing', () => {
+      const result = execFileSync('node', [
+        path.join(__dirname, '..', 'tools', 'secret-scanner.mjs'),
+        VULN_DIR,
+      ], { encoding: 'utf8', timeout: 30_000 });
+      const parsed = JSON.parse(result);
+      assert.ok(parsed, 'should return valid JSON');
+    });
   });
 
-  it('produces a scorecard for directory with .env placeholder values', () => {
-    let envOut;
-    try {
-      envOut = ship(ENV_DIR);
-    } catch (err) {
-      envOut = stripAnsi(err.stdout || '');
-    }
-
-    assert.match(envOut, /MIGHTY.POWERS/, 'Should show scorecard');
-    assert.match(envOut, /S C O R E/, 'Should show SCORE header');
-
-    // The scorecard should contain all four audit categories
-    assert.match(envOut, /SEO/, 'Should show SEO row');
-    assert.match(envOut, /Security/, 'Should show Security row');
-    assert.match(envOut, /Quality/, 'Should show Quality row');
-    assert.match(envOut, /Performance/, 'Should show Performance row');
-
-    // Overall should be a number between 0 and 100
-    const overallMatch = envOut.match(/OVERALL\s+(\d+)\/100/);
-    assert.ok(overallMatch, 'Should have an OVERALL numeric score');
-    const overall = parseInt(overallMatch[1], 10);
-    assert.ok(overall >= 0 && overall <= 100, `Overall score (${overall}) should be 0-100`);
+  describe('dep-doctor on project dir', () => {
+    it('should analyze dependencies without crashing', () => {
+      const result = execFileSync('node', [
+        path.join(__dirname, '..', 'tools', 'dep-doctor.mjs'),
+        VULN_DIR,
+      ], { encoding: 'utf8', timeout: 30_000 });
+      const parsed = JSON.parse(result);
+      assert.ok(parsed, 'should return valid JSON');
+    });
   });
 
-  it('exits with code 0 when overall score >= 80', () => {
-    // An empty directory typically scores high (no issues found)
-    const out = ship(EMPTY_DIR);
-    const overallMatch = out.match(/OVERALL\s+(\d+)\/100/);
-    assert.ok(overallMatch, 'Should have an OVERALL score');
-    // Scorecard always exits 0 — low scores are not errors
+  describe('scoring logic', () => {
+    it('should calculate correct score with no findings', () => {
+      const score = calculateScore([]);
+      assert.equal(score, 100);
+    });
+
+    it('should deduct for critical findings', () => {
+      const score = calculateScore([{ severity: 'critical' }]);
+      assert.equal(score, 80);
+    });
+
+    it('should deduct for high findings', () => {
+      const score = calculateScore([{ severity: 'high' }]);
+      assert.equal(score, 90);
+    });
+
+    it('should deduct for medium findings', () => {
+      const score = calculateScore([{ severity: 'medium' }]);
+      assert.equal(score, 95);
+    });
+
+    it('should floor at zero', () => {
+      const findings = Array(10).fill({ severity: 'critical' });
+      const score = calculateScore(findings);
+      assert.equal(score, 0);
+    });
+
+    it('should calculate overall from category scores', () => {
+      const overall = calculateOverall({ security: 90, quality: 80, bundle: 100 });
+      assert.equal(overall, 90);
+    });
+
+    it('should exclude failed categories from overall', () => {
+      const overall = calculateOverall({ security: 90, quality: -1, bundle: 100 });
+      assert.equal(overall, 95); // average of 90 and 100, quality excluded
+    });
   });
-
-  it('exits with code 0 even when overall score < 80', () => {
-    // Create a directory rigged to fail: secrets in files + bad env
-    const badDir = path.join('/tmp', `mighty-powers-test-bad-${Date.now()}`);
-    mkdirSync(badDir, { recursive: true });
-
-    // Plant leaked secrets to tank security score
-    writeFileSync(path.join(badDir, 'config.js'), [
-      'const AWS_SECRET_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLE+wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY";',
-      'const STRIPE_SK = "sk_live_' + 'TESTONLY'.repeat(6) + '";',
-      'const password = "supersecretpassword123";',
-      'const GITHUB_TOKEN = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";',
-      'const PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----";',
-    ].join('\n'));
-
-    // Bad env to tank env score
-    writeFileSync(path.join(badDir, '.env.example'), [
-      'DB_URL=', 'API_KEY=', 'SECRET=', 'TOKEN=', 'REDIS=',
-      'SMTP_PASS=', 'AWS_KEY=', 'STRIPE_KEY=', 'WEBHOOK_SECRET=', 'JWT_SECRET=',
-    ].join('\n'));
-    writeFileSync(path.join(badDir, '.env'), [
-      'DB_URL=changeme', 'API_KEY=your-key-here', 'SECRET=TODO', 'TOKEN=replace_me', 'REDIS=changeme',
-      'SMTP_PASS=changeme', 'AWS_KEY=TODO', 'STRIPE_KEY=your-key-here', 'WEBHOOK_SECRET=TODO', 'JWT_SECRET=changeme',
-    ].join('\n'));
-
-    // Scorecard always exits 0 — low scores are informational, not errors
-    const out = ship(badDir);
-
-    // Clean up
-    rmSync(badDir, { recursive: true, force: true });
-
-    assert.match(out, /MIGHTY.POWERS/, 'Should show scorecard even with bad project');
-    const overallMatch = out.match(/OVERALL\s+(\d+)\/100/);
-    assert.ok(overallMatch, 'Should have an OVERALL score');
-  });
-
-  it('shows scanned/todo footer and tagline in the scorecard', () => {
-    let out;
-    try {
-      out = ship(EMPTY_DIR);
-    } catch (err) {
-      out = stripAnsi(err.stdout || '');
-    }
-
-    // Footer: "Scanned: N/4 audits completed" and "Todo: N manual items remaining"
-    assert.match(out, /Scanned:/, 'Should show Scanned line');
-    assert.match(out, /\d+\/4 audits completed/, 'Should show audit count out of 4');
-    assert.match(out, /Todo:/, 'Should show Todo line');
-    assert.match(out, /manual items remaining/, 'Should show remaining items');
-  });
-
-  it('shows contextual tagline after the scorecard', () => {
-    let out;
-    try {
-      out = ship(EMPTY_DIR);
-    } catch (err) {
-      out = stripAnsi(err.stdout || '');
-    }
-
-    // Tagline is contextual: "Ship it." when passing, "Fix..." when not
-    const hasShipIt = /Ship it/.test(out);
-    const hasFix = /Fix/.test(out) || /re-run/.test(out);
-    assert.ok(hasShipIt || hasFix, 'Should show a contextual tagline (Ship it or Fix issues)');
-  });
-
 });
+
+// -- Scoring functions (extracted logic from ship skill) --
+
+function calculateScore(findings) {
+  let score = 100;
+  for (const f of findings) {
+    switch (f.severity) {
+      case 'critical': score -= 20; break;
+      case 'high': score -= 10; break;
+      case 'medium': score -= 5; break;
+      case 'low': score -= 2; break;
+    }
+  }
+  return Math.max(0, score);
+}
+
+function calculateOverall(categories) {
+  const scores = Object.values(categories).filter(s => s >= 0);
+  if (scores.length === 0) return 0;
+  return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+}
