@@ -76,6 +76,22 @@ vi.mock('@/lib/db', () => ({
 }));
 ```
 
+## Testability Triage (run after architecture, before first test)
+
+Before writing any tests, classify every file in the project into one of three categories:
+
+| Class | Description | Coverage target |
+|-------|-------------|-----------------|
+| **A — Fully testable** | Pure functions, API route handlers, lib utilities, server actions | ≥ 85% statement |
+| **B — Partially testable** | Components with side-effects, hooks, context providers | ≥ 30% statement |
+| **C — Browser-only / untestable** | Next.js page components that require full render context, client components with complex browser interactions | 0% — excluded from target |
+
+**Write this list down** alongside the mock strategy. One line per file: `src/app/api/documents/route.ts — Class A (mock Clerk + Neon)`.
+
+**Calculate the coverage target against Class A + B files only.** Report aggregate coverage, but also report A+B-only coverage separately. Do not let untestable Class C files drag the aggregate below the Class A target.
+
+This prevents the "39% overall but 83–100% on API routes" situation where the number looks bad but the testable layer is actually well covered.
+
 ---
 
 ## Per-Feature Red-Green Pairing

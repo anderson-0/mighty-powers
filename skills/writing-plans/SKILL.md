@@ -60,11 +60,35 @@ Required sections (keep it short — the goal is precision, not length):
 ## Dependency Mock Plan
 <!-- For each external dependency: "Clerk auth → mock via vi.mock('@clerk/nextjs/server')" -->
 <!-- See TDD skill for the full mock strategy. -->
+
+## Library Integration Notes
+<!-- Record known quirks BEFORE coding. One line per gotcha. -->
+<!-- Examples:
+  - shadcn/ui: `npx shadcn init` may use Base UI primitives (not Radix) — check if `asChild` prop exists on Button before using it
+  - Neon: use tagged template literals `sql\`...\`` — not `sql.query()` or string interpolation
+  - AI SDK v6: `usage.inputTokens` / `usage.outputTokens` (not `promptTokens`/`completionTokens`) — both can be undefined, guard with `?? 0`
+  - Clerk: `auth()` returns a Promise in App Router — always `await auth()`; complex return types require `as any` in vi.mock
+-->
 ```
 
-**Why this matters:** The BMAD methodology completed 6 features in 10 turns with zero schema drift and zero API surface mismatches, compared to 20 turns with one genuine regression for runs without this artifact. The architecture note takes half a turn to write and eliminates an entire class of mid-build correction turns.
+**Why this matters:** The BMAD methodology completed 6 features in 10 turns with zero schema drift and zero API surface mismatches, compared to 20 turns with one genuine regression for runs without this artifact. Runs that included library integration notes in the architecture doc accumulated 0 TypeScript errors; the run without a doc accumulated 4 type errors from the exact gotchas this section captures. The architecture note takes half a turn to write and eliminates an entire class of mid-build correction turns.
 
 Write this before any task definitions. If writing the architecture note surfaces design questions, resolve them here — not during implementation.
+
+**Turn efficiency tip:** The architecture artifact turn can also produce the full test skeleton — test file paths, `vi.mock()` setup blocks, and `describe`/`it` names (without implementations). This collapses two turns (architecture → test scaffolding) into one. The skeleton goes in the same `docs/plans/<slug>/architecture.md` file under a "Test Skeleton" section. Implementing agents read both the architecture and the skeleton from one file.
+
+### Spec Alignment Check (after architecture, before first task)
+
+After the architecture artifact is written, do a one-pass check before writing any tasks:
+
+- [ ] Every DB column name and type matches the spec exactly
+- [ ] Every API route path, method, and response shape matches the spec exactly
+- [ ] AI SDK model slug matches the spec (`anthropic/claude-haiku-4.5` not `claude-haiku-4.5`)
+- [ ] Token field names are correct for the SDK version in use (`inputTokens`/`outputTokens` for AI SDK v6)
+- [ ] Response method is correct (`toTextStreamResponse()` not `toDataStreamResponse()`)
+- [ ] Library versions in package.json match what the architecture doc assumes
+
+Flag any discrepancy and resolve it in the architecture doc before proceeding. This costs nothing now; mid-implementation corrections cost 2–3 turns.
 
 ---
 
@@ -358,6 +382,17 @@ Key facts to include in every AI route task:
 - Model string is a plain string — no `gateway()` wrapper needed
 - `onFinish` receives `usage.inputTokens` / `usage.outputTokens` (AI SDK v6 field names)
 - Response method is `toTextStreamResponse()` — `toDataStreamResponse()` was removed in v6
+
+**Coverage targets by layer (include in your plan's quality pass task):**
+
+| Layer | Files | Statement target | Branch target |
+|-------|-------|-----------------|---------------|
+| API routes | `src/app/api/**/route.ts` | ≥ 85% | ≥ 60% |
+| Lib utilities | `src/lib/**/*.ts` | ≥ 85% | ≥ 60% |
+| UI components | `src/components/**/*.tsx` | ≥ 30% | N/A |
+| Next.js pages | `src/app/**/page.tsx` | 0% (browser-only) | N/A |
+
+Report both aggregate coverage and API-route-only coverage in the scorecard. Do not treat the aggregate as the primary metric if it includes untestable browser-only files.
 
 ---
 
