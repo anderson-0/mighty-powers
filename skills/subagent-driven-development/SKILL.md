@@ -309,7 +309,7 @@ Done!
 **Required workflow skills:**
 - **mighty-powers:git-worktrees** - REQUIRED: Set up isolated workspace before starting
 - **mighty-powers:writing-plans** - Creates the plan this skill executes
-- **mighty-powers:requesting-code-review** - Code review template for reviewer subagents
+- **mighty-powers:code-review** - Code review for reviewer subagents
 - **mighty-powers:finishing-branch** - Complete development after all tasks
 
 **Subagents should use:**
