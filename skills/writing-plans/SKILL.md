@@ -33,6 +33,41 @@ Before defining tasks, map out which files will be created or modified and what 
 
 This structure informs the wave decomposition. Tasks that touch the same files CANNOT be in the same wave.
 
+## Architecture Artifact (mandatory before tasks)
+
+Before defining any waves or tasks, write a short architecture note. This is not a design document — it's a decision lock that prevents schema drift and API surface mismatches during implementation.
+
+**Save it to:** `docs/plans/<feature-slug>/architecture.md`
+
+Required sections (keep it short — the goal is precision, not length):
+
+```markdown
+# Architecture: <Feature Name>
+
+## DB Schema
+<!-- Exact table/column names, types, constraints. Copy from spec if provided. -->
+
+## API Surface
+<!-- Exact method, path, request shape, response shape for every endpoint. -->
+
+## Component Tree
+<!-- List every file to be created: page, layout, component, lib, API route. -->
+<!-- One line per file: `src/app/api/complete/route.ts` — streaming AI completion, enforces usage limit -->
+
+## Data Flow (per feature)
+<!-- One bullet per feature: "F3: Ctrl+Enter → POST /api/complete → streamText → usage_logs insert → stream response" -->
+
+## Dependency Mock Plan
+<!-- For each external dependency: "Clerk auth → mock via vi.mock('@clerk/nextjs/server')" -->
+<!-- See TDD skill for the full mock strategy. -->
+```
+
+**Why this matters:** The BMAD methodology completed 6 features in 10 turns with zero schema drift and zero API surface mismatches, compared to 20 turns with one genuine regression for runs without this artifact. The architecture note takes half a turn to write and eliminates an entire class of mid-build correction turns.
+
+Write this before any task definitions. If writing the architecture note surfaces design questions, resolve them here — not during implementation.
+
+---
+
 ## Wave-Based Plan Structure
 
 <EXTREMELY-IMPORTANT>
@@ -288,6 +323,43 @@ def function(input):
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: PASS
 ````
+
+## Reference Templates
+
+When your plan includes AI Gateway streaming routes, copy this exact working template into the task — do not describe it in prose, paste it. This pattern caused a regression in 1 of 4 benchmark runs when the wrong API was used.
+
+**AI Gateway streaming route (Next.js App Router, AI SDK v6):**
+```typescript
+// src/app/api/complete/route.ts
+import { NextRequest } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { streamText } from 'ai';
+
+export async function POST(req: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) return new Response('Unauthorized', { status: 401 });
+
+  const { prompt } = await req.json();
+
+  const result = streamText({
+    model: 'anthropic/claude-haiku-4.5', // plain string → AI Gateway
+    prompt,
+    onFinish: async ({ usage }) => {
+      // usage.inputTokens and usage.outputTokens (NOT promptTokens/completionTokens)
+      await logUsage(userId, usage.inputTokens + usage.outputTokens);
+    },
+  });
+
+  return result.toTextStreamResponse(); // NOT toDataStreamResponse()
+}
+```
+
+Key facts to include in every AI route task:
+- Model string is a plain string — no `gateway()` wrapper needed
+- `onFinish` receives `usage.inputTokens` / `usage.outputTokens` (AI SDK v6 field names)
+- Response method is `toTextStreamResponse()` — `toDataStreamResponse()` was removed in v6
+
+---
 
 ## No Placeholders
 

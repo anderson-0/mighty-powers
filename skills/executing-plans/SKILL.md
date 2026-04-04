@@ -144,6 +144,34 @@ Agent tool:
     and whether all tests pass.
 ```
 
+## Just-in-Time Skill Loading
+
+Load skills immediately before the work they inform — not all at once at session start.
+
+**Why:** Bulk upfront skill loading adds overhead turns without proportional benefit. In benchmark runs, 2+ turns of skill loading at session start did not prevent regressions that targeted skill loading just before the relevant task did prevent.
+
+**Pattern:**
+```
+Task: implement AI streaming route
+→ Load vercel:ai-gateway NOW (just before writing this route)
+→ Write the route
+→ Move to next task
+
+Task: implement auth middleware
+→ Load vercel:auth NOW (just before writing middleware)
+→ Write the middleware
+```
+
+**Not:**
+```
+❌ Session start: load all 4+ Vercel skills
+→ implement everything from memory
+```
+
+When dispatching subagents for a task, include only the skills relevant to that task in the subagent prompt. A subagent implementing an AI route gets the AI gateway skill. A subagent implementing auth gets the auth skill. Neither gets both.
+
+---
+
 ## When to Stop and Ask for Help
 
 **STOP executing immediately when:**

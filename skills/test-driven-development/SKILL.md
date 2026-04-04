@@ -44,6 +44,63 @@ Write code before the test? Delete it. Start over.
 
 Implement fresh from tests. Period.
 
+## Test Strategy First
+
+Before writing any test, answer these two questions for the feature you're about to implement:
+
+**1. What dependencies does this feature call?**
+List every external dependency: databases, auth libraries, HTTP clients, queues, file systems.
+
+**2. How will tests reach this code?**
+For each dependency, decide upfront:
+
+| Dependency type | Testing approach |
+|----------------|-----------------|
+| Database (Postgres, Redis, etc.) | Mock the client — use `vi.mock()` or `jest.mock()` on the DB module |
+| Auth (Clerk, Auth0, etc.) | Mock the auth call — e.g., `vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn() }))` |
+| HTTP APIs / AI providers | Mock the SDK call — never make real network calls in unit tests |
+| Pure functions, utilities | No mocks needed — test directly |
+| UI components | `@testing-library/react` + mock any data-fetching hooks |
+
+**Decision: write this down before the first test.** One sentence per dependency: "I will mock X by doing Y." If you can't answer this for a dependency, the design may need adjustment (dependency injection, module boundary, etc.).
+
+**API routes are not exempt.** If you're building API routes, you must mock the auth and DB layers. Declaring them "untestable without live infrastructure" is a test design failure, not a framework limitation. Ultraship and Superpowers achieve 85–100% API route coverage using mocks. So can you.
+
+Example mock setup for a Next.js API route with Clerk + Neon:
+```typescript
+vi.mock('@clerk/nextjs/server', () => ({
+  auth: vi.fn().mockResolvedValue({ userId: 'user_test123' }),
+}));
+vi.mock('@/lib/db', () => ({
+  sql: vi.fn(),
+}));
+```
+
+---
+
+## Per-Feature Red-Green Pairing
+
+**MANDATORY: One feature at a time. Complete the full RED-GREEN-REFACTOR cycle before starting the next feature.**
+
+Do NOT write all tests for all features first, then implement all features. That is batch-testing, not TDD. It means:
+- You never see individual tests fail for their specific feature
+- Coverage gaps hide until the end
+- Regressions across features go undetected during implementation
+
+The correct sequence for N features:
+```
+Feature 1: RED → verify fail → GREEN → verify pass → REFACTOR → commit
+Feature 2: RED → verify fail → GREEN → verify pass → REFACTOR → commit
+Feature 3: RED → verify fail → GREEN → verify pass → REFACTOR → commit
+```
+
+Not:
+```
+❌ Write all tests → implement all features → verify
+```
+
+---
+
 ## Red-Green-Refactor
 
 ```dot
