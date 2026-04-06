@@ -112,13 +112,13 @@ Always start with `mighty-powers:systematic-debugging` — 4-phase root cause pr
 
 ### Supporting skills (available in all tiers)
 
-| Skill | When |
-|-------|------|
-| `mighty-powers:test-driven-development` | During ANY code writing — write test first, then code |
-| `mighty-powers:systematic-debugging` | ANY bug or unexpected behavior — root cause first |
-| `mighty-powers:git-worktrees` | When you need an isolated workspace |
-| `mighty-powers:finishing-branch` | When branch is ready to merge/PR |
-| `mighty-powers:dispatching-parallel-agents` | When plan has independent parallelizable tasks |
+| Phase | Skill | When |
+|-------|-------|------|
+| **BUILD** | `mighty-powers:test-driven-development` | During ANY code writing — write test first, then code |
+| **BUILD** | `mighty-powers:systematic-debugging` | ANY bug or unexpected behavior — root cause first |
+| **BUILD** | `mighty-powers:git-worktrees` | When you need an isolated workspace |
+| **VERIFY** | `mighty-powers:finishing-branch` | When branch is ready to merge/PR |
+| **BUILD** | `mighty-powers:dispatching-parallel-agents` | When plan has independent parallelizable tasks |
 
 ## Track 2: Lifecycle Track (use only when needed)
 
@@ -173,14 +173,14 @@ brief       design       check-ready    Track skills
 
 **For:** Quality gates, security checks, pre-deploy verification, incidents. These are invoked explicitly or at natural checkpoints, not as part of a development flow.
 
-| Skill | When |
-|-------|------|
-| `mighty-powers:guard` | Manage safety guardrails, freeze directories |
-| `mighty-powers:security-audit` | User asks to audit security, or before shipping sensitive changes |
-| `mighty-powers:pentest` | User asks for penetration testing |
-| `mighty-powers:ship` | Pre-deploy scorecard — user asks "are we ready to ship?" |
-| `mighty-powers:architecture-map` | User asks for architecture diagrams |
-| `mighty-powers:rescue` | Production incident — diagnostics, rollback, post-mortem |
+| Phase | Skill | When |
+|-------|-------|------|
+| **VERIFY** | `mighty-powers:guard` | Manage safety guardrails, freeze directories |
+| **REVIEW** | `mighty-powers:security-audit` | User asks to audit security, or before shipping sensitive changes |
+| **REVIEW** | `mighty-powers:pentest` | User asks for penetration testing |
+| **SHIP** | `mighty-powers:ship` | Pre-deploy scorecard — user asks "are we ready to ship?" |
+| **DEFINE** | `mighty-powers:architecture-map` | User asks for architecture diagrams |
+| **SHIP** | `mighty-powers:rescue` | Production incident — diagnostics, rollback, post-mortem |
 
 ## Track 4: Knowledge & Advanced (on-demand)
 

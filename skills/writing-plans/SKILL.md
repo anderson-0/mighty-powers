@@ -18,9 +18,54 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 **Save plans to:** `docs/plans/<feature-slug>/` (see Output Structure below)
 - (User preferences for plan location override this default)
 
+## Complexity Gate
+
+Before doing anything else, assess plan complexity:
+
+**Simple** — all of the following are true:
+- ≤ 3 features or independent units of work
+- Single session (estimably < 2 hours)
+- Single contributor
+
+**Complex** — anything else.
+
+**If Simple:** Skip wave folders, skip status.yaml, skip plan review subagent, skip cost estimation. Output a single flat `plan.md` with tasks as numbered sections. Still do the architecture artifact, TDD mode decision, and spec alignment check — those pay off at any scale.
+
+**If Complex:** Full structure — wave folders, task files, status.yaml, plan review subagent.
+
+Record the assessment in the plan header: `**Complexity:** Simple | Complex`
+
+---
+
 ## Scope Check
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+
+## TDD Mode
+
+Before defining tasks, establish the testing discipline for this plan. Ask the user:
+
+> "Do you want strict TDD (tests written before implementation, RED confirmed before GREEN per task), or should I decide based on task type?"
+
+**If the user says decide:** Apply this heuristic per task:
+
+| Task type | Default mode | Reason |
+|---|---|---|
+| API routes, business logic, data access | **Strict TDD** | Clear inputs/outputs; RED phase catches wrong assumptions before code is written |
+| UI components with user interaction | **Strict TDD** | Ctrl+Enter, form submit, dialog confirm — all testable and benefit from spec-first |
+| Pure UI layout / styling | **Test-after** | No meaningful unit test to write first; visual output isn't testable this way |
+| Scaffolding, config, migrations | **Test-after** | Setup code with no inputs/outputs to specify upfront |
+| One-off scripts | **Test-after** | Friction without benefit |
+
+**Record the decision** in the plan header:
+
+```markdown
+**TDD Mode:** Strict (all tasks) | Mixed (strict for API/logic, test-after for UI layout) | Test-after (all tasks)
+```
+
+Tasks using strict TDD must include the RED step (write failing test, run it, confirm FAIL) before the GREEN step (implement, run, confirm PASS). Tasks using test-after write tests after implementation and verify PASS only.
+
+**Why this matters:** Strict TDD takes longer wall-clock time but catches design errors before implementation. Test-after is faster but tests are written to match existing behavior, not to specify intended behavior. Make the trade-off explicit so the executing agent applies it consistently rather than guessing per task.
 
 ## File Structure
 
@@ -414,25 +459,11 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - **Wave numbering**: Task 1.1, 1.2 (wave 1), Task 2.1, 2.2 (wave 2), etc.
 - **Dependency annotations**: Each wave header states what it depends on
 
-## Self-Review
+## Plan Review Agent
 
-After writing the complete plan, check:
+*Skip if Simple plan (see Complexity Gate).*
 
-**1. Spec coverage:** Skim each section/requirement in the spec. Can you point to a task that implements it? List any gaps.
-
-**2. Placeholder scan:** Search your plan for red flags — any of the patterns from the "No Placeholders" section above. Fix them.
-
-**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 1.2 but `clearFullLayers()` in Task 2.1 is a bug.
-
-**4. Wave integrity:** For each wave, verify that tasks within it are truly independent — no shared files, no data dependencies between tasks in the same wave. If two tasks touch the same file, they must be in different waves.
-
-**5. Parallelism maximization:** Could any task in Wave N+1 actually run in Wave N? If a task only depends on one specific Wave N task (not all of them), check if it could be restructured to be independent.
-
-If you find issues, fix them inline. If you find a spec requirement with no task, add the task.
-
-**Plan Review Agent:**
-
-After self-review, dispatch a review subagent for a second opinion:
+Dispatch a review subagent for a second opinion:
 
 ```
 Agent tool:
@@ -451,46 +482,11 @@ Agent tool:
 
 If the reviewer finds issues, fix them before presenting execution options.
 
-## Cost Estimation
-
-Before presenting execution options, estimate the subagent cost:
-
-**Per task, estimate tokens based on complexity:**
-
-| Task Complexity | Est. Input Tokens | Est. Output Tokens | Recommended Model |
-|----------------|-------------------|--------------------|--------------------|
-| Simple (1-2 files, clear spec) | ~2K | ~1K | haiku |
-| Standard (multi-file, some judgment) | ~5K | ~3K | sonnet |
-| Complex (architecture, integration) | ~10K | ~5K | opus |
-
-**Per task, add review overhead:**
-- Spec reviewer: ~2K input + ~1K output (sonnet)
-- Code quality reviewer: ~3K input + ~1K output (sonnet)
-
-**Present to user:**
-
-```
-Execution Cost Estimate:
-  Wave 1: 3 tasks × haiku     ≈ $0.02
-  Wave 2: 2 tasks × sonnet    ≈ $0.08
-  Wave 3: 1 task × sonnet     ≈ $0.04
-  Reviews: 6 tasks × sonnet   ≈ $0.12
-  ─────────────────────────────
-  Estimated total:             ≈ $0.26
-
-  Note: Estimates assume standard task sizes. Actual costs depend on
-  code complexity and review iterations.
-```
-
-This is an estimate, not a gate — the user decides whether to proceed. The purpose is transparency so there are no surprises.
-
 ## Execution Handoff
 
-After saving the plan, offer execution choice with cost estimate:
+After saving the plan, offer execution choice:
 
 **"Plan complete and saved to `docs/plans/<filename>.md`. It has N waves with M total tasks.**
-
-**Estimated cost: ~$X.XX (based on task complexity and model selection)**
 
 **Execution options:**
 

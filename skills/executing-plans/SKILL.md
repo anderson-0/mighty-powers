@@ -172,6 +172,30 @@ When dispatching subagents for a task, include only the skills relevant to that 
 
 ---
 
+## Mandatory Verification Checklist
+
+Before marking any task or wave as complete, run through this checklist. Do not mark `status: completed` until all applicable items are checked.
+
+**Per task:**
+- [ ] All tests for this task pass (`npm test` or equivalent)
+- [ ] No TypeScript errors in modified files (`tsc --noEmit`)
+- [ ] No ESLint violations in modified files
+- [ ] Output is clean — no unexpected warnings or errors in test output
+
+**Per wave checkpoint:**
+- [ ] Full test suite passes (not just the task's tests)
+- [ ] Coverage has not regressed from pre-wave baseline
+- [ ] All task files referenced in the plan have been created or modified as specified
+
+**Before final completion:**
+- [ ] All waves completed
+- [ ] Full test suite green
+- [ ] No TypeScript errors across entire project
+- [ ] No ESLint violations across entire project
+- [ ] Feature works end-to-end (not just unit tests)
+
+**If any item fails:** Stop. Fix it before proceeding. Do not skip a failing check and continue.
+
 ## When to Stop and Ask for Help
 
 **STOP executing immediately when:**

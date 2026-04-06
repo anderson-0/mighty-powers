@@ -276,6 +276,41 @@ Next failing test for next feature.
 | **Clear** | Name describes behavior | `test('test1')` |
 | **Shows intent** | Demonstrates desired API | Obscures what code should do |
 
+## DAMP Over DRY in Tests
+
+Tests should be **Descriptive And Meaningful Prose**, not maximally DRY.
+
+**DRY in production code** — good. Shared helpers, single source of truth, fewer places to update.
+
+**DRY in tests** — harmful. When you extract too much into helpers and factories, tests lose context. A failing test should tell you exactly what broke without requiring you to trace through setup helpers.
+
+**Prefer DAMP:**
+
+```typescript
+// ❌ DRY — what does this test? You have to read makeUser(), makeAuth(), makeRequest()
+test('blocks unauthorized deck deletion', async () => {
+  const { user, deck } = await makeFixture('deck-with-owner');
+  const response = await makeRequest('DELETE', `/api/decks/${deck.id}`, makeAuth('other-user'));
+  expect(response.status).toBe(403);
+});
+
+// ✅ DAMP — the test tells the whole story inline
+test('blocks unauthorized deck deletion', async () => {
+  vi.mocked(auth).mockResolvedValue({ userId: 'user-B' });
+  vi.mocked(db.query).mockResolvedValue({ rows: [{ user_id: 'user-A' }] });
+
+  const response = await DELETE(mockRequest(), { params: { id: 'deck-123' } });
+
+  expect(response.status).toBe(403);
+});
+```
+
+**Rules:**
+- Inline mock values in each test — even if repeated across tests
+- Share helpers only when they validate behavior (not just set up state)
+- If deleting a helper would require rewriting tests, keep it. If tests could be written without it, inline instead.
+- Test names should be complete sentences: `'returns 403 when userId does not match deck owner'`
+
 ## Why Order Matters
 
 **"I'll write tests after to verify it works"**

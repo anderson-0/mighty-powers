@@ -287,6 +287,22 @@ These techniques are part of systematic debugging and available in this director
 - **mighty-powers:test-driven-development** - For creating failing test case (Phase 4, Step 1)
 - **mighty-powers:verification** - Verify fix worked before claiming success
 
+## Prove-It Pattern
+
+**Bug found? Write a failing test FIRST. Then fix.**
+
+```
+1. Write the smallest test that reproduces the bug
+2. Run it — watch it fail (RED)
+3. Implement the fix
+4. Run it — watch it pass (GREEN)
+5. Commit both the test and the fix together
+```
+
+The test is your proof the bug existed. The fix is your proof it's gone. Without step 2, you don't know if the test actually tested the bug. Without both committed together, the regression protection is incomplete.
+
+**Never fix bugs without a test.** A fix without a test is just hope.
+
 ## Real-World Impact
 
 From debugging sessions:
