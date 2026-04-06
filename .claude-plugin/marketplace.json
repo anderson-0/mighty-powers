@@ -1,4 +1,5 @@
 {
+  "name": "mighty-powers",
   "owner": {
     "name": "anderson-0",
     "url": "https://github.com/anderson-0"
@@ -7,6 +8,7 @@
     {
       "name": "mighty-powers",
       "description": "Full-lifecycle development plugin: analysis, planning, solutioning, implementation, auditing, and deployment. 42 skills, 20 tools, 6 agents.",
+      "source": "./",
       "keywords": [
         "tdd",
         "debugging",
