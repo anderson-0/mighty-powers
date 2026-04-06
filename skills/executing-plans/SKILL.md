@@ -26,8 +26,19 @@ Load plan, review critically, execute wave-by-wave (parallel where tasks are ind
 ### Step 2: Execute Wave by Wave
 
 <EXTREMELY-IMPORTANT>
-After EVERY state change, update `status.yaml`. This is how we survive session crashes.
-If the IDE crashes mid-execution, `/resume` reads this file to pick up exactly where we stopped.
+MANDATORY: You MUST update `status.yaml` IMMEDIATELY after every state change. This is not optional. Do NOT proceed to the next action until the status file is written.
+
+**After every subagent returns or task completes, your NEXT action MUST be updating status.yaml. Not reviewing output. Not dispatching the next task. Update status.yaml FIRST, then proceed.**
+
+If the IDE crashes mid-execution, `/resume` reads this file to pick up exactly where we stopped. If you skip updates, all progress is lost on crash.
+
+Update at EACH of these moments — no exceptions:
+1. Wave starts → wave status: `in_progress`, `started_at`
+2. Task dispatched → task status: `in_progress`, `started_at`, `assigned_model`
+3. Task completes → task status: `completed`, `completed_at`
+4. Task fails → task status: `failed`, error summary
+5. Wave checkpoint done → `checkpoint.tests_passed`, wave status
+6. All waves done → top-level status: `completed`
 </EXTREMELY-IMPORTANT>
 
 **For each wave:**
@@ -39,8 +50,9 @@ If the IDE crashes mid-execution, `/resume` reads this file to pick up exactly w
    - **Mixed**: dispatch parallel group first, then sequential tasks after
    - **Single task**: just run it
 3. For each subagent dispatched:
-   - For medium+ plans: each subagent reads its own task file (self-contained context)
-   - For small plans: provide the task section content in the Agent prompt
+   - For waves with separate task files (> 5 tasks): each subagent reads its own task file (self-contained context)
+   - For waves with inline tasks (≤ 5 tasks): subagent reads the wave's `wave.md` which contains all task definitions; point it to the specific task heading
+   - For small plans (no wave folders): provide the task section content in the Agent prompt
    - Use appropriate model per task complexity (haiku/sonnet/opus)
 4. As each task completes:
    - Update `status.yaml`: task status → `completed`, `completed_at` → now
@@ -106,7 +118,7 @@ After all waves complete and verified:
 
 When dispatching parallel tasks in a wave, each subagent gets:
 
-**For medium+ plans (separate task files):**
+**For waves with separate task files (> 5 tasks in the wave):**
 ```
 Agent tool:
   description: "Task 2.1: <component name>"
@@ -124,7 +136,26 @@ Agent tool:
     and whether all tests pass.
 ```
 
-**For small plans (inline tasks):**
+**For waves with inline tasks (≤ 5 tasks in the wave):**
+```
+Agent tool:
+  description: "Task 1.2: <component name>"
+  model: <haiku|sonnet|opus>
+  prompt: |
+    You are implementing a task from an implementation plan.
+    Read the wave file at: <path to wave-N/wave.md>
+    Find and implement Task N.M in that file.
+
+    The wave file contains all context, file paths, code, tests,
+    and verification commands for this task.
+
+    Use TDD: write the failing test first, then implement, then verify.
+
+    When done, report: what you implemented, which files you changed,
+    and whether all tests pass.
+```
+
+**For small plans (no wave folders, everything in plan.md):**
 ```
 Agent tool:
   description: "Task 1.2: <component name>"
@@ -218,7 +249,7 @@ Before marking any task or wave as complete, run through this checklist. Do not 
 **Don't force through blockers** - stop and ask.
 
 ## Remember
-- **Update status.yaml after every state change** — this is non-negotiable
+- **Update status.yaml IMMEDIATELY after every state change** — your NEXT action after a task completes MUST be writing status.yaml before doing anything else. This is non-negotiable.
 - Review plan critically first
 - Follow plan steps exactly
 - Don't skip verifications

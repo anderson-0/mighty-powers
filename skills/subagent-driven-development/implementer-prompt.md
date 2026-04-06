@@ -10,7 +10,10 @@ Task tool (general-purpose):
 
     ## Task Description
 
-    [FULL TEXT of task from plan - paste it here, don't make subagent read file]
+    [FULL TEXT of task from plan - paste it here, or point to the file:
+     - If task has its own file (wave has > 5 tasks): "Read task file at: <path>"
+     - If task is inline in wave.md (≤ 5 tasks): paste the task section here
+     - For small plans: paste from plan.md]
 
     ## Context
 

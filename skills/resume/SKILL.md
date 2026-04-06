@@ -65,7 +65,7 @@ For the task being resumed, reconstruct full context by reading:
 
 1. **The plan file** (`plan.md`) — for overall goal, architecture, tech stack
 2. **The wave file** (`wave-N/wave.md`) — for wave dependencies and checkpoint criteria
-3. **The task file** (`wave-N/task-N.M.md`) — for full task spec with steps, files, code
+3. **The task spec** — either from a separate file (`wave-N/task-N.M.md`) if the wave has > 5 tasks, or from the wave index (`wave-N/wave.md`) if tasks are inline
 4. **Files listed in `context_files`** in status.yaml — source files the task touches
 5. **Git state** — check what changes exist since the wave started:
    ```bash
@@ -77,8 +77,8 @@ For the task being resumed, reconstruct full context by reading:
 ### Step 4: Resume Execution
 
 **For an in-progress task:**
-1. Check which steps in the task file are already done (look for created/modified files, passing tests)
-2. Mark completed steps as done in the task file
+1. Check which steps in the task spec are already done (look for created/modified files, passing tests)
+2. Mark completed steps as done (in the task file if separate, or note progress in status.yaml if inline)
 3. Continue from the first incomplete step
 4. Use `mighty-powers:test-driven-development` during execution
 5. When task completes, update `status.yaml`

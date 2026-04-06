@@ -183,25 +183,58 @@ Choose the output format based on plan complexity:
 
 ### Medium+ plans (3+ waves, or multi-session work)
 
-Create a folder with separate files for waves and tasks:
+Create a folder with a wave subfolder per wave. Each wave folder always has an index file (`wave.md`). Whether tasks get separate files depends on how many tasks the wave contains:
+
+- **≤ 5 tasks in a wave:** Tasks are written inline in the wave's `wave.md` index file.
+- **> 5 tasks in a wave:** Each task gets its own markdown file (`task-N.M.md`) alongside `wave.md`.
 
 ```
 docs/plans/<feature-slug>/
 ├── plan.md                 # Overview: goal, architecture, wave summary, dependency graph
 ├── status.yaml             # Execution state — THE resume file (see mighty-powers:resume)
-├── wave-1/
-│   ├── wave.md             # Wave overview, entry criteria, checkpoint criteria
-│   ├── task-1.1.md         # Self-contained task with ALL context for a subagent
-│   ├── task-1.2.md
-│   └── task-1.3.md
-├── wave-2/
-│   ├── wave.md
+├── wave-1/                 # 3 tasks → inline in wave.md
+│   └── wave.md             # Wave overview + entry/checkpoint criteria + all task definitions
+├── wave-2/                 # 7 tasks → separate task files
+│   ├── wave.md             # Wave overview + entry/checkpoint criteria + task index (names + links)
 │   ├── task-2.1.md
-│   └── task-2.2.md
-└── wave-3/
-    ├── wave.md
-    └── task-3.1.md
+│   ├── task-2.2.md
+│   ├── task-2.3.md
+│   ├── task-2.4.md
+│   ├── task-2.5.md
+│   ├── task-2.6.md
+│   └── task-2.7.md
+└── wave-3/                 # 1 task → inline in wave.md
+    └── wave.md
 ```
+
+### Wave index file format (wave.md)
+
+The wave index always starts with the wave header:
+
+```markdown
+# Wave 2: Core Logic
+
+**Depends on:** Wave 1 (all tasks must be completed)
+**Tasks:** 2.1, 2.2, 2.3
+**Execution:** Parallel (tasks are independent — different files, no shared state)
+
+**Entry criteria:** Wave 1 checkpoint passed (all tests green)
+**Checkpoint criteria:** Run `npm test` — all tests must pass
+```
+
+**When tasks are inline (≤ 5 tasks):** the wave index continues with full task definitions directly after the header, using the same Task Structure format documented below. Each task uses an `### Task N.M:` heading.
+
+**When tasks are in separate files (> 5 tasks):** the wave index adds a task index table after the header:
+
+```markdown
+| Task | Name | Status | Files |
+|------|------|--------|-------|
+| 2.1  | [Retry Queue](task-2.1.md) | pending | `src/services/retry-queue.ts` |
+| 2.2  | [Dead Letter Store](task-2.2.md) | pending | `src/services/dead-letter.ts` |
+...
+```
+
+### Separate task file format (when > 5 tasks)
 
 **Each task file is self-contained** — a subagent reading ONLY that file has everything it needs:
 - Project context (goal, architecture, tech stack)
@@ -209,7 +242,6 @@ docs/plans/<feature-slug>/
 - Exact file paths, code, test code, verification commands
 - Which files to read for additional context
 
-**Task file format:**
 ````markdown
 ---
 task: "2.2"
@@ -235,18 +267,6 @@ and the config schema (Wave 1, Task 1.3).
 ## Steps
 [Full task steps with code, file paths, verification commands]
 ````
-
-**Wave file format:**
-```markdown
-# Wave 2: Core Logic
-
-**Depends on:** Wave 1 (all tasks must be completed)
-**Tasks:** 2.1, 2.2
-**Execution:** Parallel (tasks are independent — different files, no shared state)
-
-**Entry criteria:** Wave 1 checkpoint passed (all tests green)
-**Checkpoint criteria:** Run `npm test` — all tests must pass
-```
 
 ### Small plans (1-2 waves, single session)
 
@@ -294,6 +314,7 @@ waves:
 > **For agentic workers:** Execute this plan wave-by-wave using mighty-powers:subagent-driven-development.
 > Tasks within each wave are independent and should be dispatched as parallel subagents.
 > Wait for all tasks in a wave to complete before starting the next wave.
+> **MANDATORY:** Update `status.yaml` IMMEDIATELY after every task completes — before dispatching the next task or review.
 
 **Goal:** [One sentence describing what this builds]
 

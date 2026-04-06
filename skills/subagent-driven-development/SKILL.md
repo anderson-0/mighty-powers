@@ -43,14 +43,15 @@ Plans are organized into **waves**. Each wave groups tasks at the same dependenc
 
 ```
 For each wave:
-  1. Check the wave's execution mode (parallel, sequential, mixed, or single task)
-  2. Parallel tasks: dispatch as concurrent implementer subagents
+  1. Update status.yaml: wave → in_progress (DO THIS FIRST)
+  2. Check the wave's execution mode (parallel, sequential, mixed, or single task)
+  3. Parallel tasks: dispatch as concurrent implementer subagents
      (all Agent tool calls in a single response)
      Sequential tasks: dispatch one at a time
-  3. As each implementer completes → dispatch its spec reviewer
-  4. As each spec reviewer passes → dispatch its code quality reviewer
-  5. When ALL tasks in the wave pass both reviews → run wave checkpoint
-  6. Update status.yaml → proceed to next wave
+  4. As each implementer completes → UPDATE status.yaml (task → completed) → dispatch its spec reviewer
+  5. As each spec reviewer passes → dispatch its code quality reviewer
+  6. When ALL tasks in the wave pass both reviews → run wave checkpoint
+  7. Update status.yaml: wave → completed, checkpoint results → proceed to next wave
 ```
 
 ### Wave Execution Detail
@@ -68,7 +69,7 @@ All three run concurrently.
 ```
 
 Each implementer subagent:
-- Gets the task file content (self-contained context)
+- Gets the task content (from a separate task file if > 5 tasks in the wave, or from the wave's `wave.md` if ≤ 5 tasks)
 - Implements using TDD
 - Commits its changes
 - Self-reviews
@@ -104,14 +105,20 @@ After ALL waves complete:
 
 ### Status Tracking
 
-Update `status.yaml` after every state change:
-- Wave starts → wave status: in_progress
-- Task dispatched → task status: in_progress, started_at, assigned_model, context_files
-- Task completes → task status: completed, completed_at
-- Wave checkpoint → checkpoint.tests_passed, wave status: completed
-- All done → top-level status: completed
+<EXTREMELY-IMPORTANT>
+MANDATORY: You MUST update `status.yaml` IMMEDIATELY after every state change. This is not optional. Do NOT proceed to the next action until the status file is written. If you skip this, session crashes lose all progress and `/resume` cannot recover.
 
-This enables `/resume` to pick up exactly where things stopped if the session crashes.
+**Update status.yaml at EACH of these moments — no exceptions:**
+
+1. **Before dispatching a wave** → wave status: `in_progress`, `started_at`
+2. **When a task is dispatched** → task status: `in_progress`, `started_at`, `assigned_model`
+3. **When a task completes** → task status: `completed`, `completed_at`
+4. **When a task fails** → task status: `failed`, error summary
+5. **After wave checkpoint** → `checkpoint.tests_passed`, wave status: `completed` or `failed`
+6. **When all waves done** → top-level status: `completed`
+
+**Enforcement rule:** After every subagent returns, your NEXT action MUST be updating status.yaml. Not reviewing the output. Not dispatching the next task. Update status.yaml FIRST, then proceed.
+</EXTREMELY-IMPORTANT>
 
 ### Fallback: Sequential Execution
 
@@ -276,6 +283,7 @@ Done!
 ## Red Flags
 
 **Never:**
+- **Proceed to the next task or wave without updating status.yaml first** — this is the #1 cause of lost progress
 - Start implementation on main/master branch without explicit user consent
 - Skip reviews (spec compliance OR code quality)
 - Proceed with unfixed issues
