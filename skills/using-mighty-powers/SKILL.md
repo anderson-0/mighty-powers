@@ -118,7 +118,7 @@ Always start with `mighty-powers:systematic-debugging` — 4-phase root cause pr
 | **BUILD** | `mighty-powers:systematic-debugging` | ANY bug or unexpected behavior — root cause first |
 | **BUILD** | `mighty-powers:git-worktrees` | When you need an isolated workspace |
 | **VERIFY** | `mighty-powers:finishing-branch` | When branch is ready to merge/PR |
-| **BUILD** | `mighty-powers:dispatching-parallel-agents` | When plan has independent parallelizable tasks |
+| **BUILD** | `mighty-powers:dispatching-parallel-agents` | When a user request OR plan has 2+ independent tasks — dispatch in parallel, not sequentially |
 
 ## Track 2: Lifecycle Track (use only when needed)
 

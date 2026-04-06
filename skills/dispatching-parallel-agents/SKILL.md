@@ -1,6 +1,6 @@
 ---
 name: dispatching-parallel-agents
-description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
+description: Use when a user request or plan contains 2+ independent tasks that can be worked on without shared state or sequential dependencies
 ---
 
 # Dispatching Parallel Agents
@@ -9,9 +9,24 @@ description: Use when facing 2+ independent tasks that can be worked on without 
 
 You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
-When you have multiple unrelated failures (different test files, different subsystems, different bugs), investigating them sequentially wastes time. Each investigation is independent and can happen in parallel.
-
 **Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
+
+## Two Entry Points
+
+**From a user request:** When a user asks for 2+ things in one message, assess whether they are independent. If so, dispatch immediately — don't execute sequentially.
+
+Examples that qualify:
+- "Fix the auth bug and update the README" → 2 independent agents
+- "Add tests for the deck API and refactor the usage lib" → 2 independent agents
+- "Review the scorecard doc and run the completeness check" → 2 independent agents
+
+Examples that do NOT qualify (keep inline):
+- "Refactor this function and add tests for it" — tests depend on the refactored code
+- "Fix the bug and write a commit message" — commit depends on the fix
+
+**From a plan:** When executing a wave of independent tasks, dispatch one agent per task in parallel rather than executing sequentially.
+
+When you have multiple unrelated failures (different test files, different subsystems, different bugs), investigating them sequentially wastes time. Each investigation is independent and can happen in parallel.
 
 ## When to Use
 
