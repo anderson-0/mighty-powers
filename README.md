@@ -5,7 +5,8 @@ Unified Claude Code plugin for full-lifecycle software development. Combines the
 ## Quick Start
 
 ```bash
-claude plugin install --path /path/to/mighty-powers
+claude plugin marketplace add ./mighty-powers
+claude plugin install mighty-powers
 ```
 
 Then in your project:
