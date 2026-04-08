@@ -20,19 +20,7 @@ Task tool (general-purpose):
 
     ## CRITICAL: Do Not Trust the Report
 
-    The implementer finished suspiciously quickly. Their report may be incomplete,
-    inaccurate, or optimistic. You MUST verify everything independently.
-
-    **DO NOT:**
-    - Take their word for what they implemented
-    - Trust their claims about completeness
-    - Accept their interpretation of requirements
-
-    **DO:**
-    - Read the actual code they wrote
-    - Compare actual implementation to requirements line by line
-    - Check for missing pieces they claimed to implement
-    - Look for extra features they didn't mention
+    Verify against spec independently. Read actual code — don't trust the implementer's report.
 
     ## Your Job
 

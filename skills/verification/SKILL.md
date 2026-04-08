@@ -23,19 +23,15 @@ If you haven't run the verification command in this message, you cannot claim it
 
 ## The Gate Function
 
-```
-BEFORE claiming any status or expressing satisfaction:
+Before claiming any status:
 
-1. IDENTIFY: What command proves this claim?
-2. RUN: Execute the FULL command (fresh, complete)
-3. READ: Full output, check exit code, count failures
-4. VERIFY: Does output confirm the claim?
-   - If NO: State actual status with evidence
-   - If YES: State claim WITH evidence
-5. ONLY THEN: Make the claim
+1. **IDENTIFY** — What command proves this claim?
+2. **RUN** — Execute the full command (fresh, complete)
+3. **READ** — Check full output, exit code, failure count
+4. **VERIFY** — Does output confirm the claim? If NO, state actual status with evidence
+5. **CLAIM** — Only now state the result, with evidence
 
-Skip any step = lying, not verifying
-```
+Skip any step = lying, not verifying.
 
 ## Common Failures
 
@@ -60,50 +56,15 @@ Skip any step = lying, not verifying
 - Tired and wanting work over
 - **ANY wording implying success without having run verification**
 
-## Rationalization Prevention
-
-| Excuse | Reality |
-|--------|---------|
-| "Should work now" | RUN the verification |
-| "I'm confident" | Confidence ≠ evidence |
-| "Just this once" | No exceptions |
-| "Linter passed" | Linter ≠ compiler |
-| "Agent said success" | Verify independently |
-| "I'm tired" | Exhaustion ≠ excuse |
-| "Partial check is enough" | Partial proves nothing |
-| "Different words so rule doesn't apply" | Spirit over letter |
+**If you're tempted to skip verification:** don't. Run the command, read the output, confirm it matches expectations. Confidence is not evidence. No exceptions.
 
 ## Key Patterns
 
-**Tests:**
-```
-✅ [Run test command] [See: 34/34 pass] "All tests pass"
-❌ "Should pass now" / "Looks correct"
-```
-
-**Regression tests (TDD Red-Green):**
-```
-✅ Write → Run (pass) → Revert fix → Run (MUST FAIL) → Restore → Run (pass)
-❌ "I've written a regression test" (without red-green verification)
-```
-
-**Build:**
-```
-✅ [Run build] [See: exit 0] "Build passes"
-❌ "Linter passed" (linter doesn't check compilation)
-```
-
-**Requirements:**
-```
-✅ Re-read plan → Create checklist → Verify each → Report gaps or completion
-❌ "Tests pass, phase complete"
-```
-
-**Agent delegation:**
-```
-✅ Agent reports success → Check VCS diff → Verify changes → Report actual state
-❌ Trust agent report
-```
+- **Tests:** ✅ Run command, see "34/34 pass", then claim. ❌ "Should pass now."
+- **Regression:** ✅ Write test → pass → revert fix → MUST FAIL → restore → pass. ❌ "I've written a regression test."
+- **Build:** ✅ Run build, see exit 0, then claim. ❌ "Linter passed" (linter ≠ compiler).
+- **Requirements:** ✅ Re-read plan → checklist → verify each → report. ❌ "Tests pass, phase complete."
+- **Agent delegation:** ✅ Agent reports → check VCS diff → verify → report. ❌ Trust agent report.
 
 ## Why This Matters
 
@@ -116,24 +77,6 @@ From 24 failure memories:
 
 ## When To Apply
 
-**ALWAYS before:**
-- ANY variation of success/completion claims
-- ANY expression of satisfaction
-- ANY positive statement about work state
-- Committing, PR creation, task completion
-- Moving to next task
-- Delegating to agents
+**Always** — before any claim of success, completion, or satisfaction. Before committing, PRs, task completion, moving to next task, or delegating to agents. Applies to exact phrases, paraphrases, and implications alike.
 
-**Rule applies to:**
-- Exact phrases
-- Paraphrases and synonyms
-- Implications of success
-- ANY communication suggesting completion/correctness
-
-## The Bottom Line
-
-**No shortcuts for verification.**
-
-Run the command. Read the output. THEN claim the result.
-
-This is non-negotiable.
+Run the command. Read the output. THEN claim the result. Non-negotiable.

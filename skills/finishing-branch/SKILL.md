@@ -158,36 +158,17 @@ git worktree remove <worktree-path>
 | 3. Keep as-is | - | - | ✓ | - |
 | 4. Discard | - | - | - | ✓ (force) |
 
-## Common Mistakes
-
-**Skipping test verification**
-- **Problem:** Merge broken code, create failing PR
-- **Fix:** Always verify tests before offering options
-
-**Open-ended questions**
-- **Problem:** "What should I do next?" → ambiguous
-- **Fix:** Present exactly 4 structured options
-
-**Automatic worktree cleanup**
-- **Problem:** Remove worktree when might need it (Option 2, 3)
-- **Fix:** Only cleanup for Options 1 and 4
-
-**No confirmation for discard**
-- **Problem:** Accidentally delete work
-- **Fix:** Require typed "discard" confirmation
-
 ## Red Flags
 
 **Never:**
 - Proceed with failing tests
-- Merge without verifying tests on result
-- Delete work without confirmation
+- Delete work without typed "discard" confirmation
 - Force-push without explicit request
+- Clean up worktree for Options 2 or 3
 
 **Always:**
 - Verify tests before offering options
-- Present exactly 4 options
-- Get typed confirmation for Option 4
+- Present exactly 4 structured options (not open-ended questions)
 - Clean up worktree for Options 1 & 4 only
 
 ## Integration

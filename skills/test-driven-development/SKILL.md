@@ -7,146 +7,52 @@ description: Use when implementing any feature or bugfix, before writing impleme
 
 ## Overview
 
-Write the test first. Watch it fail. Write minimal code to pass.
+**Core principle:** No production code without a failing test first. No exceptions, no rationalizations. If you didn't watch the test fail, you don't know if it tests the right thing.
 
-**Core principle:** If you didn't watch the test fail, you don't know if it tests the right thing.
-
-**Violating the letter of the rules is violating the spirit of the rules.**
+Write code before the test? Delete it. Don't keep it as "reference." Don't "adapt" it. Delete means delete.
 
 ## When to Use
 
-**Always:**
-- New features
-- Bug fixes
-- Refactoring
-- Behavior changes
+**Always:** New features, bug fixes, refactoring, behavior changes.
 
-**Exceptions (ask your human partner):**
-- Throwaway prototypes
-- Generated code
-- Configuration files
-
-Thinking "skip TDD just this once"? Stop. That's rationalization.
-
-## The Iron Law
-
-```
-NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
-```
-
-Write code before the test? Delete it. Start over.
-
-**No exceptions:**
-- Don't keep it as "reference"
-- Don't "adapt" it while writing tests
-- Don't look at it
-- Delete means delete
-
-Implement fresh from tests. Period.
+**Exceptions (ask your human partner):** Throwaway prototypes, generated code, configuration files.
 
 ## Test Strategy First
 
-Before writing any test, answer these two questions for the feature you're about to implement:
-
-**1. What dependencies does this feature call?**
-List every external dependency: databases, auth libraries, HTTP clients, queues, file systems.
-
-**2. How will tests reach this code?**
-For each dependency, decide upfront:
+Before writing any test, list every external dependency and decide how to mock it:
 
 | Dependency type | Testing approach |
 |----------------|-----------------|
-| Database (Postgres, Redis, etc.) | Mock the client — use `vi.mock()` or `jest.mock()` on the DB module |
-| Auth (Clerk, Auth0, etc.) | Mock the auth call — e.g., `vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn() }))` |
-| HTTP APIs / AI providers | Mock the SDK call — never make real network calls in unit tests |
-| Pure functions, utilities | No mocks needed — test directly |
-| UI components | `@testing-library/react` + mock any data-fetching hooks |
+| Database | Mock the client (`vi.mock()` / `jest.mock()` on DB module) |
+| Auth | Mock the auth call |
+| HTTP APIs / AI providers | Mock the SDK — no real network calls |
+| Pure functions | No mocks — test directly |
+| UI components | `@testing-library/react` + mock data-fetching hooks |
 
-**Decision: write this down before the first test.** One sentence per dependency: "I will mock X by doing Y." If you can't answer this for a dependency, the design may need adjustment (dependency injection, module boundary, etc.).
-
-**API routes are not exempt.** If you're building API routes, you must mock the auth and DB layers. Declaring them "untestable without live infrastructure" is a test design failure, not a framework limitation. Ultraship and Superpowers achieve 85–100% API route coverage using mocks. So can you.
-
-Example mock setup for a Next.js API route with Clerk + Neon:
-```typescript
-vi.mock('@clerk/nextjs/server', () => ({
-  auth: vi.fn().mockResolvedValue({ userId: 'user_test123' }),
-}));
-vi.mock('@/lib/db', () => ({
-  sql: vi.fn(),
-}));
-```
+Write this down: one sentence per dependency ("I will mock X by doing Y"). If you can't answer, the design needs adjustment. API routes are not exempt — mock auth and DB layers.
 
 ## Testability Triage (run after architecture, before first test)
 
-Before writing any tests, classify every file in the project into one of three categories:
-
-| Class | Description | Coverage target |
-|-------|-------------|-----------------|
-| **A — Fully testable** | Pure functions, API route handlers, lib utilities, server actions | ≥ 85% statement |
-| **B — Partially testable** | Components with side-effects, hooks, context providers | ≥ 30% statement |
-| **C — Browser-only / untestable** | Next.js page components that require full render context, client components with complex browser interactions | 0% — excluded from target |
-
-**Write this list down** alongside the mock strategy. One line per file: `src/app/api/documents/route.ts — Class A (mock Clerk + Neon)`.
-
-**Calculate the coverage target against Class A + B files only.** Report aggregate coverage, but also report A+B-only coverage separately. Do not let untestable Class C files drag the aggregate below the Class A target.
-
-This prevents the "39% overall but 83–100% on API routes" situation where the number looks bad but the testable layer is actually well covered.
+Classify every file: **A** (fully testable: pure functions, API handlers, lib — target ≥85%), **B** (partially testable: components with side-effects — target ≥30%), **C** (browser-only — 0%, excluded). One line per file: `src/app/api/docs/route.ts — A (mock Clerk + Neon)`. Report A+B-only coverage separately from aggregate.
 
 ---
 
 ## Per-Feature Red-Green Pairing
 
-**MANDATORY: One feature at a time. Complete the full RED-GREEN-REFACTOR cycle before starting the next feature.**
-
-Do NOT write all tests for all features first, then implement all features. That is batch-testing, not TDD. It means:
-- You never see individual tests fail for their specific feature
-- Coverage gaps hide until the end
-- Regressions across features go undetected during implementation
-
-The correct sequence for N features:
-```
-Feature 1: RED → verify fail → GREEN → verify pass → REFACTOR → commit
-Feature 2: RED → verify fail → GREEN → verify pass → REFACTOR → commit
-Feature 3: RED → verify fail → GREEN → verify pass → REFACTOR → commit
-```
-
-Not:
-```
-❌ Write all tests → implement all features → verify
-```
+**One feature at a time.** Complete the full RED→GREEN→REFACTOR cycle and commit before starting the next feature. Never batch all tests first then implement — that's batch-testing, not TDD.
 
 ---
 
 ## Red-Green-Refactor
 
-```dot
-digraph tdd_cycle {
-    rankdir=LR;
-    red [label="RED\nWrite failing test", shape=box, style=filled, fillcolor="#ffcccc"];
-    verify_red [label="Verify fails\ncorrectly", shape=diamond];
-    green [label="GREEN\nMinimal code", shape=box, style=filled, fillcolor="#ccffcc"];
-    verify_green [label="Verify passes\nAll green", shape=diamond];
-    refactor [label="REFACTOR\nClean up", shape=box, style=filled, fillcolor="#ccccff"];
-    next [label="Next", shape=ellipse];
-
-    red -> verify_red;
-    verify_red -> green [label="yes"];
-    verify_red -> red [label="wrong\nfailure"];
-    green -> verify_green;
-    verify_green -> refactor [label="yes"];
-    verify_green -> green [label="no"];
-    refactor -> verify_green [label="stay\ngreen"];
-    verify_green -> next;
-    next -> red;
-}
-```
+`RED (write failing test) → verify fail → GREEN (minimal code) → verify pass → REFACTOR (clean up, stay green) → next test`
 
 ### RED - Write Failing Test
 
 Write one minimal test showing what should happen.
 
-<Good>
 ```typescript
+// Good: clear name, tests real behavior, one assertion target
 test('retries failed operations 3 times', async () => {
   let attempts = 0;
   const operation = () => {
@@ -161,27 +67,8 @@ test('retries failed operations 3 times', async () => {
   expect(attempts).toBe(3);
 });
 ```
-Clear name, tests real behavior, one thing
-</Good>
 
-<Bad>
-```typescript
-test('retry works', async () => {
-  const mock = jest.fn()
-    .mockRejectedValueOnce(new Error())
-    .mockRejectedValueOnce(new Error())
-    .mockResolvedValueOnce('success');
-  await retryOperation(mock);
-  expect(mock).toHaveBeenCalledTimes(3);
-});
-```
-Vague name, tests mock not code
-</Bad>
-
-**Requirements:**
-- One behavior
-- Clear name
-- Real code (no mocks unless unavoidable)
+**Requirements:** One behavior per test. Clear name describing behavior. Real code, no mocks unless unavoidable.
 
 ### Verify RED - Watch It Fail
 
@@ -204,8 +91,8 @@ Confirm:
 
 Write simplest code to pass the test.
 
-<Good>
 ```typescript
+// Good: just enough to pass — no options, no backoff, no YAGNI
 async function retryOperation<T>(fn: () => Promise<T>): Promise<T> {
   for (let i = 0; i < 3; i++) {
     try {
@@ -217,24 +104,6 @@ async function retryOperation<T>(fn: () => Promise<T>): Promise<T> {
   throw new Error('unreachable');
 }
 ```
-Just enough to pass
-</Good>
-
-<Bad>
-```typescript
-async function retryOperation<T>(
-  fn: () => Promise<T>,
-  options?: {
-    maxRetries?: number;
-    backoff?: 'linear' | 'exponential';
-    onRetry?: (attempt: number) => void;
-  }
-): Promise<T> {
-  // YAGNI
-}
-```
-Over-engineered
-</Bad>
 
 Don't add features, refactor other code, or "improve" beyond the test.
 
@@ -278,104 +147,9 @@ Next failing test for next feature.
 
 ## DAMP Over DRY in Tests
 
-Tests should be **Descriptive And Meaningful Prose**, not maximally DRY.
+Tests should be **Descriptive And Meaningful Prose**. Inline mock values in each test — a failing test should tell the whole story without tracing through setup helpers. Share helpers only when they validate behavior, not just set up state. Test names should be complete sentences.
 
-**DRY in production code** — good. Shared helpers, single source of truth, fewer places to update.
-
-**DRY in tests** — harmful. When you extract too much into helpers and factories, tests lose context. A failing test should tell you exactly what broke without requiring you to trace through setup helpers.
-
-**Prefer DAMP:**
-
-```typescript
-// ❌ DRY — what does this test? You have to read makeUser(), makeAuth(), makeRequest()
-test('blocks unauthorized deck deletion', async () => {
-  const { user, deck } = await makeFixture('deck-with-owner');
-  const response = await makeRequest('DELETE', `/api/decks/${deck.id}`, makeAuth('other-user'));
-  expect(response.status).toBe(403);
-});
-
-// ✅ DAMP — the test tells the whole story inline
-test('blocks unauthorized deck deletion', async () => {
-  vi.mocked(auth).mockResolvedValue({ userId: 'user-B' });
-  vi.mocked(db.query).mockResolvedValue({ rows: [{ user_id: 'user-A' }] });
-
-  const response = await DELETE(mockRequest(), { params: { id: 'deck-123' } });
-
-  expect(response.status).toBe(403);
-});
-```
-
-**Rules:**
-- Inline mock values in each test — even if repeated across tests
-- Share helpers only when they validate behavior (not just set up state)
-- If deleting a helper would require rewriting tests, keep it. If tests could be written without it, inline instead.
-- Test names should be complete sentences: `'returns 403 when userId does not match deck owner'`
-
-## Why Order Matters
-
-**"I'll write tests after to verify it works"**
-
-Tests written after code pass immediately. Passing immediately proves nothing:
-- Might test wrong thing
-- Might test implementation, not behavior
-- Might miss edge cases you forgot
-- You never saw it catch the bug
-
-Test-first forces you to see the test fail, proving it actually tests something.
-
-**"I already manually tested all the edge cases"**
-
-Manual testing is ad-hoc. You think you tested everything but:
-- No record of what you tested
-- Can't re-run when code changes
-- Easy to forget cases under pressure
-- "It worked when I tried it" ≠ comprehensive
-
-Automated tests are systematic. They run the same way every time.
-
-**"Deleting X hours of work is wasteful"**
-
-Sunk cost fallacy. The time is already gone. Your choice now:
-- Delete and rewrite with TDD (X more hours, high confidence)
-- Keep it and add tests after (30 min, low confidence, likely bugs)
-
-The "waste" is keeping code you can't trust. Working code without real tests is technical debt.
-
-**"TDD is dogmatic, being pragmatic means adapting"**
-
-TDD IS pragmatic:
-- Finds bugs before commit (faster than debugging after)
-- Prevents regressions (tests catch breaks immediately)
-- Documents behavior (tests show how to use code)
-- Enables refactoring (change freely, tests catch breaks)
-
-"Pragmatic" shortcuts = debugging in production = slower.
-
-**"Tests after achieve the same goals - it's spirit not ritual"**
-
-No. Tests-after answer "What does this do?" Tests-first answer "What should this do?"
-
-Tests-after are biased by your implementation. You test what you built, not what's required. You verify remembered edge cases, not discovered ones.
-
-Tests-first force edge case discovery before implementing. Tests-after verify you remembered everything (you didn't).
-
-30 minutes of tests after ≠ TDD. You get coverage, lose proof tests work.
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
-| "I'll test after" | Tests passing immediately prove nothing. |
-| "Tests after achieve same goals" | Tests-after = "what does this do?" Tests-first = "what should this do?" |
-| "Already manually tested" | Ad-hoc ≠ systematic. No record, can't re-run. |
-| "Deleting X hours is wasteful" | Sunk cost fallacy. Keeping unverified code is technical debt. |
-| "Keep as reference, write tests first" | You'll adapt it. That's testing after. Delete means delete. |
-| "Need to explore first" | Fine. Throw away exploration, start with TDD. |
-| "Test hard = design unclear" | Listen to test. Hard to test = hard to use. |
-| "TDD will slow me down" | TDD faster than debugging. Pragmatic = test-first. |
-| "Manual test faster" | Manual doesn't prove edge cases. You'll re-test every change. |
-| "Existing code has no tests" | You're improving it. Add tests for existing code. |
+**If you're tempted to skip TDD:** You're rationalizing. Tests-after answer "what does this do?" — tests-first answer "what should this do?" The test is faster to write than to debug later. Write it.
 
 ## Red Flags - STOP and Start Over
 
@@ -397,40 +171,7 @@ Tests-first force edge case discovery before implementing. Tests-after verify yo
 
 ## Example: Bug Fix
 
-**Bug:** Empty email accepted
-
-**RED**
-```typescript
-test('rejects empty email', async () => {
-  const result = await submitForm({ email: '' });
-  expect(result.error).toBe('Email required');
-});
-```
-
-**Verify RED**
-```bash
-$ npm test
-FAIL: expected 'Email required', got undefined
-```
-
-**GREEN**
-```typescript
-function submitForm(data: FormData) {
-  if (!data.email?.trim()) {
-    return { error: 'Email required' };
-  }
-  // ...
-}
-```
-
-**Verify GREEN**
-```bash
-$ npm test
-PASS
-```
-
-**REFACTOR**
-Extract validation for multiple fields if needed.
+Bug: empty email accepted → **RED:** write `test('rejects empty email', ...)` asserting error → **verify fail** → **GREEN:** add `if (!data.email?.trim())` guard → **verify pass** → **REFACTOR** if needed.
 
 ## Verification Checklist
 
@@ -449,12 +190,10 @@ Can't check all boxes? You skipped TDD. Start over.
 
 ## When Stuck
 
-| Problem | Solution |
-|---------|----------|
-| Don't know how to test | Write wished-for API. Write assertion first. Ask your human partner. |
-| Test too complicated | Design too complicated. Simplify interface. |
-| Must mock everything | Code too coupled. Use dependency injection. |
-| Test setup huge | Extract helpers. Still complex? Simplify design. |
+- **Don't know how to test:** Write the wished-for API and assertion first. Ask your human partner.
+- **Test too complicated:** Design too complicated. Simplify the interface.
+- **Must mock everything:** Code too coupled. Use dependency injection.
+- **Test setup huge:** Extract helpers. Still complex? Simplify design.
 
 ## Debugging Integration
 

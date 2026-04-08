@@ -7,9 +7,7 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
-
-Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
+Write comprehensive plans for skilled engineers unfamiliar with your codebase and domain. Every detail explicit — no placeholders, no "TBD". Bite-sized tasks with exact file paths, code, and test code. DRY. YAGNI. TDD. Frequent commits.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
@@ -69,12 +67,7 @@ Tasks using strict TDD must include the RED step (write failing test, run it, co
 
 ## File Structure
 
-Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
-
-- Design units with clear boundaries and well-defined interfaces. Each file should have one clear responsibility.
-- You reason best about code you can hold in context at once, and your edits are more reliable when files are focused. Prefer smaller, focused files over large ones that do too much.
-- Files that change together should live together. Split by responsibility, not by technical layer.
-- In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.
+Map all files to create/modify. Design units with clear boundaries, one responsibility per file. Files that change together live together. Follow existing codebase patterns.
 
 This structure informs the wave decomposition. Tasks that touch the same files CANNOT be in the same wave.
 
@@ -107,33 +100,21 @@ Required sections (keep it short — the goal is precision, not length):
 <!-- See TDD skill for the full mock strategy. -->
 
 ## Library Integration Notes
-<!-- Record known quirks BEFORE coding. One line per gotcha. -->
-<!-- Examples:
-  - shadcn/ui: `npx shadcn init` may use Base UI primitives (not Radix) — check if `asChild` prop exists on Button before using it
-  - Neon: use tagged template literals `sql\`...\`` — not `sql.query()` or string interpolation
-  - AI SDK v6: `usage.inputTokens` / `usage.outputTokens` (not `promptTokens`/`completionTokens`) — both can be undefined, guard with `?? 0`
-  - Clerk: `auth()` returns a Promise in App Router — always `await auth()`; complex return types require `as any` in vi.mock
--->
+<!-- One line per known quirk. Record BEFORE coding to avoid mid-build surprises. -->
 ```
 
-**Why this matters:** The BMAD methodology completed 6 features in 10 turns with zero schema drift and zero API surface mismatches, compared to 20 turns with one genuine regression for runs without this artifact. Runs that included library integration notes in the architecture doc accumulated 0 TypeScript errors; the run without a doc accumulated 4 type errors from the exact gotchas this section captures. The architecture note takes half a turn to write and eliminates an entire class of mid-build correction turns.
+**Why this matters:** Architecture notes prevent schema drift and API mismatches during implementation. Write this before any task definitions. If it surfaces design questions, resolve them here — not during implementation.
 
-Write this before any task definitions. If writing the architecture note surfaces design questions, resolve them here — not during implementation.
-
-**Turn efficiency tip:** The architecture artifact turn can also produce the full test skeleton — test file paths, `vi.mock()` setup blocks, and `describe`/`it` names (without implementations). This collapses two turns (architecture → test scaffolding) into one. The skeleton goes in the same `docs/plans/<slug>/architecture.md` file under a "Test Skeleton" section. Implementing agents read both the architecture and the skeleton from one file.
+**Turn efficiency tip:** Combine architecture + test skeleton (file paths, mock setup, `describe`/`it` names) in one turn under a "Test Skeleton" section in `architecture.md`.
 
 ### Spec Alignment Check (after architecture, before first task)
 
-After the architecture artifact is written, do a one-pass check before writing any tasks:
+One-pass check before writing tasks — flag and resolve discrepancies now (mid-implementation corrections cost 2–3 turns):
 
-- [ ] Every DB column name and type matches the spec exactly
-- [ ] Every API route path, method, and response shape matches the spec exactly
-- [ ] AI SDK model slug matches the spec (`anthropic/claude-haiku-4.5` not `claude-haiku-4.5`)
-- [ ] Token field names are correct for the SDK version in use (`inputTokens`/`outputTokens` for AI SDK v6)
-- [ ] Response method is correct (`toTextStreamResponse()` not `toDataStreamResponse()`)
-- [ ] Library versions in package.json match what the architecture doc assumes
-
-Flag any discrepancy and resolve it in the architecture doc before proceeding. This costs nothing now; mid-implementation corrections cost 2–3 turns.
+- [ ] DB schema (names, types, constraints) matches spec exactly
+- [ ] API routes (paths, methods, request/response shapes) match spec exactly
+- [ ] Library API usage matches the version in package.json (field names, method signatures, import paths)
+- [ ] External service identifiers (model slugs, API keys, SDK wrappers) match spec exactly
 
 ---
 
@@ -280,105 +261,38 @@ docs/plans/<feature-slug>/
 
 ### Status File (always created)
 
-The `status.yaml` is created when the plan is saved and updated during execution. It enables `/resume` to pick up exactly where things stopped. See `mighty-powers:resume` for the full format.
+Create `status.yaml` alongside `plan.md`. It enables `/resume` to pick up where execution stopped. See `mighty-powers:resume` for the full YAML format.
 
-**Initial status.yaml (created by writing-plans):**
-```yaml
-feature: <feature-slug>
-created: <ISO timestamp>
-last_updated: <ISO timestamp>
-plan_file: docs/plans/<feature-slug>/plan.md
-plan_type: small | medium  # small = single plan.md, medium = wave folders
-current_wave: 0
-status: pending
-
-waves:
-  1:
-    status: pending
-    tasks:
-      1.1: { status: pending }
-      1.2: { status: pending }
-      1.3: { status: pending }
-  2:
-    status: pending
-    tasks:
-      2.1: { status: pending }
-      2.2: { status: pending }
-```
+Initialize with: `feature`, `created`, `plan_file`, `plan_type` (small|medium), `current_wave: 0`, `status: pending`, and a `waves` map with every task set to `{ status: pending }`.
 
 ## Plan Document Format
+
+Every `plan.md` starts with this header:
 
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** Execute this plan wave-by-wave using mighty-powers:subagent-driven-development.
-> Tasks within each wave are independent and should be dispatched as parallel subagents.
-> Wait for all tasks in a wave to complete before starting the next wave.
-> **MANDATORY:** Update `status.yaml` IMMEDIATELY after every task completes — before dispatching the next task or review.
+> **For agentic workers:** Execute wave-by-wave using mighty-powers:subagent-driven-development.
+> **MANDATORY:** Update `status.yaml` IMMEDIATELY after every task completes.
 
-**Goal:** [One sentence describing what this builds]
-
-**Architecture:** [2-3 sentences about approach]
-
+**Goal:** [One sentence]
+**Architecture:** [2-3 sentences]
 **Tech Stack:** [Key technologies/libraries]
+**Complexity:** Simple | Complex
+**TDD Mode:** Strict | Mixed | Test-after
 
 **Wave Summary:**
 | Wave | Tasks | Focus | Execution |
 |------|-------|-------|-----------|
-| 1    | 1.1, 1.2, 1.3 | Foundation: types, schemas, interfaces | Parallel — all independent |
-| 2    | 2.1, 2.2 | Core logic: implement interfaces | Parallel — different modules |
-| 3    | 3.1 | Integration: wire everything together | Single task |
-
----
-
-## Wave 1: Foundation
-_Tasks 1.1, 1.2, 1.3 are independent — execute in parallel._
-
-### Task 1.1: [Component Name]
-...
-
-### Task 1.2: [Component Name]
-...
-
-### Task 1.3: [Component Name]
-...
-
-**Wave 1 checkpoint:** Run full test suite. All Wave 1 tests must pass.
-
----
-
-## Wave 2: Core Logic
-_Depends on Wave 1. Tasks 2.1, 2.2 are independent — execute in parallel._
-
-### Task 2.1: [Component Name]
-...
-
-### Task 2.2: [Component Name]
-...
-
-**Wave 2 checkpoint:** Run full test suite. All tests must pass.
-
----
-
-## Wave 3: Integration
-_Depends on Wave 2._
-
-### Task 3.1: [Integration Component]
-...
-
-**Wave 3 checkpoint:** Run full test suite. All tests must pass.
+| 1    | 1.1, 1.2, 1.3 | Foundation | Parallel |
+| 2    | 2.1, 2.2 | Core logic | Sequential |
 ```
 
-## Bite-Sized Task Granularity
-
-**Each step within a task is one action (2-5 minutes):**
-- "Write the failing test" - step
-- "Run it to make sure it fails" - step
-- "Implement the minimal code to make the test pass" - step
-- "Run the tests and make sure they pass" - step
-- "Commit" - step
+Then wave sections with tasks (using the Task Structure format below), each ending with: `**Wave N checkpoint:** Run full test suite. All tests must pass.`
 
 ## Task Structure
+
+Each step is one action (2-5 minutes): write test → verify fail → implement → verify pass → commit.
 
 ````markdown
 ### Task N.M: [Component Name]
@@ -413,52 +327,6 @@ def function(input):
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: PASS
 ````
-
-## Reference Templates
-
-When your plan includes AI Gateway streaming routes, copy this exact working template into the task — do not describe it in prose, paste it. This pattern caused a regression in 1 of 4 benchmark runs when the wrong API was used.
-
-**AI Gateway streaming route (Next.js App Router, AI SDK v6):**
-```typescript
-// src/app/api/complete/route.ts
-import { NextRequest } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { streamText } from 'ai';
-
-export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) return new Response('Unauthorized', { status: 401 });
-
-  const { prompt } = await req.json();
-
-  const result = streamText({
-    model: 'anthropic/claude-haiku-4.5', // plain string → AI Gateway
-    prompt,
-    onFinish: async ({ usage }) => {
-      // usage.inputTokens and usage.outputTokens (NOT promptTokens/completionTokens)
-      await logUsage(userId, usage.inputTokens + usage.outputTokens);
-    },
-  });
-
-  return result.toTextStreamResponse(); // NOT toDataStreamResponse()
-}
-```
-
-Key facts to include in every AI route task:
-- Model string is a plain string — no `gateway()` wrapper needed
-- `onFinish` receives `usage.inputTokens` / `usage.outputTokens` (AI SDK v6 field names)
-- Response method is `toTextStreamResponse()` — `toDataStreamResponse()` was removed in v6
-
-**Coverage targets by layer (include in your plan's quality pass task):**
-
-| Layer | Files | Statement target | Branch target |
-|-------|-------|-----------------|---------------|
-| API routes | `src/app/api/**/route.ts` | ≥ 85% | ≥ 60% |
-| Lib utilities | `src/lib/**/*.ts` | ≥ 85% | ≥ 60% |
-| UI components | `src/components/**/*.tsx` | ≥ 30% | N/A |
-| Next.js pages | `src/app/**/page.tsx` | 0% (browser-only) | N/A |
-
-Report both aggregate coverage and API-route-only coverage in the scorecard. Do not treat the aggregate as the primary metric if it includes untestable browser-only files.
 
 ---
 
@@ -505,26 +373,7 @@ If the reviewer finds issues, fix them before presenting execution options.
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+After saving, announce: **"Plan saved to `docs/plans/<slug>/`. N waves, M tasks."** Then offer:
 
-**"Plan complete and saved to `docs/plans/<filename>.md`. It has N waves with M total tasks.**
-
-**Execution options:**
-
-**1. Subagent-Driven (recommended)** — I dispatch parallel subagents per wave. Each wave's tasks run concurrently. Two-stage review after each task. Fastest option.
-
-**2. Inline Execution** — Execute tasks sequentially in this session using executing-plans, with batch checkpoints per wave.
-
-**Which approach?"**
-
-**If Subagent-Driven chosen:**
-- **REQUIRED SUB-SKILL:** Use mighty-powers:subagent-driven-development
-- For each wave: dispatch all tasks as parallel subagents
-- Wait for all tasks + reviews in the wave to complete
-- Run full test suite at wave checkpoint
-- Proceed to next wave only when all tests pass
-
-**If Inline Execution chosen:**
-- **REQUIRED SUB-SKILL:** Use mighty-powers:executing-plans
-- Execute tasks within each wave sequentially (still respects wave boundaries)
-- Run full test suite at each wave checkpoint
+1. **Subagent-Driven (recommended)** → use `mighty-powers:subagent-driven-development`
+2. **Inline Execution** → use `mighty-powers:executing-plans`

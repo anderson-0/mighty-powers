@@ -7,41 +7,13 @@ description: Use when encountering any bug, test failure, or unexpected behavior
 
 ## Overview
 
-Random fixes waste time and create new bugs. Quick patches mask underlying issues.
-
-**Core principle:** ALWAYS find root cause before attempting fixes. Symptom fixes are failure.
-
-**Violating the letter of this process is violating the spirit of debugging.**
-
-## The Iron Law
-
-```
-NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
-```
-
-If you haven't completed Phase 1, you cannot propose fixes.
+**Core principle:** No fixes without root cause investigation first. Symptom fixes are failure. If you haven't completed Phase 1, you cannot propose fixes.
 
 ## When to Use
 
-Use for ANY technical issue:
-- Test failures
-- Bugs in production
-- Unexpected behavior
-- Performance problems
-- Build failures
-- Integration issues
+Any technical issue: test failures, bugs, unexpected behavior, performance problems, build failures, integration issues.
 
-**Use this ESPECIALLY when:**
-- Under time pressure (emergencies make guessing tempting)
-- "Just one quick fix" seems obvious
-- You've already tried multiple fixes
-- Previous fix didn't work
-- You don't fully understand the issue
-
-**Don't skip when:**
-- Issue seems simple (simple bugs have root causes too)
-- You're in a hurry (rushing guarantees rework)
-- Manager wants it fixed NOW (systematic is faster than thrashing)
+**Especially when:** under time pressure, "just one quick fix" seems obvious, you've already tried multiple fixes, or you don't fully understand the issue. Rushing guarantees rework — systematic is faster than thrashing.
 
 ## The Four Phases
 
@@ -86,26 +58,11 @@ You MUST complete each phase before proceeding to the next.
    THEN investigate that specific component
    ```
 
-   **Example (multi-layer system):**
+   **Pattern:** At each component boundary, log input/output. Run once. The logs reveal which layer breaks:
    ```bash
-   # Layer 1: Workflow
-   echo "=== Secrets available in workflow: ==="
-   echo "IDENTITY: ${IDENTITY:+SET}${IDENTITY:-UNSET}"
-
-   # Layer 2: Build script
-   echo "=== Env vars in build script: ==="
-   env | grep IDENTITY || echo "IDENTITY not in environment"
-
-   # Layer 3: Signing script
-   echo "=== Keychain state: ==="
-   security list-keychains
-   security find-identity -v
-
-   # Layer 4: Actual signing
-   codesign --sign "$IDENTITY" --verbose=4 "$APP"
+   echo "=== Layer N input: ===" && echo "VAR: ${VAR:+SET}${VAR:-UNSET}"
+   # Repeat for each layer boundary — find where data stops propagating
    ```
-
-   **This reveals:** Which layer fails (secrets → workflow ✓, workflow → build ✗)
 
 5. **Trace Data Flow**
 
@@ -231,29 +188,13 @@ If you catch yourself thinking:
 
 **If 3+ fixes failed:** Question the architecture (see Phase 4.5)
 
-## your human partner's Signals You're Doing It Wrong
+## Human Partner's Signals You're Doing It Wrong
 
-**Watch for these redirections:**
-- "Is that not happening?" - You assumed without verifying
-- "Will it show us...?" - You should have added evidence gathering
-- "Stop guessing" - You're proposing fixes without understanding
-- "Ultrathink this" - Question fundamentals, not just symptoms
-- "We're stuck?" (frustrated) - Your approach isn't working
+- "Stop guessing" / "Is that not happening?" — You're proposing fixes without evidence. Return to Phase 1.
+- "Ultrathink this" — Question fundamentals, not just symptoms.
+- Frustration signals ("We're stuck?") — Your approach isn't working. STOP and restart investigation.
 
-**When you see these:** STOP. Return to Phase 1.
-
-## Common Rationalizations
-
-| Excuse | Reality |
-|--------|---------|
-| "Issue is simple, don't need process" | Simple issues have root causes too. Process is fast for simple bugs. |
-| "Emergency, no time for process" | Systematic debugging is FASTER than guess-and-check thrashing. |
-| "Just try this first, then investigate" | First fix sets the pattern. Do it right from the start. |
-| "I'll write test after confirming fix works" | Untested fixes don't stick. Test first proves it. |
-| "Multiple fixes at once saves time" | Can't isolate what worked. Causes new bugs. |
-| "Reference too long, I'll adapt the pattern" | Partial understanding guarantees bugs. Read it completely. |
-| "I see the problem, let me fix it" | Seeing symptoms ≠ understanding root cause. |
-| "One more fix attempt" (after 2+ failures) | 3+ failures = architectural problem. Question pattern, don't fix again. |
+**If you're tempted to skip the process:** Systematic debugging is faster than guess-and-check thrashing. "I see the problem" means you see symptoms, not root cause. Multiple fixes at once can't isolate what worked. After 3+ failed fixes, question the architecture.
 
 ## Quick Reference
 

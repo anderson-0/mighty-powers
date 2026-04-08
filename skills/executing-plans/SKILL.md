@@ -70,41 +70,9 @@ Update at EACH of these moments — no exceptions:
 
 ### Wave Isolation via Git Worktrees (optional)
 
-For maximum safety, each wave can optionally execute in its own git worktree, providing true filesystem isolation between parallel subagents:
+Optional: Use `mighty-powers:git-worktrees` for wave-level isolation when waves have 3+ parallel tasks or rollback safety is needed. Default: no isolation.
 
-```
-Main worktree:     wave-1 tasks run here (or in their own worktrees)
-                        ↓ merge wave-1 results
-Wave-2 worktree:   wave-2 tasks run in isolated copy
-                        ↓ merge wave-2 results
-Main worktree:     wave-3 tasks run on merged state
-```
-
-**When to use worktree isolation:**
-- Wave has 3+ parallel tasks touching many files
-- Tasks are complex enough that a bad implementation could corrupt the working tree
-- You want rollback safety — discard a worktree to undo an entire wave
-
-**How to use:**
-1. Before dispatching a wave, create a worktree via `mighty-powers:git-worktrees`
-2. Dispatch subagents to work in the worktree
-3. After wave checkpoint passes, merge the worktree branch back
-4. If checkpoint fails, you can discard the worktree and retry
-
-**Default behavior:** No worktree isolation. Tasks run in the current working directory. Only enable if the user requests it or the wave is complex enough to warrant it.
-
-**Status update pattern (run after every state change):**
-```yaml
-# Update the specific field in status.yaml
-# Example: task 2.1 completed
-waves:
-  2:
-    status: in_progress
-    tasks:
-      2.1:
-        status: completed
-        completed_at: "2026-04-01T10:40:00"
-```
+Update these fields in `status.yaml` after every state change: wave status, task status, `started_at`, `completed_at`, checkpoint results. See `mighty-powers:resume` for the full YAML structure.
 
 ### Step 3: Complete Development
 
@@ -177,55 +145,20 @@ Agent tool:
 
 ## Just-in-Time Skill Loading
 
-Load skills immediately before the work they inform — not all at once at session start.
-
-**Why:** Bulk upfront skill loading adds overhead turns without proportional benefit. In benchmark runs, 2+ turns of skill loading at session start did not prevent regressions that targeted skill loading just before the relevant task did prevent.
-
-**Pattern:**
-```
-Task: implement AI streaming route
-→ Load vercel:ai-gateway NOW (just before writing this route)
-→ Write the route
-→ Move to next task
-
-Task: implement auth middleware
-→ Load vercel:auth NOW (just before writing middleware)
-→ Write the middleware
-```
-
-**Not:**
-```
-❌ Session start: load all 4+ Vercel skills
-→ implement everything from memory
-```
-
-When dispatching subagents for a task, include only the skills relevant to that task in the subagent prompt. A subagent implementing an AI route gets the AI gateway skill. A subagent implementing auth gets the auth skill. Neither gets both.
+Load skills just before the work they support, not all at session start. Include only task-relevant skills in subagent prompts.
 
 ---
 
 ## Mandatory Verification Checklist
 
-Before marking any task or wave as complete, run through this checklist. Do not mark `status: completed` until all applicable items are checked.
+Do not mark `status: completed` until all applicable items pass. If any item fails, stop and fix before proceeding.
 
-**Per task:**
-- [ ] All tests for this task pass (`npm test` or equivalent)
-- [ ] No TypeScript errors in modified files (`tsc --noEmit`)
-- [ ] No ESLint violations in modified files
-- [ ] Output is clean — no unexpected warnings or errors in test output
-
-**Per wave checkpoint:**
-- [ ] Full test suite passes (not just the task's tests)
-- [ ] Coverage has not regressed from pre-wave baseline
-- [ ] All task files referenced in the plan have been created or modified as specified
-
-**Before final completion:**
-- [ ] All waves completed
-- [ ] Full test suite green
-- [ ] No TypeScript errors across entire project
-- [ ] No ESLint violations across entire project
-- [ ] Feature works end-to-end (not just unit tests)
-
-**If any item fails:** Stop. Fix it before proceeding. Do not skip a failing check and continue.
+- [ ] **(task)** Tests pass, no TS errors or lint violations in modified files
+- [ ] **(wave)** Full test suite passes (not just task tests)
+- [ ] **(wave)** Coverage has not regressed from pre-wave baseline
+- [ ] **(wave)** All plan-referenced files created or modified as specified
+- [ ] **(final)** No TS errors or lint violations across entire project
+- [ ] **(final)** Feature works end-to-end (not just unit tests)
 
 ## When to Stop and Ask for Help
 

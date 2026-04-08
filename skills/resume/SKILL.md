@@ -54,25 +54,20 @@ Present this to the user and ask:
 > "What would you like to do?"
 
 Options:
-- **Resume from task 2.2** — Read the task file, check what was already done (git diff since wave start), continue from where it left off
-- **Restart wave 2** — Re-dispatch all wave 2 tasks from scratch (useful if the in-progress task left things in a bad state)
-- **Restart entire plan** — Reset all statuses to pending (nuclear option)
-- **Abandon this plan** — Mark `status.yaml` as `status: abandoned` so it won't be detected by session-start again. The plan files stay on disk for reference but won't trigger resume prompts.
+- **Resume from task 2.2** — check git diff since wave start, continue from where it left off
+- **Restart wave 2** — re-dispatch all wave 2 tasks from scratch
+- **Restart entire plan** — reset all statuses to pending
+- **Abandon this plan** — mark as `status: abandoned` (files stay on disk, won't trigger resume)
 
 ### Step 3: Reconstruct Context
 
-For the task being resumed, reconstruct full context by reading:
+Read these to reconstruct full context for the resumed task:
 
-1. **The plan file** (`plan.md`) — for overall goal, architecture, tech stack
-2. **The wave file** (`wave-N/wave.md`) — for wave dependencies and checkpoint criteria
-3. **The task spec** — either from a separate file (`wave-N/task-N.M.md`) if the wave has > 5 tasks, or from the wave index (`wave-N/wave.md`) if tasks are inline
-4. **Files listed in `context_files`** in status.yaml — source files the task touches
-5. **Git state** — check what changes exist since the wave started:
-   ```bash
-   git log --oneline --since="<wave_started_at>"
-   git diff --stat
-   git status
-   ```
+1. `plan.md` — overall goal, architecture, tech stack
+2. `wave-N/wave.md` — wave dependencies, checkpoint criteria
+3. Task spec — separate file (`task-N.M.md`) if > 5 tasks in wave, otherwise inline in `wave.md`
+4. `context_files` from status.yaml — source files the task touches
+5. Git state — `git log --oneline --since="<wave_started_at>"`, `git diff --stat`, `git status`
 
 ### Step 4: Resume Execution
 
@@ -142,8 +137,6 @@ waves:
 ```
 
 ## Small Plan Format (no wave folders)
-
-For small plans where everything is in one `plan.md` file, the status.yaml still tracks waves and tasks — they just reference sections in the plan file instead of separate files:
 
 ```yaml
 feature: fix-auth-bug

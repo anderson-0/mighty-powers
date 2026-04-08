@@ -32,28 +32,7 @@ A specification should target a **single user-facing goal** within **900-1600 to
 
 ## WORKFLOW ARCHITECTURE
 
-This uses **step-file architecture** for disciplined execution:
-
-- **Micro-file Design**: Each step is self-contained and followed exactly
-- **Just-In-Time Loading**: Only load the current step file
-- **Sequential Enforcement**: Complete steps in order, no skipping
-- **State Tracking**: Persist progress via spec frontmatter and in-memory variables
-- **Append-Only Building**: Build artifacts incrementally
-
-### Step Processing Rules
-
-1. **READ COMPLETELY**: Read the entire step file before acting
-2. **FOLLOW SEQUENCE**: Execute sections in order
-3. **WAIT FOR INPUT**: Halt at checkpoints and wait for human
-4. **LOAD NEXT**: When directed, read fully and follow the next step file
-
-### Critical Rules (NO EXCEPTIONS)
-
-- **NEVER** load multiple step files simultaneously
-- **ALWAYS** read entire step file before execution
-- **NEVER** skip steps or optimize the sequence
-- **ALWAYS** follow the exact instructions in the step file
-- **ALWAYS** halt at checkpoints and wait for human input
+Step-file architecture: each step is self-contained. Read one step file at a time, follow it completely, halt at checkpoints for human input, then load the next. Never load multiple steps simultaneously or skip steps.
 
 
 ## INITIALIZATION SEQUENCE

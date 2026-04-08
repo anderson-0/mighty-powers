@@ -108,15 +108,4 @@ Aggregate the results into a scorecard:
 
 ## After the Scorecard
 
-The scorecard tells you what's wrong. To fix issues:
-
-1. Use `/secure` for detailed security findings with fix guidance
-2. Use `/investigate` for code quality issues
-3. Re-run `/ship` to verify improvement
-
-## Key Principles
-
-- **Parallel execution** — all 3 agents run concurrently for speed
-- **Detect and report honestly** — agents find issues, then help fix them
-- **Never block on failures** — if an agent fails, score excludes it and shows FAIL
-- **Scorecard is evidence** — shareable proof of ship-readiness
+Fix issues with `/secure` (security), `/investigate` (code quality), then re-run `/ship`. If an agent fails, its category shows FAIL and is excluded from the overall average.
