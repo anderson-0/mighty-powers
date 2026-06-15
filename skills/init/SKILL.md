@@ -7,12 +7,12 @@ description: First-time project setup for Mighty Powers. Creates config file, ar
 
 Set up a project to use Mighty Powers effectively. Run this once when you first install the plugin in a project.
 
-BMAD no longer ships a separate init skill — orientation is handled by help. Mighty Powers combines both: `/init` scaffolds project config and directories; `/help` guides what to do next in the lifecycle.
+BMAD no longer ships a separate init skill — orientation is handled by help. Mighty Powers combines both: `/mp:init` scaffolds project config and directories; `/help` guides what to do next in the lifecycle.
 
 ## How to Trigger
 
 ```
-/init
+/mp:init
 ```
 
 ## Process
@@ -134,7 +134,7 @@ Created or verified:
 
 Not sure where to start?
   /help          — phase-aware guidance (BMAD-style "what should I do next?")
-  /init          — re-run setup if paths or config change
+  /mp:init       — re-run setup if paths or config change
 
 Quick Track (build features in this repo):
   /brainstorm    — design exploration with approval gates (mp:brainstorming)

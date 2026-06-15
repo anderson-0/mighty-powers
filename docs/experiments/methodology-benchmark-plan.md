@@ -289,7 +289,7 @@ git commit -m "chore: scaffold benchmark repo with spec, rubric, and result temp
 1. Create app repo: `mkdir writeflow-mighty-powers && cd writeflow-mighty-powers && git init`
 2. Open Claude Code in that directory (mighty-powers is installed at user scope — it will auto-activate)
 3. Verify hook fires: session should show mighty-powers context
-4. Use `/init` to initialize the project with mighty-powers
+4. Use `/mp:init` to initialize the project with mighty-powers
 5. Provide the spec: paste contents of `spec.md` when prompted
 6. Let mighty-powers guide the full workflow: brainstorm → write-plan → execute
 7. Log every turn in results/mighty-powers/scorecard.md
@@ -355,7 +355,7 @@ SPEC: Read /Users/anderson/Documents/anderson-0/writeflow-benchmark/spec.md — 
 SETUP:
 1. Create the app at: /Users/anderson/Documents/anderson-0/writeflow-benchmark/runs/mighty-powers/writeflow/
 2. Run: npx create-next-app@latest writeflow --typescript --tailwind --app --src-dir --import-alias "@/*"
-3. Use mp: run /init, then paste the spec, then follow the full workflow
+3. Use mp: run /mp:init, then paste the spec, then follow the full workflow
 
 CONSTRAINTS:
 - Model: claude-sonnet-4-6 only

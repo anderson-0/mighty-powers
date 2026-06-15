@@ -23,18 +23,18 @@ function runHook(cwd) {
 }
 
 describe('session-start hook', () => {
-  it('nudges /init when config is missing', () => {
+  it('nudges /mp:init when config is missing', () => {
     const tmp = mkdtempSync(join(tmpdir(), 'mp-session-start-'));
     try {
       const out = runHook(tmp);
       assert.match(out, /config\.yaml missing/);
-      assert.match(out, /\/init/);
+      assert.match(out, /\/mp:init/);
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
   });
 
-  it('does not nudge /init when config exists', () => {
+  it('does not nudge /mp:init when config exists', () => {
     const tmp = mkdtempSync(join(tmpdir(), 'mp-session-start-'));
     try {
       execFileSync('mkdir', ['-p', join(tmp, '.mighty-powers')]);

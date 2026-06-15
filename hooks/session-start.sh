@@ -74,7 +74,7 @@ fi
 init_notice=""
 MP_CONFIG="$PWD/.mighty-powers/config.yaml"
 if [ ! -f "$MP_CONFIG" ]; then
-  init_notice="Mighty Powers is not initialized in this project (.mighty-powers/config.yaml missing). Mention /init once — creates config, lifecycle artifact dirs, and optional CLAUDE.md. Do not block other work; lifecycle skills still run with neutral defaults."
+  init_notice="Mighty Powers is not initialized in this project (.mighty-powers/config.yaml missing). Mention /mp:init once — creates config, lifecycle artifact dirs, and optional CLAUDE.md. Do not block other work; lifecycle skills still run with neutral defaults."
 fi
 
 # --- Escape for JSON ---

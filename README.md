@@ -12,7 +12,7 @@ claude plugin install mighty-powers
 Then in your project:
 
 ```
-/init     # first-time setup: config, CLAUDE.md, directory structure
+/mp:init  # first-time setup: config, CLAUDE.md, directory structure
 ```
 
 ## What's Included
@@ -397,7 +397,7 @@ Skills dispatch specialized agents via Claude Code's Agent tool. Each agent is a
 
 | Command | Description |
 |---------|-------------|
-| `/init` | First-time project setup |
+| `/mp:init` | First-time project setup |
 | `/brainstorm` | Design exploration before implementation |
 | `/write-plan` | Create wave-based implementation plan |
 | `/execute-plan` | Execute plan wave-by-wave (parallel where possible) |
@@ -427,7 +427,7 @@ Skills dispatch specialized agents via Claude Code's Agent tool. Each agent is a
 
 ## Configuration
 
-Run `/init` for guided setup, or manually create `.mighty-powers/config.yaml`:
+Run `/mp:init` for guided setup, or manually create `.mighty-powers/config.yaml`:
 
 ```yaml
 project_name: "My Project"
@@ -440,7 +440,7 @@ output_folder: "docs/planning"
 project_knowledge: "docs"
 ```
 
-`/init` also creates `docs/plans/`, lifecycle artifact directories, and `.mighty-powers/custom/` for skill overrides. Use `/help` when you are unsure which lifecycle step to run next.
+`/mp:init` also creates `docs/plans/`, lifecycle artifact directories, and `.mighty-powers/custom/` for skill overrides. Use `/help` when you are unsure which lifecycle step to run next.
 
 ## Credits
 
