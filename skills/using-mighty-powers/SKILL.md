@@ -210,6 +210,7 @@ brainstorm-session
 | `mp:learnings` | User wants to save/search/digest/recall project learnings |
 | `mp:onboard` | User asks for an onboarding guide |
 | `/codex` command | Generate compact codebase index at `.mighty-powers/codex.md` to save exploration tokens |
+| `/token-health` command | Audit Claude Code setup for token waste — bloated CLAUDE.md, hooks, memory, missing codex |
 | `mp:revise-claude-md` | User asks to update CLAUDE.md |
 | `mp:party-mode` | User asks for a multi-agent discussion |
 | `mp:advanced-elicitation` | User wants to push output quality |
