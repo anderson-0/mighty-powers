@@ -53,6 +53,22 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/learnings-manager.mjs prune --older-than 90
 
 Removes learnings older than N days. Default: 90 days. Run periodically to keep the knowledge base fresh.
 
+### Digest learnings
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/learnings-manager.mjs digest [--top N]
+```
+
+Returns a grouped snapshot: learnings organized by tag, with counts and the N most recent titles per group (default N=3). Grouping uses the **first tag only** — multi-tag learnings appear under their primary tag. Use at the start of a long session to quickly orient to accumulated project knowledge without reading every learning in full.
+
+### Recall relevant learnings
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/learnings-manager.mjs recall --query "keyword or phrase" [--top N]
+```
+
+Returns the top-N most relevant learnings for a topic, ranked by keyword match density (default N=5). Different from `search` — search returns all matches; recall returns the highest-signal ones first. Use before starting work on a specific area to surface the most applicable past learnings.
+
 ### Export learnings
 
 ```bash

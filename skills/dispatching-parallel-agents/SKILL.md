@@ -1,6 +1,6 @@
 ---
 name: dispatching-parallel-agents
-description: Use when a user request or plan contains 2+ independent tasks that can be worked on without shared state or sequential dependencies
+description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
 ---
 
 # Dispatching Parallel Agents
@@ -9,24 +9,11 @@ description: Use when a user request or plan contains 2+ independent tasks that 
 
 You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
+When you have multiple unrelated failures (different test files, different subsystems, different bugs), investigating them sequentially wastes time. Each investigation is independent and can happen in parallel.
+
 **Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
 
-## Two Entry Points
-
-**From a user request:** When a user asks for 2+ things in one message, assess whether they are independent. If so, dispatch immediately — don't execute sequentially.
-
-Examples that qualify:
-- "Fix the auth bug and update the README" → 2 independent agents
-- "Add tests for the deck API and refactor the usage lib" → 2 independent agents
-- "Review the scorecard doc and run the completeness check" → 2 independent agents
-
-Examples that do NOT qualify (keep inline):
-- "Refactor this function and add tests for it" — tests depend on the refactored code
-- "Fix the bug and write a commit message" — commit depends on the fix
-
-**From a plan:** When executing a wave of independent tasks, dispatch one agent per task in parallel rather than executing sequentially.
-
-When you have multiple unrelated failures (different test files, different subsystems, different bugs), investigating them sequentially wastes time. Each investigation is independent and can happen in parallel.
+**Nesting and scale:** Subagents can spawn their own subagents up to 5 levels deep, so a dispatched agent owning a large domain can fan out helpers for its sub-steps rather than doing everything serially. When the work-list is large, repetitive, or unknown in size (every route, every package in a monorepo, every finding to verify), stop hand-dispatching and escalate to a **dynamic Workflow** — describe the task and include the word "workflow" so an orchestration script pipelines the items across background subagents with a verification stage built in. Rule of thumb: a few independent tasks → dispatch agents here; dozens of items or fan-out-then-verify → a Workflow.
 
 ## When to Use
 
@@ -100,8 +87,16 @@ When agents return:
 
 Good agent prompts are:
 1. **Focused** - One clear problem domain
-2. **Self-contained** - All context needed to understand the problem
+2. **Self-contained** - All context the agent needs, INCLUDING relevant code snippets
 3. **Specific about output** - What should the agent return?
+4. **Permission to explore** - Agent can read files it needs, not just files you anticipated
+
+**The #1 reason subagents fail is context starvation.** The controller thinks it provided enough context but didn't. When in doubt, include more:
+- Paste the actual error messages, not paraphrases
+- Paste relevant code snippets inline (don't make the agent find them)
+- Name the exact files and line numbers involved
+- Describe the patterns/conventions the codebase uses
+- Tell the agent what adjacent files exist and what they do
 
 ```markdown
 Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
@@ -110,14 +105,19 @@ Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
 2. "should handle mixed completed and aborted tools" - fast tool aborted instead of completed
 3. "should properly track pendingToolCount" - expects 3 results but gets 0
 
-These are timing/race condition issues. Your task:
+These are timing/race condition issues. The abort implementation is in
+src/agents/agent-tool-handler.ts (the abortTool method around line 150).
+Tests use a helper createMockToolStream() from test-utils.ts.
 
-1. Read the test file and understand what each test verifies
+Your task:
+
+1. Read the test file and the implementation file
 2. Identify root cause - timing issues or actual bugs?
 3. Fix by:
    - Replacing arbitrary timeouts with event-based waiting
    - Fixing bugs in abort implementation if found
    - Adjusting test expectations if testing changed behavior
+4. You may read other files if needed to understand the system
 
 Do NOT just increase timeouts - find the real issue.
 
@@ -126,17 +126,23 @@ Return: Summary of what you found and what you fixed.
 
 ## Common Mistakes
 
-**Too broad:** "Fix all the tests" - agent gets lost
-**Specific:** "Fix agent-tool-abort.test.ts" - focused scope
+**❌ Too broad:** "Fix all the tests" - agent gets lost
+**✅ Specific:** "Fix agent-tool-abort.test.ts" - focused scope
 
-**No context:** "Fix the race condition" - agent doesn't know where
-**Context:** Paste the error messages and test names
+**❌ No context:** "Fix the race condition" - agent doesn't know where
+**✅ Context:** Paste the error messages, test names, AND relevant source code inline
 
-**No constraints:** Agent might refactor everything
-**Constraints:** "Do NOT change production code" or "Fix tests only"
+**❌ No constraints:** Agent might refactor everything
+**✅ Constraints:** "Do NOT change production code" or "Fix tests only"
 
-**Vague output:** "Fix it" - you don't know what changed
-**Specific:** "Return summary of root cause and changes"
+**❌ Vague output:** "Fix it" - you don't know what changed
+**✅ Specific:** "Return summary of root cause and changes"
+
+**❌ "Don't explore":** Agent can't read files → guesses → fails → you redo the work
+**✅ Permission:** "Read any files you need to understand the system"
+
+**❌ Tight tool budget (15 calls):** Agent rushes → BLOCKED → you redo the work
+**✅ Reasonable budget:** Let agents work until done, cap at 25-30 for safety
 
 ## When NOT to Use
 

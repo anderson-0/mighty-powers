@@ -2,7 +2,7 @@
 
 Status: ready-for-dev
 
-<!-- Note: Validation is optional. Run validate-create-story for quality check before mighty-powers:dev-story. -->
+<!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
 ## Story
 
@@ -47,4 +47,3 @@ so that {{benefit}}.
 ### Completion Notes List
 
 ### File List
-

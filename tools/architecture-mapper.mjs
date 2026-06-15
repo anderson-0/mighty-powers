@@ -4,74 +4,38 @@
 // Usage: node tools/architecture-mapper.mjs <project-directory> [--format=mermaid|json]
 // Safe: reads files only, no network, no writes
 
-import { readFileSync, existsSync, readdirSync, statSync as fStatSync } from 'fs';
-import { join, extname, relative, dirname, resolve } from 'path';
+import { readFileSync, existsSync, statSync as fStatSync } from 'fs';
+import { join, relative, dirname, resolve } from 'path';
 import { checkFileSize } from './lib/security.mjs';
+import { walkLimited, JS_EXTENSIONS } from './lib/codebase-walk.mjs';
+import { extractRoutes } from './lib/codebase-routes.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
 }
 
-const CODE_EXTS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
-const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'build', '.vercel', 'coverage', '.output', '__pycache__']);
 
 function readJSON(path) {
   try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return null; }
 }
 
 function walkFiles(dir, maxFiles = 2000) {
-  const files = [];
-  function walk(d, depth) {
-    if (depth > 10 || files.length >= maxFiles) return;
-    let entries;
-    try { entries = readdirSync(d, { withFileTypes: true }); } catch { return; }
-    for (const e of entries) {
-      if (files.length >= maxFiles) return;
-      if (SKIP_DIRS.has(e.name)) continue;
-      const full = join(d, e.name);
-      if (e.isDirectory()) walk(full, depth + 1);
-      else if (CODE_EXTS.has(extname(e.name))) files.push(full);
-    }
-  }
-  walk(dir, 0);
-  return files;
+  return walkLimited(dir, { maxDepth: 10, maxFiles, extensions: JS_EXTENSIONS });
 }
 
 // ---------------------------------------------------------------------------
-// Route detection
+// Route detection (canonical extractor + architecture-mapper shape)
 // ---------------------------------------------------------------------------
 function findRoutes(files, dir) {
-  const routes = [];
-  const routeRegex = /\b(?:app|router|server|fastify)\.(get|post|put|delete|patch|all)\s*\(\s*['"`]([^'"`]+)['"`]/gi;
-
-  for (const file of files) {
-    const sc = checkFileSize(file, fStatSync);
-    if (!sc.ok) continue;
-    let content;
-    try { content = readFileSync(file, 'utf8'); } catch { continue; }
-
-    let match;
-    routeRegex.lastIndex = 0;
-    while ((match = routeRegex.exec(content)) !== null) {
-      const line = content.slice(0, match.index).split('\n').length;
-      // Detect middleware on same line
-      const lineContent = content.split('\n')[line - 1] || '';
-      const mwMatch = lineContent.match(/,\s*(\w+)/g);
-      const middleware = mwMatch ? mwMatch.map(m => m.replace(',', '').trim()).filter(m => m !== 'async' && m !== 'ctx' && m !== 'c' && m !== 'req' && m !== 'res' && m !== 'next') : [];
-
-      routes.push({ method: match[1].toUpperCase(), path: match[2], file: relative(dir, file), line, middleware });
-    }
-
-    // Next.js App Router detection
-    if (/app\/api/.test(file) && /route\.(ts|js)/.test(file)) {
-      const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].filter(m => new RegExp(`export\\s+(async\\s+)?function\\s+${m}`).test(content));
-      const apiPath = relative(dir, dirname(file)).replace(/^app/, '').replace(/\\/g, '/');
-      for (const m of methods) {
-        routes.push({ method: m, path: apiPath, file: relative(dir, file), line: 1, middleware: [] });
-      }
-    }
-  }
-  return routes;
+  return extractRoutes(files, dir)
+    .flatMap(r => r.methods.map(method => ({
+      method,
+      path: r.path,
+      file: r.file,
+      line: 1,
+      middleware: [],
+    })))
+    .slice(0, 50);
 }
 
 // ---------------------------------------------------------------------------

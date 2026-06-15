@@ -3,19 +3,19 @@ title: '{title}'
 type: 'feature' # feature | bugfix | refactor | chore
 created: '{date}'
 status: 'draft' # draft | ready-for-dev | in-progress | in-review | done
-context: [] # optional: max 3 project-wide standards/docs. NO source code files.
+context: [] # optional: `{project-root}/`-prefixed paths to project-wide standards/docs the implementation agent should load. Keep short — only what isn't already distilled into the spec body.
 ---
 
-<!-- Target: 900-1300 tokens. Above 1600 = high risk of context rot.
-     Never over-specify "how" -- use boundaries + examples instead.
+<!-- Target: 900–1300 tokens. Above 1600 = high risk of context rot.
+     Never over-specify "how" — use boundaries + examples instead.
      Cohesive cross-layer stories (DB+BE+UI) stay in ONE file.
      IMPORTANT: Remove all HTML comments when filling this template. -->
 
-<frozen-after-approval reason="human-owned intent -- do not modify unless human renegotiates">
+<frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
 
 ## Intent
 
-<!-- What is broken or missing, and why it matters. Then the high-level approach -- the "what", not the "how". -->
+<!-- What is broken or missing, and why it matters. Then the high-level approach — the "what", not the "how". -->
 
 **Problem:** ONE_TO_TWO_SENTENCES
 
@@ -72,7 +72,7 @@ context: [] # optional: max 3 project-wide standards/docs. NO source code files.
 ## Design Notes
 
 <!-- If the approach is straightforward, DELETE THIS ENTIRE SECTION. Do not write "N/A" or "None". -->
-<!-- Design rationale and golden examples only when non-obvious. Keep examples to 5-10 lines. -->
+<!-- Design rationale and golden examples only when non-obvious. Keep examples to 5–10 lines. -->
 
 DESIGN_RATIONALE_AND_EXAMPLES
 

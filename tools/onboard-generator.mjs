@@ -8,12 +8,14 @@ import { readFileSync, existsSync, readdirSync, statSync as fStatSync } from 'fs
 import { join, extname, relative, basename } from 'path';
 import { execFileSync } from 'child_process';
 import { checkFileSize } from './lib/security.mjs';
+import { walkLimited, JS_EXTENSIONS } from './lib/codebase-walk.mjs';
+import { extractRoutes } from './lib/codebase-routes.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
 }
 
-const CODE_EXTS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs']);
+const CODE_EXTS = JS_EXTENSIONS;
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'build', '.vercel', 'coverage', '.output', '__pycache__']);
 
 function readJSON(path) {
@@ -87,34 +89,15 @@ function detectStack(pkg) {
 // Route detection
 // ---------------------------------------------------------------------------
 function findRoutes(dir) {
-  const routes = [];
-  const files = [];
-  function walk(d, depth) {
-    if (depth > 6 || files.length > 500) return;
-    let entries;
-    try { entries = readdirSync(d, { withFileTypes: true }); } catch { return; }
-    for (const e of entries) {
-      if (SKIP_DIRS.has(e.name)) continue;
-      const full = join(d, e.name);
-      if (e.isDirectory()) walk(full, depth + 1);
-      else if (CODE_EXTS.has(extname(e.name))) files.push(full);
-    }
-  }
-  walk(dir, 0);
-
-  const routeRegex = /\b(?:app|router|server|fastify)\.(get|post|put|delete|patch)\s*\(\s*['"`]([^'"`]+)['"`]/gi;
-  for (const file of files) {
-    const sc = checkFileSize(file, fStatSync);
-    if (!sc.ok) continue;
-    let content;
-    try { content = readFileSync(file, 'utf8'); } catch { continue; }
-    let match;
-    while ((match = routeRegex.exec(content)) !== null) {
-      const line = content.slice(0, match.index).split('\n').length;
-      routes.push({ method: match[1].toUpperCase(), path: match[2], file: relative(dir, file), line });
-    }
-  }
-  return routes.slice(0, 50);
+  const files = walkLimited(dir, { maxDepth: 6, maxFiles: 500, extensions: JS_EXTENSIONS });
+  return extractRoutes(files, dir)
+    .flatMap(r => r.methods.map(method => ({
+      method,
+      path: r.path,
+      file: r.file,
+      line: 1,
+    })))
+    .slice(0, 50);
 }
 
 // ---------------------------------------------------------------------------

@@ -11,7 +11,7 @@
 
 ### Configuration Loading
 
-Load config from `.mighty-powers/config.yaml` and resolve:
+Load config from `{project-root}/.mighty-powers/config.yaml` and resolve:
 
 - `project_knowledge`
 - `user_name`

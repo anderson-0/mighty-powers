@@ -30,8 +30,8 @@ This step will generate content and present choices for each rule category:
 
 ## PROTOCOL INTEGRATION:
 
-- When 'A' selected: Invoke the `mighty-powers:advanced-elicitation` skill
-- When 'P' selected: Invoke the `mighty-powers:party-mode` skill
+- When 'A' selected: Invoke the `mp:advanced-elicitation` skill
+- When 'P' selected: Invoke the `mp:party-mode` skill
 - PROTOCOLS always return to display this step's A/P/C menu after the A or P have completed
 - User accepts/rejects protocol changes before proceeding
 
@@ -270,7 +270,7 @@ After each category, show the generated rules and present choices:
 
 #### If 'A' (Advanced Elicitation):
 
-- Invoke the `mighty-powers:advanced-elicitation` skill with current category rules
+- Invoke the `mp:advanced-elicitation` skill with current category rules
 - Process enhanced rules that come back
 - Ask user: "Accept these enhanced rules for {{category}}? (y/n)"
 - If yes: Update content, then return to A/P/C menu
@@ -278,7 +278,7 @@ After each category, show the generated rules and present choices:
 
 #### If 'P' (Party Mode):
 
-- Invoke the `mighty-powers:party-mode` skill with category rules context
+- Invoke the `mp:party-mode` skill with category rules context
 - Process collaborative insights on implementation patterns
 - Ask user: "Accept these changes to {{category}} rules? (y/n)"
 - If yes: Update content, then return to A/P/C menu

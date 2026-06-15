@@ -9,6 +9,16 @@ A sprint is the full lifecycle of shipping a feature — from planning through d
 
 **Announce at start:** "I'm using the sprint workflow to guide this feature from plan to ship."
 
+## Lifecycle Sprint Tracking (BMAD-aligned)
+
+For epic/story-based lifecycle work, use the dedicated skills synced from upstream BMAD:
+
+1. **`mp:sprint-planning`** — generate `sprint-status.yaml` from epic files
+2. **`mp:sprint-status`** — summarize progress and recommend next workflow (`create-story`, `dev-story`, `code-review`, etc.)
+3. Story cycle: `create-story` → `dev-story` → `code-review` → repeat or `retrospective`
+
+This skill (`mp:sprint`) remains the **Quick Track** plan→ship pipeline below. Do not confuse it with lifecycle sprint tracking.
+
 ## The Pipeline
 
 ```
@@ -46,9 +56,9 @@ Update this file as you progress through phases.
 
 **Trigger:** User describes a feature, requirement, or bug to fix.
 
-1. If the scope is large, use **`mighty-powers:brainstorming`** first to explore the idea space
-2. For complex multi-epic work, use the full lifecycle: **`mighty-powers:create-prd`** → **`mighty-powers:create-architecture`** → **`mighty-powers:create-epics`**
-3. For single features, use **`mighty-powers:writing-plans`** to create an implementation plan
+1. If the scope is large, use **`mp:brainstorming`** first to explore the idea space
+2. For complex multi-epic work, use the full lifecycle: **`mp:prd`** → **`mp:architecture`** → **`mp:create-epics`** → **`mp:sprint-planning`**
+3. For single features, use **`mp:writing-plans`** to create an implementation plan
 
 **Artifacts produced:** Implementation plan with file map, task list, test strategy
 
@@ -58,10 +68,10 @@ Update this file as you progress through phases.
 
 **Trigger:** Plan is approved.
 
-1. Use **`mighty-powers:executing-plans`** to implement the plan task by task
-2. If tasks are independent, use **`mighty-powers:dispatching-parallel-agents`** for parallel execution
-3. If working in isolation, use **`mighty-powers:git-worktrees`** for a clean workspace
-4. For story-based work, use **`mighty-powers:dev-story`**
+1. Use **`mp:executing-plans`** to implement the plan task by task
+2. If tasks are independent, use **`mp:dispatching-parallel-agents`** for parallel execution
+3. If working in isolation, use **`mp:git-worktrees`** for a clean workspace
+4. For story-based work, use **`mp:dev-story`**
 
 **Artifacts produced:** Working code, committed to a feature branch
 
@@ -71,9 +81,9 @@ Update this file as you progress through phases.
 
 **Trigger:** Implementation is complete.
 
-1. Use **`mighty-powers:test-driven-development`** to write tests for new code
+1. Use **`mp:test-driven-development`** to write tests for new code
 2. Run the full test suite to catch regressions
-3. If bugs are found, use **`mighty-powers:systematic-debugging`** to diagnose (not guess-and-fix)
+3. If bugs are found, use **`mp:systematic-debugging`** to diagnose (not guess-and-fix)
 
 **Artifacts produced:** Passing test suite, test coverage for new code
 
@@ -114,9 +124,9 @@ After both return:
 
 **Trigger:** Review is clean.
 
-1. Use **`mighty-powers:verification`** for final verification
-2. Run **`mighty-powers:ship`** which dispatches 3 parallel audit agents (security, code quality, bundle) — see ship skill for details
-3. Use **`mighty-powers:finishing-branch`** to merge/PR
+1. Use **`mp:verification`** for final verification
+2. Run **`mp:ship`** which dispatches 3 parallel audit agents (security, code quality, bundle) — see ship skill for details
+3. Use **`mp:finishing-branch`** to merge/PR
 
 **Artifacts produced:** PR/merge to main, deploy to production
 

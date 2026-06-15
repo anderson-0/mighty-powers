@@ -70,6 +70,13 @@ if [ -f "$CLAUDE_MD" ]; then
   fi
 fi
 
+# --- Mighty Powers config check ---
+init_notice=""
+MP_CONFIG="$PWD/.mighty-powers/config.yaml"
+if [ ! -f "$MP_CONFIG" ]; then
+  init_notice="Mighty Powers is not initialized in this project (.mighty-powers/config.yaml missing). Mention /init once — creates config, lifecycle artifact dirs, and optional CLAUDE.md. Do not block other work; lifecycle skills still run with neutral defaults."
+fi
+
 # --- Escape for JSON ---
 escape_for_json() {
     local s="$1"
@@ -85,8 +92,9 @@ meta_escaped=$(escape_for_json "$meta_skill_content")
 memory_escaped=$(escape_for_json "$memory_notice")
 claudemd_escaped=$(escape_for_json "$claudemd_notice")
 plan_escaped=$(escape_for_json "$plan_notice")
+init_escaped=$(escape_for_json "$init_notice")
 
-session_context="<EXTREMELY_IMPORTANT>\nYou have mighty-powers.\n\n${memory_escaped}\n${claudemd_escaped}\n${plan_escaped}\n\n**Below is the full content of your 'mighty-powers:using-mighty-powers' skill — your guide to using skills. For all other skills, use the 'Skill' tool:**\n\n${meta_escaped}\n</EXTREMELY_IMPORTANT>"
+session_context="<EXTREMELY_IMPORTANT>\nYou have mighty-powers.\n\n${memory_escaped}\n${init_escaped}\n${claudemd_escaped}\n${plan_escaped}\n\n**Below is the full content of your 'mp:using-mighty-powers' skill — your guide to using skills. For all other skills, use the 'Skill' tool:**\n\n${meta_escaped}\n</EXTREMELY_IMPORTANT>"
 
 # --- Output platform-appropriate JSON ---
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then

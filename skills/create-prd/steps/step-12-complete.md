@@ -62,7 +62,7 @@ Offer validation workflows to ensure PRD is ready for implementation:
 
 **Available Validation Workflows:**
 
-**Option 1: Check Implementation Readiness** (`skill:mighty-powers:check-readiness`)
+**Option 1: Check Implementation Readiness** (`skill:mp:check-readiness`)
 - Validates PRD has all information needed for development
 - Checks epic coverage completeness
 - Reviews UX alignment with requirements
@@ -78,7 +78,7 @@ Offer validation workflows to ensure PRD is ready for implementation:
 
 ### 4. Suggest Next Workflows
 
-PRD complete. Invoke the `mighty-powers:help` skill.
+PRD complete. Invoke the `mp:help` skill.
 
 ### 5. Final Completion Confirmation
 

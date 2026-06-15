@@ -172,7 +172,7 @@ Create a folder with a wave subfolder per wave. Each wave folder always has an i
 ```
 docs/plans/<feature-slug>/
 ├── plan.md                 # Overview: goal, architecture, wave summary, dependency graph
-├── status.yaml             # Execution state — THE resume file (see mighty-powers:resume)
+├── status.yaml             # Execution state — THE resume file (see mp:resume)
 ├── wave-1/                 # 3 tasks → inline in wave.md
 │   └── wave.md             # Wave overview + entry/checkpoint criteria + all task definitions
 ├── wave-2/                 # 7 tasks → separate task files
@@ -261,7 +261,7 @@ docs/plans/<feature-slug>/
 
 ### Status File (always created)
 
-Create `status.yaml` alongside `plan.md`. It enables `/resume` to pick up where execution stopped. See `mighty-powers:resume` for the full YAML format.
+Create `status.yaml` alongside `plan.md`. It enables `/resume` to pick up where execution stopped. See `mp:resume` for the full YAML format.
 
 Initialize with: `feature`, `created`, `plan_file`, `plan_type` (small|medium), `current_wave: 0`, `status: pending`, and a `waves` map with every task set to `{ status: pending }`.
 
@@ -272,7 +272,7 @@ Every `plan.md` starts with this header:
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** Execute wave-by-wave using mighty-powers:subagent-driven-development.
+> **For agentic workers:** Execute wave-by-wave using mp:subagent-driven-development.
 > **MANDATORY:** Update `status.yaml` IMMEDIATELY after every task completes.
 
 **Goal:** [One sentence]
@@ -375,5 +375,5 @@ If the reviewer finds issues, fix them before presenting execution options.
 
 After saving, announce: **"Plan saved to `docs/plans/<slug>/`. N waves, M tasks."** Then offer:
 
-1. **Subagent-Driven (recommended)** → use `mighty-powers:subagent-driven-development`
-2. **Inline Execution** → use `mighty-powers:executing-plans`
+1. **Subagent-Driven (recommended)** → use `mp:subagent-driven-development`
+2. **Inline Execution** → use `mp:executing-plans`

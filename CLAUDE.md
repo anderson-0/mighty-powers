@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Unified Claude Code plugin combining Superpowers (dev workflow discipline), Ultraship (safety + audit tools), and BMAD Method (lifecycle methodology). 42 skills, 19 tools, 6 agents, 22 commands.
+Unified Claude Code plugin combining Superpowers (dev workflow discipline), Ultraship (safety + audit tools), and BMAD Method (lifecycle methodology). 56 skills, 22 tools, 6 agents, 36 commands.
 
 ## Project Structure
 
@@ -12,7 +12,7 @@ commands/        — Slash command wrappers (thin files invoking skills)
 agents/          — Subagent role definitions (system prompts)
 hooks/           — Session start bootstrap + safety guard hooks
 tools/           — Node.js ESM tools (zero deps except htmlparser2 for SEO)
-tools/lib/       — Shared libraries (security.mjs, monorepo.mjs)
+tools/lib/       — Shared libraries (security.mjs, monorepo.mjs, codebase-walk.mjs, codebase-stack.mjs, codebase-routes.mjs, codebase-schema.mjs, codebase-ui.mjs)
 tests/           — Tool tests using node:test
 docs/plan/       — Implementation plan (9 phase files)
 ```
@@ -36,7 +36,7 @@ Complex workflows (PRD, architecture, UX design) use step-file architecture:
 
 ## Cross-Reference Convention
 
-All skill cross-references use `mighty-powers:<skill-name>` format. Never reference skills by file path.
+All skill cross-references use `mp:<skill-name>` format. Never reference skills by file path.
 
 ## Storage Convention
 

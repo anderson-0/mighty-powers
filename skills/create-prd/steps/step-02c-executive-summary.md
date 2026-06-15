@@ -91,8 +91,8 @@ Present the executive summary content for user review, then display menu:
 Display: "**Select:** [A] Advanced Elicitation [P] Party Mode [C] Continue to Success Criteria (Step 3 of 13)"
 
 #### Menu Handling Logic:
-- IF A: Invoke the `mighty-powers:advanced-elicitation` skill with the current executive summary content, process the enhanced content that comes back, ask user if they accept the improvements, if yes update content then redisplay menu, if no keep original content then redisplay menu
-- IF P: Invoke the `mighty-powers:party-mode` skill with the current executive summary content, process the collaborative improvements, ask user if they accept the changes, if yes update content then redisplay menu, if no keep original content then redisplay menu
+- IF A: Invoke the `mp:advanced-elicitation` skill with the current executive summary content, process the enhanced content that comes back, ask user if they accept the improvements, if yes update content then redisplay menu, if no keep original content then redisplay menu
+- IF P: Invoke the `mp:party-mode` skill with the current executive summary content, process the collaborative improvements, ask user if they accept the changes, if yes update content then redisplay menu, if no keep original content then redisplay menu
 - IF C: Append the final content to {outputFile}, update frontmatter by adding this step name to the end of the stepsCompleted array, then read fully and follow: ./step-03-success.md
 - IF Any other: help user respond, then redisplay menu
 

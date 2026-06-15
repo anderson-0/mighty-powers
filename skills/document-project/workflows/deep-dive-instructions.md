@@ -135,7 +135,7 @@ This will read EVERY file in this area. Proceed? [y/n]
     <action>Store all in file_inventory</action>
   </check>
 
-<action>For each file in file*inventory, document: - **File Path:** Full path - **Purpose:** What this file does (1-2 sentences) - **Lines of Code:** Total LOC - **Exports:** Complete list with signatures
+<action>For each file in file\*inventory, document: - **File Path:** Full path - **Purpose:** What this file does (1-2 sentences) - **Lines of Code:** Total LOC - **Exports:** Complete list with signatures
 
 - Functions: `functionName(param: Type): ReturnType` - Description
   - Classes: `ClassName` - Description with key methods
@@ -291,6 +291,7 @@ These comprehensive docs are now ready for:
 
 Thank you for using the document-project workflow!
 </action>
+<action>Run: `python3 ${CLAUDE_PLUGIN_ROOT}/tools/lib/resolve-customization.py --skill {skill-root} --key workflow.on_complete` — if the resolved value is non-empty, follow it as the final terminal instruction before exiting.</action>
 <action>Exit workflow</action>
 </action>
 </step>

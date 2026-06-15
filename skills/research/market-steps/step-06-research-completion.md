@@ -2,24 +2,24 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate content without web search verification
+- 🛑 NEVER generate content without web search verification
 
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- Search the web to verify and supplement your knowledge with current facts
-- YOU ARE A MARKET RESEARCH STRATEGIST, not content generator
-- FOCUS on strategic recommendations and actionable insights
-- WEB SEARCH REQUIRED - verify current facts against live sources
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ Search the web to verify and supplement your knowledge with current facts
+- 📋 YOU ARE A MARKET RESEARCH STRATEGIST, not content generator
+- 💬 FOCUS on strategic recommendations and actionable insights
+- 🔍 WEB SEARCH REQUIRED - verify current facts against live sources
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Show web search analysis before presenting findings
-- Present [C] complete option after completion content generation
-- ONLY save when user chooses C (Complete)
-- Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5, 6]` before completing workflow
-- FORBIDDEN to complete workflow until C is selected
-- GENERATE COMPLETE DOCUMENT STRUCTURE with intro, TOC, and summary
+- 🎯 Show web search analysis before presenting findings
+- ⚠️ Present [C] complete option after completion content generation
+- 💾 ONLY save when user chooses C (Complete)
+- 📖 Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5, 6]` before completing workflow
+- 🚫 FORBIDDEN to complete workflow until C is selected
+- 📚 GENERATE COMPLETE DOCUMENT STRUCTURE with intro, TOC, and summary
 
 ## CONTEXT BOUNDARIES:
 
@@ -385,7 +385,7 @@ _This comprehensive market research document serves as an authoritative market r
 **Ready to complete this comprehensive market research document?**
 [C] Complete Research - Save final comprehensive market research document
 
-**HALT -- wait for user response before proceeding.**
+**HALT — wait for user response before proceeding.**
 
 ### 6. Handle Complete Selection
 
@@ -402,30 +402,30 @@ When user selects 'C', append the content directly to the research document usin
 
 ## SUCCESS METRICS:
 
-- Compelling market introduction with research significance
-- Comprehensive market table of contents with complete document structure
-- Exhaustive market research coverage across all market aspects
-- Executive market summary with key findings and strategic implications
-- Strategic market recommendations grounded in comprehensive research
-- Complete market source verification with current citations
-- Professional market document structure and compelling narrative
-- [C] complete option presented and handled correctly
-- Market research workflow completed with comprehensive document
+✅ Compelling market introduction with research significance
+✅ Comprehensive market table of contents with complete document structure
+✅ Exhaustive market research coverage across all market aspects
+✅ Executive market summary with key findings and strategic implications
+✅ Strategic market recommendations grounded in comprehensive research
+✅ Complete market source verification with current citations
+✅ Professional market document structure and compelling narrative
+✅ [C] complete option presented and handled correctly
+✅ Market research workflow completed with comprehensive document
 
 ## FAILURE MODES:
 
-- Not producing compelling market introduction
-- Missing comprehensive market table of contents
-- Incomplete market research coverage across market aspects
-- Not providing executive market summary with key findings
-- Missing strategic market recommendations based on research
-- Relying solely on training data without web verification for current facts
-- Producing market document without professional structure
-- Not presenting completion option for final market document
+❌ Not producing compelling market introduction
+❌ Missing comprehensive market table of contents
+❌ Incomplete market research coverage across market aspects
+❌ Not providing executive market summary with key findings
+❌ Missing strategic market recommendations based on research
+❌ Relying solely on training data without web verification for current facts
+❌ Producing market document without professional structure
+❌ Not presenting completion option for final market document
 
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## STRATEGIC RESEARCH PROTOCOLS:
 
@@ -474,3 +474,11 @@ Comprehensive market research workflow complete. User may:
 - Conduct additional market research on specific segments or opportunities
 - Combine market research with other research types for comprehensive insights
 - Move forward with implementation based on strategic market recommendations
+
+## On Complete
+
+Run: `python3 ${CLAUDE_PLUGIN_ROOT}/tools/lib/resolve-customization.py --skill {skill-root} --key workflow.on_complete`
+
+If the resolved `workflow.on_complete` is non-empty, follow it as the final terminal instruction before exiting.
+
+Congratulations on completing comprehensive market research with professional documentation! 🎉

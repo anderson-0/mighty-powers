@@ -13,119 +13,115 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 
 ## When to Use
 
-Use when: you have an implementation plan + tasks are mostly independent + staying in this session.
-Otherwise: use `mighty-powers:executing-plans` (parallel session) or brainstorm first (no plan).
+```dot
+digraph when_to_use {
+    "Have implementation plan?" [shape=diamond];
+    "Tasks mostly independent?" [shape=diamond];
+    "Stay in this session?" [shape=diamond];
+    "subagent-driven-development" [shape=box];
+    "executing-plans" [shape=box];
+    "Manual execution or brainstorm first" [shape=box];
 
-## The Process — Wave-Based Parallel Execution
-
-Plans are organized into **waves**. Each wave groups tasks at the same dependency level. Tasks within a wave may be independent (parallelizable) or sequential — the plan annotates which. Between waves, there is a synchronization checkpoint.
-
-```
-For each wave:
-  1. Update status.yaml: wave → in_progress (DO THIS FIRST)
-  2. Check the wave's execution mode (parallel, sequential, mixed, or single task)
-  3. Parallel tasks: dispatch as concurrent implementer subagents
-     (all Agent tool calls in a single response)
-     Sequential tasks: dispatch one at a time
-  4. As each implementer completes → UPDATE status.yaml (task → completed) → dispatch its spec reviewer
-  5. As each spec reviewer passes → dispatch its code quality reviewer
-  6. When ALL tasks in the wave pass both reviews → run wave checkpoint
-  7. Update status.yaml: wave → completed, checkpoint results → proceed to next wave
+    "Have implementation plan?" -> "Tasks mostly independent?" [label="yes"];
+    "Have implementation plan?" -> "Manual execution or brainstorm first" [label="no"];
+    "Tasks mostly independent?" -> "Stay in this session?" [label="yes"];
+    "Tasks mostly independent?" -> "Manual execution or brainstorm first" [label="no - tightly coupled"];
+    "Stay in this session?" -> "subagent-driven-development" [label="yes"];
+    "Stay in this session?" -> "executing-plans" [label="no - parallel session"];
+}
 ```
 
-### Wave Execution Detail
+**vs. Executing Plans (parallel session):**
+- Same session (no context switch)
+- Fresh subagent per task (no context pollution)
+- Two-stage review after each task: spec compliance first, then code quality
+- Faster iteration (no human-in-loop between tasks)
 
-**Step 1 — Parallel Implementation:**
+## Task Sizing
 
-For a wave with independent tasks 2.1, 2.2, 2.3, dispatch all three implementer subagents simultaneously:
+Before dispatching, classify each task:
 
+| Size | Criteria | Process |
+|------|----------|---------|
+| **Small** | 1-2 files, < 50 lines changed, clear spec | Implementer only → mark complete |
+| **Medium** | 2-4 files, clear spec, some integration | Implementer → spec review → mark complete |
+| **Large** | 4+ files, cross-cutting, architectural decisions | Implementer → spec review → code quality review → mark complete |
+
+**Most tasks are Small or Medium.** Only Large tasks need the full 3-agent review cycle. Skipping unnecessary reviews for small tasks saves 2 subagent invocations per task.
+
+## The Process
+
+```dot
+digraph process {
+    rankdir=TB;
+
+    subgraph cluster_per_task {
+        label="Per Task";
+        "Classify task size (Small/Medium/Large)" [shape=diamond];
+        "Dispatch implementer subagent (./implementer-prompt.md)" [shape=box];
+        "Implementer subagent asks questions?" [shape=diamond];
+        "Answer questions, provide context" [shape=box];
+        "Implementer subagent implements, tests, commits, self-reviews" [shape=box];
+        "Mark task complete (Small)" [shape=box];
+        "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [shape=box];
+        "Spec reviewer subagent confirms code matches spec?" [shape=diamond];
+        "Implementer subagent fixes spec gaps" [shape=box];
+        "Mark task complete (Medium)" [shape=box];
+        "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [shape=box];
+        "Code quality reviewer subagent approves?" [shape=diamond];
+        "Implementer subagent fixes quality issues" [shape=box];
+        "Mark task complete (Large)" [shape=box];
+    }
+
+    "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
+    "More tasks remain?" [shape=diamond];
+    "Dispatch final code reviewer subagent for entire implementation" [shape=box];
+    "Use mp:finishing-branch" [shape=box style=filled fillcolor=lightgreen];
+
+    "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Classify task size (Small/Medium/Large)";
+    "Classify task size (Small/Medium/Large)" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
+    "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
+    "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Implementer subagent asks questions?" -> "Implementer subagent implements, tests, commits, self-reviews" [label="no"];
+    "Implementer subagent implements, tests, commits, self-reviews" -> "Mark task complete (Small)" [label="Small"];
+    "Implementer subagent implements, tests, commits, self-reviews" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="Medium/Large"];
+    "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" -> "Spec reviewer subagent confirms code matches spec?";
+    "Spec reviewer subagent confirms code matches spec?" -> "Implementer subagent fixes spec gaps" [label="no"];
+    "Implementer subagent fixes spec gaps" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="re-review"];
+    "Spec reviewer subagent confirms code matches spec?" -> "Mark task complete (Medium)" [label="Medium"];
+    "Spec reviewer subagent confirms code matches spec?" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="Large"];
+    "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" -> "Code quality reviewer subagent approves?";
+    "Code quality reviewer subagent approves?" -> "Implementer subagent fixes quality issues" [label="no"];
+    "Implementer subagent fixes quality issues" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="re-review"];
+    "Code quality reviewer subagent approves?" -> "Mark task complete (Large)" [label="yes"];
+    "Mark task complete (Small)" -> "More tasks remain?";
+    "Mark task complete (Medium)" -> "More tasks remain?";
+    "Mark task complete (Large)" -> "More tasks remain?";
+    "More tasks remain?" -> "Classify task size (Small/Medium/Large)" [label="yes"];
+    "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
+    "Dispatch final code reviewer subagent for entire implementation" -> "Use mp:finishing-branch";
+}
 ```
-Single message with 3 Agent tool calls:
-  Agent 1: implementer for task 2.1 (./implementer-prompt.md + task context)
-  Agent 2: implementer for task 2.2 (./implementer-prompt.md + task context)
-  Agent 3: implementer for task 2.3 (./implementer-prompt.md + task context)
-All three run concurrently.
-```
-
-Each implementer subagent:
-- Gets the task content (from a separate task file if > 5 tasks in the wave, or from the wave's `wave.md` if ≤ 5 tasks)
-- Implements using TDD
-- Commits its changes
-- Self-reviews
-- Reports status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED
-
-**Step 2 — Parallel Review:**
-
-As implementers complete, dispatch their reviewers. You can batch reviews:
-
-```
-Single message with review agents:
-  Agent 1: spec-reviewer for task 2.1 (./spec-reviewer-prompt.md + task diff)
-  Agent 2: spec-reviewer for task 2.2 (./spec-reviewer-prompt.md + task diff)
-  Agent 3: spec-reviewer for task 2.3 (./spec-reviewer-prompt.md + task diff)
-```
-
-If a spec reviewer rejects → re-dispatch implementer for that task only.
-Once spec passes → dispatch code quality reviewer for that task.
-
-**Step 3 — Wave Checkpoint:**
-
-When ALL tasks in the wave pass both reviews:
-1. Run the full test suite
-2. Update `status.yaml`: wave status → completed, checkpoint results
-3. If tests fail: diagnose, fix, re-run (don't proceed to next wave)
-4. If tests pass: proceed to next wave
-
-**Step 4 — Final Review:**
-
-After ALL waves complete:
-1. Dispatch `agents/code-reviewer.md` for the entire implementation (full diff from plan start)
-2. Use `mighty-powers:finishing-branch` to merge/PR
-
-### Status Tracking
-
-<EXTREMELY-IMPORTANT>
-MANDATORY: You MUST update `status.yaml` IMMEDIATELY after every state change. This is not optional. Do NOT proceed to the next action until the status file is written. If you skip this, session crashes lose all progress and `/resume` cannot recover.
-
-**Update status.yaml at EACH of these moments — no exceptions:**
-
-1. **Before dispatching a wave** → wave status: `in_progress`, `started_at`
-2. **When a task is dispatched** → task status: `in_progress`, `started_at`, `assigned_model`
-3. **When a task completes** → task status: `completed`, `completed_at`
-4. **When a task fails** → task status: `failed`, error summary
-5. **After wave checkpoint** → `checkpoint.tests_passed`, wave status: `completed` or `failed`
-6. **When all waves done** → top-level status: `completed`
-
-**Enforcement rule:** After every subagent returns, your NEXT action MUST be updating status.yaml. Not reviewing the output. Not dispatching the next task. Update status.yaml FIRST, then proceed.
-</EXTREMELY-IMPORTANT>
-
-### Fallback: Sequential Execution
-
-If parallel dispatch isn't possible (e.g., tasks within a wave have unexpected coupling):
-- Execute tasks one at a time within the wave
-- Still do two-stage review (spec then quality) per task
-- Still run wave checkpoint after all tasks complete
-- Still update status.yaml after each state change
 
 ## Model Selection
 
-Use the least powerful model that can handle each role to conserve cost and increase speed.
+Use the least powerful model that can handle each role. This prevents timeouts and saves cost.
 
-**Mechanical implementation tasks** (isolated functions, clear specs, 1-2 files): use a fast, cheap model. Most implementation tasks are mechanical when the plan is well-specified.
+| Role | Model | Why |
+|------|-------|-----|
+| Implementer (Small task) | sonnet | Mechanical work with clear spec — sonnet is fast and accurate |
+| Implementer (Medium/Large task) | opus | Cross-file coordination needs deep reasoning |
+| Spec reviewer | sonnet | Checklist comparison — no deep reasoning needed |
+| Code quality reviewer (Large only) | opus | Spotting subtle bugs, architecture issues, security flaws needs best judgment |
+| Final reviewer | opus | Reviewing entire implementation requires holistic understanding |
 
-**Integration and judgment tasks** (multi-file coordination, pattern matching, debugging): use a standard model.
-
-**Architecture, design, and review tasks**: use the most capable available model.
-
-**Task complexity signals:**
-- Touches 1-2 files with a complete spec → cheap model
-- Touches multiple files with integration concerns → standard model
-- Requires design judgment or broad codebase understanding → most capable model
-
-**Claude Code model parameter:** Pass the model via the Agent tool's `model` parameter:
-- `haiku` for mechanical implementation tasks
-- `sonnet` for standard tasks and spec review
-- `opus` for architecture-level code quality review
+**Rules:**
+- Use opus for anything requiring judgment, strategy, or cross-file reasoning.
+- Use sonnet for mechanical tasks with clear specs and tool-running.
+- If a sonnet implementer reports BLOCKED, re-dispatch with opus.
+- Never downgrade opus agents to sonnet — quality is non-negotiable.
+- **Default to opus for implementers** — sonnet failures that the main agent has to fix cost more than opus would have.
 
 ## Handling Implementer Status
 
@@ -156,40 +152,112 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 ```
 You: I'm using Subagent-Driven Development to execute this plan.
 
-[Read plan file, extract all tasks with full text and context]
+[Read plan file once: docs/plans/feature-plan.md]
+[Extract all 5 tasks with full text and context]
+[Create TodoWrite with all tasks]
 
 Task 1: Hook installation script
-  [Dispatch implementer subagent with task text + context]
-  Implementer: Implemented, 5/5 tests passing, committed.
-  [Dispatch spec reviewer] → Spec compliant
-  [Dispatch code quality reviewer] → Approved
-  [Update status.yaml → task 1 complete]
+
+[Get Task 1 text and context (already extracted)]
+[Dispatch implementation subagent with full task text + context]
+
+Implementer: "Before I begin - should the hook be installed at user or system level?"
+
+You: "Plugin level (${CLAUDE_PLUGIN_ROOT}/hooks/)"
+
+Implementer: "Got it. Implementing now..."
+[Later] Implementer:
+  - Implemented install-hook command
+  - Added tests, 5/5 passing
+  - Self-review: Found I missed --force flag, added it
+  - Committed
+
+[Dispatch spec compliance reviewer]
+Spec reviewer: ✅ Spec compliant - all requirements met, nothing extra
+
+[Get git SHAs, dispatch code quality reviewer]
+Code reviewer: Strengths: Good test coverage, clean. Issues: None. Approved.
+
+[Mark Task 1 complete]
 
 Task 2: Recovery modes
-  [Dispatch implementer subagent]
-  Implementer: Added verify/repair modes, 8/8 tests passing, committed.
-  [Dispatch spec reviewer] → Issues: missing progress reporting, extra --json flag
-  [Re-dispatch implementer to fix] → Fixed
-  [Spec reviewer re-reviews] → Compliant
-  [Dispatch code quality reviewer] → Issue: magic number
-  [Re-dispatch implementer to fix] → Extracted constant
-  [Code quality re-reviews] → Approved
-  [Update status.yaml → task 2 complete]
 
-[After all tasks → final code-reviewer → finishing-branch]
+[Get Task 2 text and context (already extracted)]
+[Dispatch implementation subagent with full task text + context]
+
+Implementer: [No questions, proceeds]
+Implementer:
+  - Added verify/repair modes
+  - 8/8 tests passing
+  - Self-review: All good
+  - Committed
+
+[Dispatch spec compliance reviewer]
+Spec reviewer: ❌ Issues:
+  - Missing: Progress reporting (spec says "report every 100 items")
+  - Extra: Added --json flag (not requested)
+
+[Implementer fixes issues]
+Implementer: Removed --json flag, added progress reporting
+
+[Spec reviewer reviews again]
+Spec reviewer: ✅ Spec compliant now
+
+[Dispatch code quality reviewer]
+Code reviewer: Strengths: Solid. Issues (Important): Magic number (100)
+
+[Implementer fixes]
+Implementer: Extracted PROGRESS_INTERVAL constant
+
+[Code reviewer reviews again]
+Code reviewer: ✅ Approved
+
+[Mark Task 2 complete]
+
+...
+
+[After all tasks]
+[Dispatch final code-reviewer]
+Final reviewer: All requirements met, ready to merge
+
+Done!
 ```
 
 ## Advantages
 
-- **Fresh context per task** — no accumulated confusion or context pollution
-- **Two-stage review** — spec compliance then code quality catches issues early (cheaper than debugging later)
-- **Controller curates context** — subagents get exactly what they need upfront, questions surface before work begins
-- **Cost tradeoff** — more subagent invocations (implementer + 2 reviewers per task) but catches issues earlier
+**vs. Manual execution:**
+- Subagents follow TDD naturally
+- Fresh context per task (no confusion)
+- Parallel-safe (subagents don't interfere)
+- Subagent can ask questions (before AND during work)
+
+**vs. Executing Plans:**
+- Same session (no handoff)
+- Continuous progress (no waiting)
+- Review checkpoints automatic
+
+**Efficiency gains:**
+- No file reading overhead (controller provides full text)
+- Controller curates exactly what context is needed
+- Subagent gets complete information upfront
+- Questions surfaced before work begins (not after)
+
+**Quality gates:**
+- Self-review catches issues before handoff
+- Two-stage review: spec compliance, then code quality
+- Review loops ensure fixes actually work
+- Spec compliance prevents over/under-building
+- Code quality ensures implementation is well-built
+
+**Cost:**
+- More subagent invocations (implementer + 2 reviewers per task)
+- Controller does more prep work (extracting all tasks upfront)
+- Review loops add iterations
+- But catches issues early (cheaper than debugging later)
 
 ## Red Flags
 
 **Never:**
-- **Proceed to the next task or wave without updating status.yaml first** — this is the #1 cause of lost progress
 - Start implementation on main/master branch without explicit user consent
 - Skip reviews (spec compliance OR code quality)
 - Proceed with unfixed issues
@@ -200,7 +268,7 @@ Task 2: Recovery modes
 - Accept "close enough" on spec compliance (spec reviewer found issues = not done)
 - Skip review loops (reviewer found issues = implementer fixes = review again)
 - Let implementer self-review replace actual review (both are needed)
-- **Start code quality review before spec compliance is done** (wrong order)
+- **Start code quality review before spec compliance is ✅** (wrong order)
 - Move to next task while either review has open issues
 
 **If subagent asks questions:**
@@ -221,13 +289,13 @@ Task 2: Recovery modes
 ## Integration
 
 **Required workflow skills:**
-- **mighty-powers:git-worktrees** - REQUIRED: Set up isolated workspace before starting
-- **mighty-powers:writing-plans** - Creates the plan this skill executes
-- **mighty-powers:code-review** - Code review for reviewer subagents
-- **mighty-powers:finishing-branch** - Complete development after all tasks
+- **mp:git-worktrees** - REQUIRED: Set up isolated workspace before starting
+- **mp:writing-plans** - Creates the plan this skill executes
+- **mp:code-review** - Code review template for reviewer subagents
+- **mp:finishing-branch** - Complete development after all tasks
 
 **Subagents should use:**
-- **mighty-powers:test-driven-development** - Subagents follow TDD for each task
+- **mp:test-driven-development** - Subagents follow TDD for each task
 
 **Alternative workflow:**
-- **mighty-powers:executing-plans** - Use for parallel session instead of same-session execution
+- **mp:executing-plans** - Use for parallel session instead of same-session execution

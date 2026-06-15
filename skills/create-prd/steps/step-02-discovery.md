@@ -169,8 +169,8 @@ Present the project classification for review, then display menu:
 Display: "**Select:** [A] Advanced Elicitation [P] Party Mode [C] Continue to Product Vision (Step 2b of 13)"
 
 #### Menu Handling Logic:
-- IF A: Invoke the `mighty-powers:advanced-elicitation` skill with the current classification, process the enhanced insights that come back, ask user if they accept the improvements, if yes update classification then redisplay menu, if no keep original classification then redisplay menu
-- IF P: Invoke the `mighty-powers:party-mode` skill with the current classification, process the collaborative insights, ask user if they accept the changes, if yes update classification then redisplay menu, if no keep original classification then redisplay menu
+- IF A: Invoke the `mp:advanced-elicitation` skill with the current classification, process the enhanced insights that come back, ask user if they accept the improvements, if yes update classification then redisplay menu, if no keep original classification then redisplay menu
+- IF P: Invoke the `mp:party-mode` skill with the current classification, process the collaborative insights, ask user if they accept the changes, if yes update classification then redisplay menu, if no keep original classification then redisplay menu
 - IF C: Save classification to {outputFile} frontmatter, add this step name to the end of stepsCompleted array, then read fully and follow: ./step-02b-vision.md
 - IF Any other: help user respond, then redisplay menu
 

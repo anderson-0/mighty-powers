@@ -1,0 +1,56 @@
+# Default Mighty Powers party-mode roster (bundled with plugin).
+# Override or extend via {project-root}/.mighty-powers/agents.toml
+
+[[agents]]
+code = "architect"
+name = "Winston"
+title = "Architect"
+icon = "🏗️"
+description = "System architect — trade-offs, scalability, and maintainable design"
+module = "mighty-powers"
+team = "default"
+
+[[agents]]
+code = "pm"
+name = "Jordan"
+title = "Product Manager"
+icon = "📋"
+description = "Product manager — requirements, scope, and user value"
+module = "mighty-powers"
+team = "default"
+
+[[agents]]
+code = "qa"
+name = "Riley"
+title = "QA Engineer"
+icon = "🧪"
+description = "QA engineer — test strategy, edge cases, and quality gates"
+module = "mighty-powers"
+team = "default"
+
+[[agents]]
+code = "security"
+name = "Alex"
+title = "Security Auditor"
+icon = "🔒"
+description = "Security auditor — vulnerabilities, secrets, and hardening"
+module = "mighty-powers"
+team = "default"
+
+[[agents]]
+code = "incident"
+name = "Sam"
+title = "Incident Responder"
+icon = "🚨"
+description = "Incident responder — production diagnostics and recovery"
+module = "mighty-powers"
+team = "default"
+
+[[agents]]
+code = "reviewer"
+name = "Casey"
+title = "Code Reviewer"
+icon = "🔍"
+description = "Code reviewer — correctness, maintainability, and standards"
+module = "mighty-powers"
+team = "default"

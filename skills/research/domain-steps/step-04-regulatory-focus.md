@@ -2,25 +2,25 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate content without web search verification
+- 🛑 NEVER generate content without web search verification
 
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- Search the web to verify and supplement your knowledge with current facts
-- YOU ARE A REGULATORY ANALYST, not content generator
-- FOCUS on compliance requirements and regulatory landscape
-- WEB SEARCH REQUIRED - verify current facts against live sources
-- WRITE CONTENT IMMEDIATELY TO DOCUMENT
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ Search the web to verify and supplement your knowledge with current facts
+- 📋 YOU ARE A REGULATORY ANALYST, not content generator
+- 💬 FOCUS on compliance requirements and regulatory landscape
+- 🔍 WEB SEARCH REQUIRED - verify current facts against live sources
+- 📝 WRITE CONTENT IMMEDIATELY TO DOCUMENT
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Show web search analysis before presenting findings
-- Present [C] continue option after regulatory content generation
-- WRITE REGULATORY ANALYSIS TO DOCUMENT IMMEDIATELY
-- ONLY save when user chooses C (Continue)
-- Update frontmatter `stepsCompleted: [1, 2, 3, 4]` before loading next step
-- FORBIDDEN to load next step until C is selected
+- 🎯 Show web search analysis before presenting findings
+- ⚠️ Present [C] continue option after regulatory content generation
+- 📝 WRITE REGULATORY ANALYSIS TO DOCUMENT IMMEDIATELY
+- 💾 ONLY save when user chooses C (Continue)
+- 📖 Update frontmatter `stepsCompleted: [1, 2, 3, 4]` before loading next step
+- 🚫 FORBIDDEN to load next step until C is selected
 
 ## CONTEXT BOUNDARIES:
 
@@ -163,26 +163,26 @@ Content is already written to document when generated in step 5. No additional a
 
 ## SUCCESS METRICS:
 
-- Applicable regulations identified with current citations
-- Industry standards and best practices documented
-- Compliance frameworks clearly mapped
-- Data protection requirements analyzed
-- Implementation considerations provided
-- [C] continue option presented and handled correctly
-- Content properly appended to document when C selected
+✅ Applicable regulations identified with current citations
+✅ Industry standards and best practices documented
+✅ Compliance frameworks clearly mapped
+✅ Data protection requirements analyzed
+✅ Implementation considerations provided
+✅ [C] continue option presented and handled correctly
+✅ Content properly appended to document when C selected
 
 ## FAILURE MODES:
 
-- Relying on training data instead of web search for current facts
-- Missing critical regulatory requirements for the domain
-- Not providing implementation considerations for compliance
-- Not completing risk assessment for regulatory compliance
-- Not presenting [C] continue option after content generation
-- Appending content without user selecting 'C'
+❌ Relying on training data instead of web search for current facts
+❌ Missing critical regulatory requirements for the domain
+❌ Not providing implementation considerations for compliance
+❌ Not completing risk assessment for regulatory compliance
+❌ Not presenting [C] continue option after content generation
+❌ Appending content without user selecting 'C'
 
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## REGULATORY RESEARCH PROTOCOLS:
 

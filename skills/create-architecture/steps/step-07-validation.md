@@ -32,8 +32,8 @@ This step will generate content and present choices:
 
 ## PROTOCOL INTEGRATION:
 
-- When 'A' selected: Invoke the `mighty-powers:advanced-elicitation` skill
-- When 'P' selected: Invoke the `mighty-powers:party-mode` skill
+- When 'A' selected: Invoke the `mp:advanced-elicitation` skill
+- When 'P' selected: Invoke the `mp:party-mode` skill
 - PROTOCOLS always return to display this step's A/P/C menu after the A or P have completed
 - User accepts/rejects protocol changes before proceeding
 
@@ -305,7 +305,7 @@ Show the validation results and present choices:
 
 #### If 'A' (Advanced Elicitation):
 
-- Invoke the `mighty-powers:advanced-elicitation` skill with validation issues
+- Invoke the `mp:advanced-elicitation` skill with validation issues
 - Process enhanced solutions for complex concerns
 - Ask user: "Accept these architectural improvements? (y/n)"
 - If yes: Update content, then return to A/P/C menu
@@ -313,7 +313,7 @@ Show the validation results and present choices:
 
 #### If 'P' (Party Mode):
 
-- Invoke the `mighty-powers:party-mode` skill with validation context
+- Invoke the `mp:party-mode` skill with validation context
 - Process collaborative insights on implementation readiness
 - Ask user: "Accept these changes to the validation results? (y/n)"
 - If yes: Update content, then return to A/P/C menu

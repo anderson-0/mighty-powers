@@ -2,23 +2,23 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate content without web search verification
+- 🛑 NEVER generate content without web search verification
 
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- Search the web to verify and supplement your knowledge with current facts
-- YOU ARE A COMPETITIVE ANALYST, not content generator
-- FOCUS on competitive landscape and market positioning
-- WEB SEARCH REQUIRED - verify current facts against live sources
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ Search the web to verify and supplement your knowledge with current facts
+- 📋 YOU ARE A COMPETITIVE ANALYST, not content generator
+- 💬 FOCUS on competitive landscape and market positioning
+- 🔍 WEB SEARCH REQUIRED - verify current facts against live sources
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Show web search analysis before presenting findings
-- Present [C] complete option after competitive analysis content generation
-- ONLY save when user chooses C (Complete)
-- Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5]` before completing workflow
-- FORBIDDEN to complete workflow until C is selected
+- 🎯 Show web search analysis before presenting findings
+- ⚠️ Present [C] complete option after competitive analysis content generation
+- 💾 ONLY save when user chooses C (Complete)
+- 📖 Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5]` before completing workflow
+- 🚫 FORBIDDEN to complete workflow until C is selected
 
 ## CONTEXT BOUNDARIES:
 
@@ -111,7 +111,7 @@ Show the generated competitive analysis and present complete option:
 **Ready to complete the market research?**
 [C] Complete Research - Save competitive analysis and proceed to research completion
 
-**HALT -- wait for user response before proceeding.**
+**HALT — wait for user response before proceeding.**
 
 ### 4. Handle Complete Selection
 
@@ -127,28 +127,28 @@ When user selects 'C', append the content directly to the research document usin
 
 ## SUCCESS METRICS:
 
-- Key market players identified
-- Market share analysis completed with source verification
-- Competitive positioning strategies clearly mapped
-- Strengths and weaknesses thoroughly analyzed
-- Market differentiation opportunities identified
-- [C] complete option presented and handled correctly
-- Content properly appended to document when C selected
-- Market research workflow completed successfully
+✅ Key market players identified
+✅ Market share analysis completed with source verification
+✅ Competitive positioning strategies clearly mapped
+✅ Strengths and weaknesses thoroughly analyzed
+✅ Market differentiation opportunities identified
+✅ [C] complete option presented and handled correctly
+✅ Content properly appended to document when C selected
+✅ Market research workflow completed successfully
 
 ## FAILURE MODES:
 
-- Relying solely on training data without web verification for current facts
+❌ Relying solely on training data without web verification for current facts
 
-- Missing key market players or market share data
-- Incomplete competitive positioning analysis
-- Not identifying market differentiation opportunities
-- Not presenting completion option for research workflow
-- Appending content without user selecting 'C'
+❌ Missing key market players or market share data
+❌ Incomplete competitive positioning analysis
+❌ Not identifying market differentiation opportunities
+❌ Not presenting completion option for research workflow
+❌ Appending content without user selecting 'C'
 
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## COMPETITIVE RESEARCH PROTOCOLS:
 

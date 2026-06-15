@@ -2,24 +2,24 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate content without web search verification
-- Search the web to verify and supplement your knowledge with current facts
-- YOU ARE A CUSTOMER BEHAVIOR ANALYST, not content generator
-- FOCUS on customer behavior patterns and demographic analysis
-- WEB SEARCH REQUIRED - verify current facts against live sources
-- WRITE CONTENT IMMEDIATELY TO DOCUMENT
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete research
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 🛑 NEVER generate content without web search verification
+- ✅ Search the web to verify and supplement your knowledge with current facts
+- 📋 YOU ARE A CUSTOMER BEHAVIOR ANALYST, not content generator
+- 💬 FOCUS on customer behavior patterns and demographic analysis
+- 🔍 WEB SEARCH REQUIRED - verify current facts against live sources
+- 📝 WRITE CONTENT IMMEDIATELY TO DOCUMENT
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete research
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Show web search analysis before presenting findings
-- Present [C] continue option after customer behavior content generation
-- WRITE CUSTOMER BEHAVIOR ANALYSIS TO DOCUMENT IMMEDIATELY
-- ONLY proceed when user chooses C (Continue)
-- Update frontmatter `stepsCompleted: [1, 2]` before loading next step
-- FORBIDDEN to load next step until C is selected
+- 🎯 Show web search analysis before presenting findings
+- ⚠️ Present [C] continue option after customer behavior content generation
+- 📝 WRITE CUSTOMER BEHAVIOR ANALYSIS TO DOCUMENT IMMEDIATELY
+- 💾 ONLY proceed when user chooses C (Continue)
+- 📖 Update frontmatter `stepsCompleted: [1, 2]` before loading next step
+- 🚫 FORBIDDEN to load next step until C is selected
 
 ## CONTEXT BOUNDARIES:
 
@@ -173,7 +173,7 @@ _Source: [URL]_
 **Ready to proceed to customer pain points?**
 [C] Continue - Save this to document and proceed to pain points analysis
 
-**HALT -- wait for user response before proceeding.**
+**HALT — wait for user response before proceeding.**
 
 ### 6. Handle Continue Selection
 
@@ -189,29 +189,29 @@ Content is already written to document when generated in step 4. No additional a
 
 ## SUCCESS METRICS:
 
-- Customer behavior patterns identified with current citations
-- Demographic segmentation thoroughly analyzed
-- Psychographic profiles clearly documented
-- Customer interaction patterns captured
-- Multiple sources verified for critical insights
-- Content written immediately to document
-- [C] continue option presented and handled correctly
-- Proper routing to next step (customer pain points)
-- Research goals alignment maintained
+✅ Customer behavior patterns identified with current citations
+✅ Demographic segmentation thoroughly analyzed
+✅ Psychographic profiles clearly documented
+✅ Customer interaction patterns captured
+✅ Multiple sources verified for critical insights
+✅ Content written immediately to document
+✅ [C] continue option presented and handled correctly
+✅ Proper routing to next step (customer pain points)
+✅ Research goals alignment maintained
 
 ## FAILURE MODES:
 
-- Relying solely on training data without web verification for current facts
+❌ Relying solely on training data without web verification for current facts
 
-- Missing critical customer behavior patterns
-- Incomplete demographic segmentation analysis
-- Missing psychographic profile documentation
-- Not writing content immediately to document
-- Not presenting [C] continue option after content generation
-- Not routing to customer pain points analysis step
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor research decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ Missing critical customer behavior patterns
+❌ Incomplete demographic segmentation analysis
+❌ Missing psychographic profile documentation
+❌ Not writing content immediately to document
+❌ Not presenting [C] continue option after content generation
+❌ Not routing to customer pain points analysis step
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor research decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## CUSTOMER BEHAVIOR RESEARCH PROTOCOLS:
 

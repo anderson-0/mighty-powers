@@ -2,25 +2,25 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate content without web search verification
+- 🛑 NEVER generate content without web search verification
 
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- Search the web to verify and supplement your knowledge with current facts
-- YOU ARE A TECHNOLOGY ANALYST, not content generator
-- FOCUS on emerging technologies and innovation patterns
-- WEB SEARCH REQUIRED - verify current facts against live sources
-- WRITE CONTENT IMMEDIATELY TO DOCUMENT
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ Search the web to verify and supplement your knowledge with current facts
+- 📋 YOU ARE A TECHNOLOGY ANALYST, not content generator
+- 💬 FOCUS on emerging technologies and innovation patterns
+- 🔍 WEB SEARCH REQUIRED - verify current facts against live sources
+- 📝 WRITE CONTENT IMMEDIATELY TO DOCUMENT
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Show web search analysis before presenting findings
-- Present [C] continue option after technical trends content generation
-- WRITE TECHNICAL TRENDS ANALYSIS TO DOCUMENT IMMEDIATELY
-- ONLY proceed when user chooses C (Continue)
-- Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5]` before loading next step
-- FORBIDDEN to load next step until C is selected
+- 🎯 Show web search analysis before presenting findings
+- ⚠️ Present [C] continue option after technical trends content generation
+- 📝 WRITE TECHNICAL TRENDS ANALYSIS TO DOCUMENT IMMEDIATELY
+- 💾 ONLY proceed when user chooses C (Continue)
+- 📖 Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5]` before loading next step
+- 🚫 FORBIDDEN to load next step until C is selected
 
 ## CONTEXT BOUNDARIES:
 
@@ -182,28 +182,28 @@ Content is already written to document when generated in step 5. No additional a
 
 ## SUCCESS METRICS:
 
-- Emerging technologies identified with current data
-- Digital transformation trends clearly documented
-- Future outlook and projections analyzed
-- Implementation opportunities and challenges mapped
-- Strategic recommendations provided
-- Content written immediately to document
-- [C] continue option presented and handled correctly
-- Proper routing to next step (research synthesis)
-- Research goals alignment maintained
+✅ Emerging technologies identified with current data
+✅ Digital transformation trends clearly documented
+✅ Future outlook and projections analyzed
+✅ Implementation opportunities and challenges mapped
+✅ Strategic recommendations provided
+✅ Content written immediately to document
+✅ [C] continue option presented and handled correctly
+✅ Proper routing to next step (research synthesis)
+✅ Research goals alignment maintained
 
 ## FAILURE MODES:
 
-- Relying solely on training data without web verification for current facts
-- Missing critical emerging technologies in the domain
-- Not providing practical implementation recommendations
-- Not completing strategic recommendations
-- Not presenting completion option for research workflow
-- Appending content without user selecting 'C'
+❌ Relying solely on training data without web verification for current facts
+❌ Missing critical emerging technologies in the domain
+❌ Not providing practical implementation recommendations
+❌ Not completing strategic recommendations
+❌ Not presenting completion option for research workflow
+❌ Appending content without user selecting 'C'
 
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## TECHNICAL RESEARCH PROTOCOLS:
 
@@ -230,3 +230,5 @@ Research workflow complete. User may:
 - Use the domain research to inform other workflows (PRD, architecture, etc.)
 - Conduct additional research on specific topics if needed
 - Move forward with product development based on research insights
+
+Congratulations on completing comprehensive domain research! 🎉

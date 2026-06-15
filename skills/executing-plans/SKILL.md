@@ -11,14 +11,14 @@ Load plan, review critically, execute wave-by-wave (parallel where tasks are ind
 
 **Announce at start:** "I'm using the executing-plans skill to implement this plan."
 
-**Note:** Tell your human partner that Mighty Powers works much better with access to subagents. The quality of its work will be significantly higher if run on a platform with subagent support (such as Claude Code or Codex). If subagents are available, use mighty-powers:subagent-driven-development instead of this skill.
+**Note:** Tell your human partner that Mighty Powers works much better with access to subagents. The quality of its work will be significantly higher if run on a platform with subagent support (such as Claude Code or Codex). If subagents are available, use mp:subagent-driven-development instead of this skill.
 
 ## The Process
 
 ### Step 1: Load and Review Plan
 
 1. Read the plan folder — `plan.md` + `status.yaml` + wave/task files if they exist
-2. If `status.yaml` shows `status: in_progress`, this is a **resume**. Use `mighty-powers:resume` instead.
+2. If `status.yaml` shows `status: in_progress`, this is a **resume**. Use `mp:resume` instead.
 3. Review critically — identify any questions or concerns about the plan
 4. If concerns: Raise them with your human partner before starting
 5. If no concerns: Update `status.yaml` to `status: in_progress` and proceed
@@ -70,16 +70,16 @@ Update at EACH of these moments — no exceptions:
 
 ### Wave Isolation via Git Worktrees (optional)
 
-Optional: Use `mighty-powers:git-worktrees` for wave-level isolation when waves have 3+ parallel tasks or rollback safety is needed. Default: no isolation.
+Optional: Use `mp:git-worktrees` for wave-level isolation when waves have 3+ parallel tasks or rollback safety is needed. Default: no isolation.
 
-Update these fields in `status.yaml` after every state change: wave status, task status, `started_at`, `completed_at`, checkpoint results. See `mighty-powers:resume` for the full YAML structure.
+Update these fields in `status.yaml` after every state change: wave status, task status, `started_at`, `completed_at`, checkpoint results. See `mp:resume` for the full YAML structure.
 
 ### Step 3: Complete Development
 
 After all waves complete and verified:
 1. Update `status.yaml`: top-level `status` → `completed`
 2. Announce: "I'm using the finishing-branch skill to complete this work."
-3. **REQUIRED SUB-SKILL:** Use mighty-powers:finishing-branch
+3. **REQUIRED SUB-SKILL:** Use mp:finishing-branch
 4. Follow that skill to verify tests, present options, execute choice
 
 ## Subagent Dispatch Pattern
@@ -193,7 +193,7 @@ Do not mark `status: completed` until all applicable items pass. If any item fai
 ## Integration
 
 **Required workflow skills:**
-- **mighty-powers:git-worktrees** - REQUIRED: Set up isolated workspace before starting
-- **mighty-powers:writing-plans** - Creates the plan this skill executes
-- **mighty-powers:finishing-branch** - Complete development after all tasks
-- **mighty-powers:resume** - Resume interrupted execution after session crash
+- **mp:git-worktrees** - REQUIRED: Set up isolated workspace before starting
+- **mp:writing-plans** - Creates the plan this skill executes
+- **mp:finishing-branch** - Complete development after all tasks
+- **mp:resume** - Resume interrupted execution after session crash

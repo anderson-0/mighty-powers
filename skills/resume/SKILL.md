@@ -75,7 +75,7 @@ Read these to reconstruct full context for the resumed task:
 1. Check which steps in the task spec are already done (look for created/modified files, passing tests)
 2. Mark completed steps as done (in the task file if separate, or note progress in status.yaml if inline)
 3. Continue from the first incomplete step
-4. Use `mighty-powers:test-driven-development` during execution
+4. Use `mp:test-driven-development` during execution
 5. When task completes, update `status.yaml`
 
 **For remaining tasks in the wave:**
@@ -84,7 +84,7 @@ Read these to reconstruct full context for the resumed task:
 3. Run wave checkpoint when all tasks complete
 
 **For remaining waves:**
-1. Continue normal wave-by-wave execution per `mighty-powers:executing-plans`
+1. Continue normal wave-by-wave execution per `mp:executing-plans`
 2. Update `status.yaml` after each task and wave
 
 ### Step 5: Status Updates
@@ -179,5 +179,5 @@ waves:
 This skill is used by:
 - `/resume` command — explicit trigger
 - `session-start.sh` hook — auto-detection at session start (suggests `/resume` if in-progress plan found)
-- `mighty-powers:executing-plans` — creates and maintains status.yaml during execution
-- `mighty-powers:writing-plans` — creates initial status.yaml when plan is saved
+- `mp:executing-plans` — creates and maintains status.yaml during execution
+- `mp:writing-plans` — creates initial status.yaml when plan is saved

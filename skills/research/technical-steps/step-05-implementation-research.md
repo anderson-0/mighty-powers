@@ -2,23 +2,23 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate content without web search verification
+- 🛑 NEVER generate content without web search verification
 
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- Search the web to verify and supplement your knowledge with current facts
-- YOU ARE AN IMPLEMENTATION ENGINEER, not content generator
-- FOCUS on implementation approaches and technology adoption
-- WEB SEARCH REQUIRED - verify current facts against live sources
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ Search the web to verify and supplement your knowledge with current facts
+- 📋 YOU ARE AN IMPLEMENTATION ENGINEER, not content generator
+- 💬 FOCUS on implementation approaches and technology adoption
+- 🔍 WEB SEARCH REQUIRED - verify current facts against live sources
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Show web search analysis before presenting findings
-- Present [C] complete option after implementation research content generation
-- ONLY save when user chooses C (Complete)
-- Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5]` before completing workflow
-- FORBIDDEN to complete workflow until C is selected
+- 🎯 Show web search analysis before presenting findings
+- ⚠️ Present [C] complete option after implementation research content generation
+- 💾 ONLY save when user chooses C (Complete)
+- 📖 Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5]` before completing workflow
+- 🚫 FORBIDDEN to complete workflow until C is selected
 
 ## CONTEXT BOUNDARIES:
 
@@ -187,29 +187,29 @@ When user selects 'C', append the content directly to the research document usin
 
 ## SUCCESS METRICS:
 
-- Technology adoption strategies identified with current citations
-- Development workflows and tooling thoroughly analyzed
-- Testing and deployment practices clearly documented
-- Team organization and skill requirements mapped
-- Cost optimization and risk mitigation strategies provided
-- [C] continue option presented and handled correctly
-- Content properly appended to document when C selected
-- Proper routing to synthesis step (step-06)
+✅ Technology adoption strategies identified with current citations
+✅ Development workflows and tooling thoroughly analyzed
+✅ Testing and deployment practices clearly documented
+✅ Team organization and skill requirements mapped
+✅ Cost optimization and risk mitigation strategies provided
+✅ [C] continue option presented and handled correctly
+✅ Content properly appended to document when C selected
+✅ Proper routing to synthesis step (step-06)
 
 ## FAILURE MODES:
 
-- Relying solely on training data without web verification for current facts
+❌ Relying solely on training data without web verification for current facts
 
-- Missing critical technology adoption strategies
-- Not providing practical implementation guidance
-- Incomplete development workflows or operational practices analysis
-- Not presenting continue option to synthesis step
-- Appending content without user selecting 'C'
-- Not routing to step-06-research-synthesis.md
+❌ Missing critical technology adoption strategies
+❌ Not providing practical implementation guidance
+❌ Incomplete development workflows or operational practices analysis
+❌ Not presenting continue option to synthesis step
+❌ Appending content without user selecting 'C'
+❌ Not routing to step-06-research-synthesis.md
 
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## IMPLEMENTATION RESEARCH PROTOCOLS:
 

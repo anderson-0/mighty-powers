@@ -17,10 +17,10 @@ Then in your project:
 
 ## What's Included
 
-- **45 skills** covering analysis, planning, solutioning, implementation, auditing, and deployment
-- **19 Node.js tools** for security scanning, code profiling, architecture mapping, and more
+- **56 skills** covering analysis, planning, solutioning, implementation, auditing, and deployment
+- **21 Node.js tools** for security scanning, code profiling, architecture mapping, and more
 - **6 named agents** (Reese, Sasha, Winston, Jordan, Quinn, Morgan) for reviews, audits, and multi-agent discussions
-- **25 slash commands** for quick access to common workflows
+- **36 slash commands** for quick access to common workflows
 - **Safety guardrails** that block destructive commands automatically
 - **Session resilience** — if your IDE crashes, `/resume` picks up exactly where you stopped
 - **Wave-based execution** — plans organized into waves with checkpoints; independent tasks within a wave run in parallel
@@ -413,7 +413,9 @@ Skills dispatch specialized agents via Claude Code's Agent tool. Each agent is a
 | `/party` | Multi-agent roundtable discussion |
 | `/status` | Check plan progress (read-only) |
 | `/resume` | Resume interrupted plan after session crash |
-| `/learn` | Save/search project learnings |
+| `/learn` | Save/search/digest/recall project learnings |
+| `/codex` | Generate compact codebase index (routes, schema, components) |
+| `/staying-current` | Verify version-sensitive facts against current sources |
 | `/retro` | Sprint retrospective |
 | `/onboard` | Generate developer onboarding guide |
 | `/architecture` | Generate Mermaid architecture diagrams |
@@ -434,7 +436,11 @@ communication_language: "English"
 document_output_language: "English"
 planning_artifacts: "docs/planning"
 implementation_artifacts: "docs/implementation"
+output_folder: "docs/planning"
+project_knowledge: "docs"
 ```
+
+`/init` also creates `docs/plans/`, lifecycle artifact directories, and `.mighty-powers/custom/` for skill overrides. Use `/help` when you are unsure which lifecycle step to run next.
 
 ## Credits
 

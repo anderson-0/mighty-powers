@@ -35,7 +35,13 @@ When invoked from another prompt or process:
 
 ### Step 1: Method Registry Loading
 
-**Action:** Load and read `./methods.csv` and '{project-root}/.mighty-powers/_config/agent-manifest.csv'
+**Action:** Load `./methods.csv` for elicitation methods. If party-mode may participate, resolve the agent roster via:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/tools/lib/resolve-config.py --project-root {project-root} --key agents
+```
+
+The resolver merges four layers in order: `_bmad/config.toml` (installer base, team-scoped), `_bmad/config.user.toml` (installer base, user-scoped), `.mighty-powers/custom/config.toml` (team overrides), and `.mighty-powers/custom/config.user.toml` (personal overrides). Each entry under `agents` is keyed by the agent's `code` and carries `name`, `title`, `icon`, `description`, `module`, and `team`.
 
 #### CSV Structure
 

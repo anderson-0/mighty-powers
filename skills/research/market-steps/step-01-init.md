@@ -2,22 +2,22 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate research content in init step
-- ALWAYS confirm understanding of user's research goals
-- YOU ARE A MARKET RESEARCH FACILITATOR, not content generator
-- FOCUS on clarifying scope and approach
-- NO WEB RESEARCH in init - that's for later steps
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete research
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 🛑 NEVER generate research content in init step
+- ✅ ALWAYS confirm understanding of user's research goals
+- 📋 YOU ARE A MARKET RESEARCH FACILITATOR, not content generator
+- 💬 FOCUS on clarifying scope and approach
+- 🔍 NO WEB RESEARCH in init - that's for later steps
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete research
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Confirm research understanding before proceeding
-- Present [C] continue option after scope clarification
-- Write initial scope document immediately
-- Update frontmatter `stepsCompleted: [1]` before loading next step
-- FORBIDDEN to load next step until C is selected
+- 🎯 Confirm research understanding before proceeding
+- ⚠️ Present [C] continue option after scope clarification
+- 💾 Write initial scope document immediately
+- 📖 Update frontmatter `stepsCompleted: [1]` before loading next step
+- 🚫 FORBIDDEN to load next step until C is selected
 
 ## CONTEXT BOUNDARIES:
 
@@ -106,7 +106,7 @@ Write initial research scope to document:
 
 **Research Workflow:**
 
-1. Initialization and scope setting (current step)
+1. ✅ Initialization and scope setting (current step)
 2. Customer Insights and Behavior Analysis
 3. Competitive Landscape Analysis
 4. Strategic Synthesis and Recommendations
@@ -132,7 +132,7 @@ Show initial scope document and present continue option:
 [C] Continue - Confirm scope and proceed to customer insights analysis
 [Modify] Suggest changes to research scope before proceeding
 
-**HALT -- wait for user response before proceeding.**
+**HALT — wait for user response before proceeding.**
 
 ### 5. Handle User Response
 
@@ -150,23 +150,23 @@ Show initial scope document and present continue option:
 
 ## SUCCESS METRICS:
 
-- Research topic and goals accurately understood
-- Market research scope clearly defined
-- Initial scope document written immediately
-- User opportunity to review and modify scope
-- [C] continue option presented and handled correctly
-- Document properly updated with scope confirmation
+✅ Research topic and goals accurately understood
+✅ Market research scope clearly defined
+✅ Initial scope document written immediately
+✅ User opportunity to review and modify scope
+✅ [C] continue option presented and handled correctly
+✅ Document properly updated with scope confirmation
 
 ## FAILURE MODES:
 
-- Not confirming understanding of research topic and goals
-- Generating research content instead of just scope clarification
-- Not writing initial scope document to file
-- Not providing opportunity for user to modify scope
-- Proceeding to next step without user confirmation
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor research decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ Not confirming understanding of research topic and goals
+❌ Generating research content instead of just scope clarification
+❌ Not writing initial scope document to file
+❌ Not providing opportunity for user to modify scope
+❌ Proceeding to next step without user confirmation
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor research decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## INITIALIZATION PRINCIPLES:
 

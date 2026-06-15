@@ -8,20 +8,29 @@ Task tool (general-purpose):
   prompt: |
     You are implementing Task N: [task name]
 
+    ## Working Style
+
+    Be efficient but thorough. If you need to read a file to understand how something
+    works before making changes, do it — guessing leads to broken implementations.
+    The context below covers the core requirements, but you may need to read adjacent
+    files to understand patterns, imports, or interfaces. That's expected.
+
+    If you're past 25 tool calls and not close to done, report BLOCKED with what's
+    left rather than producing low-quality work.
+
     ## Task Description
 
-    [FULL TEXT of task from plan - paste it here, or point to the file:
-     - If task has its own file (wave has > 5 tasks): "Read task file at: <path>"
-     - If task is inline in wave.md (≤ 5 tasks): paste the task section here
-     - For small plans: paste from plan.md]
+    [FULL TEXT of task from plan - paste it here, don't make subagent read file]
 
     ## Context
 
     [Scene-setting: where this fits, dependencies, architectural context]
+    [Include relevant code snippets inline so the agent doesn't need to read them]
 
     ## Before You Begin
 
-    Before starting: raise any questions about requirements, approach, or dependencies. Ask now, not mid-implementation.
+    If you have questions about the requirements, ask now. But do NOT ask about
+    things already answered in the context above.
 
     ## Your Job
 
@@ -40,15 +49,59 @@ Task tool (general-purpose):
 
     ## Code Organization
 
-    Follow the plan's file structure. One responsibility per file. If a file grows beyond plan intent, report DONE_WITH_CONCERNS — don't restructure on your own.
+    You reason best about code you can hold in context at once, and your edits are more
+    reliable when files are focused. Keep this in mind:
+    - Follow the file structure defined in the plan
+    - Each file should have one clear responsibility with a well-defined interface
+    - If a file you're creating is growing beyond the plan's intent, stop and report
+      it as DONE_WITH_CONCERNS — don't split files on your own without plan guidance
+    - If an existing file you're modifying is already large or tangled, work carefully
+      and note it as a concern in your report
+    - In existing codebases, follow established patterns. Improve code you're touching
+      the way a good developer would, but don't restructure things outside your task.
 
     ## When You're in Over Your Head
 
-    It's OK to stop. Report BLOCKED or NEEDS_CONTEXT with what you're stuck on and what you tried. Bad work is worse than no work.
+    It is always OK to stop and say "this is too hard for me." Bad work is worse than
+    no work. You will not be penalized for escalating.
+
+    **STOP and escalate when:**
+    - The task requires architectural decisions with multiple valid approaches
+    - You need to understand code beyond what was provided and can't find clarity
+    - You feel uncertain about whether your approach is correct
+    - The task involves restructuring existing code in ways the plan didn't anticipate
+    - You've been reading file after file trying to understand the system without progress
+
+    **How to escalate:** Report back with status BLOCKED or NEEDS_CONTEXT. Describe
+    specifically what you're stuck on, what you've tried, and what kind of help you need.
+    The controller can provide more context, re-dispatch with a more capable model,
+    or break the task into smaller pieces.
 
     ## Before Reporting Back: Self-Review
 
-    Self-review before reporting: spec fully implemented? Names clear? No overbuilding? Tests verify behavior (not mocks)? Fix issues before reporting.
+    Review your work with fresh eyes. Ask yourself:
+
+    **Completeness:**
+    - Did I fully implement everything in the spec?
+    - Did I miss any requirements?
+    - Are there edge cases I didn't handle?
+
+    **Quality:**
+    - Is this my best work?
+    - Are names clear and accurate (match what things do, not how they work)?
+    - Is the code clean and maintainable?
+
+    **Discipline:**
+    - Did I avoid overbuilding (YAGNI)?
+    - Did I only build what was requested?
+    - Did I follow existing patterns in the codebase?
+
+    **Testing:**
+    - Do tests actually verify behavior (not just mock behavior)?
+    - Did I follow TDD if required?
+    - Are tests comprehensive?
+
+    If you find issues during self-review, fix them now before reporting.
 
     ## Report Format
 

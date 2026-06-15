@@ -64,7 +64,7 @@ Assess the PRD as a cohesive, compelling document - evaluating document flow, du
 "Perform holistic quality assessment on this PRD using multi-perspective evaluation:
 
 **Advanced Elicitation workflow:**
-Invoke the `mighty-powers:advanced-elicitation` skill
+Invoke the `mp:advanced-elicitation` skill
 
 **Evaluate the PRD from these perspectives:**
 

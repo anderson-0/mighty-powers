@@ -4,11 +4,16 @@ Use this template when dispatching a spec compliance reviewer subagent.
 
 **Purpose:** Verify implementer built what was requested (nothing more, nothing less)
 
+**Model:** sonnet
+
 ```
 Task tool (general-purpose):
+  model: sonnet
   description: "Review spec compliance for Task N"
   prompt: |
     You are reviewing whether an implementation matches its specification.
+    Focus on the changed files, but read adjacent files if needed to verify
+    integration points or imports are correct.
 
     ## What Was Requested
 
@@ -18,32 +23,17 @@ Task tool (general-purpose):
 
     [From implementer's report]
 
-    ## CRITICAL: Do Not Trust the Report
+    ## Files Changed
 
-    Verify against spec independently. Read actual code — don't trust the implementer's report.
+    [List of files from implementer's report — read ONLY these files]
 
     ## Your Job
 
-    Read the implementation code and verify:
+    Read each changed file. For each requirement in the spec, check: implemented or not?
 
-    **Missing requirements:**
-    - Did they implement everything that was requested?
-    - Are there requirements they skipped or missed?
-    - Did they claim something works but didn't actually implement it?
-
-    **Extra/unneeded work:**
-    - Did they build things that weren't requested?
-    - Did they over-engineer or add unnecessary features?
-    - Did they add "nice to haves" that weren't in spec?
-
-    **Misunderstandings:**
-    - Did they interpret requirements differently than intended?
-    - Did they solve the wrong problem?
-    - Did they implement the right feature but wrong way?
-
-    **Verify by reading code, not by trusting report.**
+    Do NOT trust the implementer's report. Verify by reading code.
 
     Report:
-    - Spec compliant (if everything matches after code inspection)
-    - Issues found: [list specifically what's missing or extra, with file:line references]
+    - ✅ Spec compliant (all requirements implemented, nothing extra)
+    - ❌ Issues: [what's missing or extra, with file:line]
 ```

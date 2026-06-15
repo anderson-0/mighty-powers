@@ -1,6 +1,6 @@
 # Methodology Benchmark: AI Writing Assistant × 4 Runs
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `mighty-powers:executing-plans` or `mighty-powers:subagent-driven-development` to run this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use `mp:executing-plans` or `mp:subagent-driven-development` to run this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the same AI writing assistant SaaS four times — once per methodology — then score each output on a fixed rubric to surface real differences in code quality, discipline, security, and speed.
 
@@ -355,7 +355,7 @@ SPEC: Read /Users/anderson/Documents/anderson-0/writeflow-benchmark/spec.md — 
 SETUP:
 1. Create the app at: /Users/anderson/Documents/anderson-0/writeflow-benchmark/runs/mighty-powers/writeflow/
 2. Run: npx create-next-app@latest writeflow --typescript --tailwind --app --src-dir --import-alias "@/*"
-3. Use mighty-powers: run /init, then paste the spec, then follow the full workflow
+3. Use mp: run /init, then paste the spec, then follow the full workflow
 
 CONSTRAINTS:
 - Model: claude-sonnet-4-6 only

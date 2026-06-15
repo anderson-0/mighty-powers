@@ -2,25 +2,25 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate content without web search verification
+- 🛑 NEVER generate content without web search verification
 
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- Search the web to verify and supplement your knowledge with current facts
-- YOU ARE A DOMAIN RESEARCH STRATEGIST, not content generator
-- FOCUS on comprehensive synthesis and authoritative conclusions
-- WEB SEARCH REQUIRED - verify current facts against live sources
-- PRODUCE COMPREHENSIVE DOCUMENT with narrative intro, TOC, and summary
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ Search the web to verify and supplement your knowledge with current facts
+- 📋 YOU ARE A DOMAIN RESEARCH STRATEGIST, not content generator
+- 💬 FOCUS on comprehensive synthesis and authoritative conclusions
+- 🔍 WEB SEARCH REQUIRED - verify current facts against live sources
+- 📄 PRODUCE COMPREHENSIVE DOCUMENT with narrative intro, TOC, and summary
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Show web search analysis before presenting findings
-- Present [C] complete option after synthesis content generation
-- ONLY save when user chooses C (Complete)
-- Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5, 6]` before completing workflow
-- FORBIDDEN to complete workflow until C is selected
-- GENERATE COMPLETE DOCUMENT STRUCTURE with intro, TOC, and summary
+- 🎯 Show web search analysis before presenting findings
+- ⚠️ Present [C] complete option after synthesis content generation
+- 💾 ONLY save when user chooses C (Complete)
+- 📖 Update frontmatter `stepsCompleted: [1, 2, 3, 4, 5, 6]` before completing workflow
+- 🚫 FORBIDDEN to complete workflow until C is selected
+- 📚 GENERATE COMPLETE DOCUMENT STRUCTURE with intro, TOC, and summary
 
 ## CONTEXT BOUNDARIES:
 
@@ -385,30 +385,30 @@ When user selects 'C', append the complete comprehensive research document using
 
 ## SUCCESS METRICS:
 
-- Compelling narrative introduction with research significance
-- Comprehensive table of contents with complete document structure
-- Exhaustive research coverage across all domain aspects
-- Executive summary with key findings and strategic implications
-- Strategic recommendations grounded in comprehensive research
-- Complete source verification with citations
-- Professional document structure and compelling narrative
-- [C] complete option presented and handled correctly
-- Domain research workflow completed with comprehensive document
+✅ Compelling narrative introduction with research significance
+✅ Comprehensive table of contents with complete document structure
+✅ Exhaustive research coverage across all domain aspects
+✅ Executive summary with key findings and strategic implications
+✅ Strategic recommendations grounded in comprehensive research
+✅ Complete source verification with citations
+✅ Professional document structure and compelling narrative
+✅ [C] complete option presented and handled correctly
+✅ Domain research workflow completed with comprehensive document
 
 ## FAILURE MODES:
 
-- Not producing compelling narrative introduction
-- Missing comprehensive table of contents
-- Incomplete research coverage across domain aspects
-- Not providing executive summary with key findings
-- Missing strategic recommendations based on research
-- Relying solely on training data without web verification for current facts
-- Producing document without professional structure
-- Not presenting completion option for final document
+❌ Not producing compelling narrative introduction
+❌ Missing comprehensive table of contents
+❌ Incomplete research coverage across domain aspects
+❌ Not providing executive summary with key findings
+❌ Missing strategic recommendations based on research
+❌ Relying solely on training data without web verification for current facts
+❌ Producing document without professional structure
+❌ Not presenting completion option for final document
 
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## COMPREHENSIVE DOCUMENT STANDARDS:
 
@@ -440,3 +440,11 @@ Complete authoritative research document on {{research_topic}} that:
 - Provides strategic insights for informed decision-making
 - Serves as reference document for continued use
 - Maintains highest research quality standards
+
+## On Complete
+
+Run: `python3 ${CLAUDE_PLUGIN_ROOT}/tools/lib/resolve-customization.py --skill {skill-root} --key workflow.on_complete`
+
+If the resolved `workflow.on_complete` is non-empty, follow it as the final terminal instruction before exiting.
+
+Congratulations on completing comprehensive domain research! 🎉

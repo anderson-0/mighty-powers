@@ -190,8 +190,8 @@ Display: **Select an Option:** [A] Advanced Elicitation [P] Party Mode [C] Conti
 
 #### Menu Handling Logic:
 
-- IF A: Invoke the `mighty-powers:advanced-elicitation` skill, and when finished redisplay the menu
-- IF P: Invoke the `mighty-powers:party-mode` skill, and when finished redisplay the menu
+- IF A: Invoke the `mp:advanced-elicitation` skill, and when finished redisplay the menu
+- IF P: Invoke the `mp:party-mode` skill, and when finished redisplay the menu
 - IF C: Read fully and follow: {nextStepFile} to begin format detection
 - IF user provides additional document: Load it, update report, redisplay summary
 - IF Any other: help user, then redisplay menu

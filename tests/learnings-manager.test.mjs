@@ -125,4 +125,63 @@ describe('learnings-manager CLI', () => {
     assert.equal(result.success, true);
     assert.equal(result.pruned_count, 0);
   });
+
+  it('digest groups learnings by tag', () => {
+    // Ensure at least one learning with a known tag exists
+    runTool(['save', '--title', 'Digest Test', '--body', 'Body', '--tags', 'performance']);
+    const result = runTool(['digest']);
+    assert.equal(result.success, true);
+    assert.equal(result.action, 'digest');
+    assert.ok(typeof result.total === 'number');
+    assert.ok(Array.isArray(result.groups));
+    assert.ok(result.groups.length >= 1);
+    const group = result.groups[0];
+    assert.ok(group.tag);
+    assert.ok(typeof group.count === 'number');
+    assert.ok(Array.isArray(group.recent));
+  });
+
+  it('digest respects --top N', () => {
+    const result = runTool(['digest', '--top', '1']);
+    assert.equal(result.success, true);
+    for (const g of result.groups) {
+      assert.ok(g.recent.length <= 1);
+    }
+  });
+
+  it('recall requires --query', () => {
+    const result = runTool(['recall']);
+    assert.equal(result.success, false);
+    assert.ok(result.error.includes('--query'));
+  });
+
+  it('recall returns ranked results', () => {
+    runTool(['save', '--title', 'Redis cache tip', '--body', 'Use Redis for caching sessions', '--tags', 'cache,redis']);
+    const result = runTool(['recall', '--query', 'redis cache']);
+    assert.equal(result.success, true);
+    assert.equal(result.action, 'recall');
+    assert.ok(Array.isArray(result.results));
+    assert.ok(result.count >= 1);
+    // The redis learning should be top result
+    assert.ok(result.results[0].title.toLowerCase().includes('redis') || result.results[0].body.toLowerCase().includes('redis'));
+  });
+
+  it('recall returns empty for non-matching query', () => {
+    const result = runTool(['recall', '--query', 'zzz-nomatch-zzz']);
+    assert.equal(result.success, true);
+    assert.equal(result.count, 0);
+  });
+
+  it('recall respects --top N', () => {
+    // Add more learnings to ensure we have enough to truncate
+    runTool(['save', '--title', 'A test item', '--body', 'test content here']);
+    runTool(['save', '--title', 'B test item', '--body', 'test content here']);
+    runTool(['save', '--title', 'C test item', '--body', 'test content here']);
+    runTool(['save', '--title', 'D test item', '--body', 'test content here']);
+    runTool(['save', '--title', 'E test item', '--body', 'test content here']);
+    runTool(['save', '--title', 'F test item', '--body', 'test content here']);
+    const result = runTool(['recall', '--query', 'test', '--top', '3']);
+    assert.equal(result.success, true);
+    assert.ok(result.results.length <= 3);
+  });
 });

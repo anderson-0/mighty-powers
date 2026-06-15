@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // tools/learnings-manager.mjs
-// Project learnings manager — save, search, list, prune, export learnings
+// Project learnings manager — save, search, list, prune, digest, recall, export
 // Usage: node tools/learnings-manager.mjs <action> [options]
-//   Actions: save, search, list, prune, export
+//   Actions: save, search, list, prune, digest, recall, export
 //   save --title "Title" --body "Learning content" --tags "tag1,tag2"
 //   search --query "keyword"
 //   list [--limit N]
@@ -70,15 +70,38 @@ function saveLearning(title, body, tags) {
   return learning;
 }
 
-function searchLearnings(query) {
+function queryLearnings(query, { ranked = false, topN } = {}) {
   const dir = getLearningsDir();
   const all = loadAllLearnings(dir);
   const q = query.toLowerCase();
-  return all.filter(l =>
-    l.title.toLowerCase().includes(q) ||
-    l.body.toLowerCase().includes(q) ||
-    l.tags.some(t => t.toLowerCase().includes(q))
-  );
+
+  if (!ranked) {
+    return all.filter(l =>
+      l.title.toLowerCase().includes(q) ||
+      l.body.toLowerCase().includes(q) ||
+      l.tags.some(t => t.toLowerCase().includes(q))
+    );
+  }
+
+  const words = q.split(/\s+/).filter(Boolean);
+  const scored = all.map(l => {
+    const haystack = `${l.title} ${l.body} ${l.tags.join(' ')}`.toLowerCase();
+    const score = words.reduce((acc, w) => {
+      const count = (haystack.match(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+      return acc + count;
+    }, 0);
+    return { score, learning: l };
+  });
+
+  return scored
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, topN || 5)
+    .map(s => s.learning);
+}
+
+function searchLearnings(query) {
+  return queryLearnings(query, { ranked: false });
 }
 
 function listLearnings(limit) {
@@ -100,6 +123,33 @@ function pruneLearnings(olderThanDays) {
     }
   }
   return pruned;
+}
+
+function digestLearnings(topN) {
+  const dir = getLearningsDir();
+  const all = loadAllLearnings(dir);
+
+  // Group by first tag only (learnings with multiple tags appear under their primary tag).
+  const groups = {};
+  for (const l of all) {
+    const key = l.tags.length > 0 ? l.tags[0] : 'untagged';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(l);
+  }
+
+  const summary = Object.entries(groups)
+    .sort(([, a], [, b]) => b.length - a.length)
+    .map(([tag, items]) => ({
+      tag,
+      count: items.length,
+      recent: items.slice(0, topN || 3).map(l => ({ id: l.id, title: l.title, created_at: l.created_at })),
+    }));
+
+  return { total: all.length, groups: summary };
+}
+
+function recallLearnings(query, topN) {
+  return queryLearnings(query, { ranked: true, topN });
 }
 
 function exportLearnings(format) {
@@ -129,7 +179,7 @@ function main() {
 
   if (!action) {
     output({
-      error: 'Usage: node learnings-manager.mjs <action> [options]\nActions: save, search, list, prune, export',
+      error: 'Usage: node learnings-manager.mjs <action> [options]\nActions: save, search, list, prune, export, digest, recall',
       success: false,
     });
     process.exit(0);
@@ -186,8 +236,26 @@ function main() {
       break;
     }
 
+    case 'digest': {
+      const topN = flags.top ? parseInt(flags.top, 10) : 3;
+      const result = digestLearnings(topN);
+      output({ success: true, action: 'digest', ...result });
+      break;
+    }
+
+    case 'recall': {
+      if (!flags.query) {
+        output({ error: 'recall requires --query', success: false });
+        process.exit(0);
+      }
+      const topN = flags.top ? parseInt(flags.top, 10) : 5;
+      const results = recallLearnings(flags.query, topN);
+      output({ success: true, action: 'recall', query: flags.query, results, count: results.length });
+      break;
+    }
+
     default:
-      output({ error: `Unknown action: ${action}. Valid: save, search, list, prune, export`, success: false });
+      output({ error: `Unknown action: ${action}. Valid: save, search, list, prune, export, digest, recall`, success: false });
   }
 }
 

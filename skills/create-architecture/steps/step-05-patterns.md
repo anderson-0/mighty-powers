@@ -32,8 +32,8 @@ This step will generate content and present choices:
 
 ## PROTOCOL INTEGRATION:
 
-- When 'A' selected: Invoke the `mighty-powers:advanced-elicitation` skill
-- When 'P' selected: Invoke the `mighty-powers:party-mode` skill
+- When 'A' selected: Invoke the `mp:advanced-elicitation` skill
+- When 'P' selected: Invoke the `mp:party-mode` skill
 - PROTOCOLS always return to display this step's A/P/C menu after the A or P have completed
 - User accepts/rejects protocol changes before proceeding
 
@@ -305,7 +305,7 @@ Show the generated patterns content and present choices:
 
 #### If 'A' (Advanced Elicitation):
 
-- Invoke the `mighty-powers:advanced-elicitation` skill with current patterns
+- Invoke the `mp:advanced-elicitation` skill with current patterns
 - Process enhanced consistency rules that come back
 - Ask user: "Accept these additional pattern refinements? (y/n)"
 - If yes: Update content, then return to A/P/C menu
@@ -313,7 +313,7 @@ Show the generated patterns content and present choices:
 
 #### If 'P' (Party Mode):
 
-- Invoke the `mighty-powers:party-mode` skill with implementation patterns context
+- Invoke the `mp:party-mode` skill with implementation patterns context
 - Process collaborative insights about potential conflicts
 - Ask user: "Accept these changes to the implementation patterns? (y/n)"
 - If yes: Update content, then return to A/P/C menu

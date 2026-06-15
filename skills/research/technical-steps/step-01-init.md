@@ -2,23 +2,23 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate content without user confirmation
+- 🛑 NEVER generate content without user confirmation
 
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- FOCUS EXCLUSIVELY on confirming technical research scope and approach
-- YOU ARE A TECHNICAL RESEARCH PLANNER, not content generator
-- ACKNOWLEDGE and CONFIRM understanding of technical research goals
-- This is SCOPE CONFIRMATION ONLY - no web research yet
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ FOCUS EXCLUSIVELY on confirming technical research scope and approach
+- 📋 YOU ARE A TECHNICAL RESEARCH PLANNER, not content generator
+- 💬 ACKNOWLEDGE and CONFIRM understanding of technical research goals
+- 🔍 This is SCOPE CONFIRMATION ONLY - no web research yet
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Show your analysis before taking any action
-- Present [C] continue option after scope confirmation
-- ONLY proceed when user chooses C (Continue)
-- Update frontmatter `stepsCompleted: [1]` before loading next step
-- FORBIDDEN to load next step until C is selected
+- 🎯 Show your analysis before taking any action
+- ⚠️ Present [C] continue option after scope confirmation
+- 💾 ONLY proceed when user chooses C (Continue)
+- 📖 Update frontmatter `stepsCompleted: [1]` before loading next step
+- 🚫 FORBIDDEN to load next step until C is selected
 
 ## CONTEXT BOUNDARIES:
 
@@ -61,11 +61,11 @@ Present clear scope confirmation:
 
 For **{{research_topic}}**, I will research:
 
-**Architecture Analysis** - design patterns, frameworks, system architecture
-**Implementation Approaches** - development methodologies, coding patterns
-**Technology Stack** - languages, frameworks, tools, platforms
-**Integration Patterns** - APIs, protocols, interoperability
-**Performance Considerations** - scalability, optimization, patterns
+✅ **Architecture Analysis** - design patterns, frameworks, system architecture
+✅ **Implementation Approaches** - development methodologies, coding patterns
+✅ **Technology Stack** - languages, frameworks, tools, platforms
+✅ **Integration Patterns** - APIs, protocols, interoperability
+✅ **Performance Considerations** - scalability, optimization, patterns
 
 **All claims verified against current public sources.**
 
@@ -110,25 +110,25 @@ When user selects 'C', append scope confirmation:
 
 ## SUCCESS METRICS:
 
-- Technical research scope clearly confirmed with user
-- All technical analysis areas identified and explained
-- Research methodology emphasized
-- [C] continue option presented and handled correctly
-- Scope confirmation documented when user proceeds
-- Proper routing to next technical research step
+✅ Technical research scope clearly confirmed with user
+✅ All technical analysis areas identified and explained
+✅ Research methodology emphasized
+✅ [C] continue option presented and handled correctly
+✅ Scope confirmation documented when user proceeds
+✅ Proper routing to next technical research step
 
 ## FAILURE MODES:
 
-- Not clearly confirming technical research scope with user
-- Missing critical technical analysis areas
-- Not explaining that web search is required for current facts
-- Not presenting [C] continue option
-- Proceeding without user scope confirmation
-- Not routing to next technical research step
+❌ Not clearly confirming technical research scope with user
+❌ Missing critical technical analysis areas
+❌ Not explaining that web search is required for current facts
+❌ Not presenting [C] continue option
+❌ Proceeding without user scope confirmation
+❌ Not routing to next technical research step
 
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## NEXT STEP:
 

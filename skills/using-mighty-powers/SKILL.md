@@ -7,6 +7,18 @@ description: Use when starting any conversation — establishes how to find and 
 If you were dispatched as a subagent to execute a specific task, skip this skill.
 </SUBAGENT-STOP>
 
+<IMPORTANT>
+**Memory-first rule:** At the START of every session, read MEMORY.md and relevant memory files BEFORE performing any task. Never claim something is missing or not done without first checking memory. Memory records can become stale — verify against current state before acting on them.
+</IMPORTANT>
+
+<IMPORTANT>
+**Currency-first rule:** Do not answer version-sensitive questions from training data — library/SDK APIs, package versions, model IDs, pricing, CLI flags, "latest" anything. Verify against current sources first: context7 MCP for library docs, WebSearch/WebFetch for everything else, the project lockfile for installed versions. The `mp:staying-current` skill is the full policy. The Currency Guard hook will remind you when a prompt looks version-sensitive. If you can't verify, say so rather than guessing.
+</IMPORTANT>
+
+<IMPORTANT>
+**Skill-first rule:** Invoke relevant skills BEFORE any response or action — including clarifying questions. Even a 1% chance a skill might apply means invoke it first. If an invoked skill turns out not to fit, you don't need to follow it. Skipping a skill and being wrong costs more than invoking one unnecessarily.
+</IMPORTANT>
+
 ## Instruction Priority
 
 Mighty Powers skills override default system prompt behavior, but **user instructions always take precedence**:
@@ -44,8 +56,8 @@ Quick Track has 4 size tiers. **Pick the smallest tier that fits the task.**
 > "This looks like a quick change. Want me to jump straight to implementation, or would you prefer an implementation plan first?"
 
 If user says jump in:
-1. Use `mighty-powers:test-driven-development` — write a test if applicable, make the change
-2. Use `mighty-powers:verification` — run tests, confirm everything passes
+1. Use `mp:test-driven-development` — write a test if applicable, make the change
+2. Use `mp:verification` — run tests, confirm everything passes
 
 If user wants a plan → treat as Tier 2.
 
@@ -57,9 +69,9 @@ Planning required. Plan is organized in waves with checkpoints.
 writing-plans → executing-plans (wave by wave) → verification
 ```
 
-1. Use `mighty-powers:writing-plans` — create plan organized into **waves** (parallel where tasks are independent, sequential where they're not)
-2. Use `mighty-powers:executing-plans` or `mighty-powers:subagent-driven-development` — execute wave by wave, parallelize independent tasks within each wave
-3. Use `mighty-powers:verification` — run tests, confirm complete
+1. Use `mp:writing-plans` — create plan organized into **waves** (parallel where tasks are independent, sequential where they're not)
+2. Use `mp:executing-plans` or `mp:subagent-driven-development` — execute wave by wave, parallelize independent tasks within each wave
+3. Use `mp:verification` — run tests, confirm complete
 
 ### Tier 3: Medium (single feature, clear scope, multiple files)
 
@@ -73,11 +85,11 @@ brainstorming → writing-plans (waves) → executing-plans (wave by wave) → c
   obvious)
 ```
 
-1. `mighty-powers:brainstorming` — only if the approach isn't obvious. **Skip if you know what to build.**
-2. `mighty-powers:writing-plans` — detailed plan structured in **waves** with checkpoints (parallel where tasks are independent)
-3. `mighty-powers:executing-plans` or `mighty-powers:subagent-driven-development` — execute wave by wave, parallelize independent tasks
-4. `mighty-powers:code-review` — two-stage review before merge
-5. `mighty-powers:verification` — final check
+1. `mp:brainstorming` — only if the approach isn't obvious. **Skip if you know what to build.** (Quick Track design-with-approval; for Lifecycle ideation use `mp:brainstorm-session` instead.)
+2. `mp:writing-plans` — detailed plan structured in **waves** with checkpoints (parallel where tasks are independent)
+3. `mp:executing-plans` or `mp:subagent-driven-development` — execute wave by wave, parallelize independent tasks
+4. `mp:code-review` — two-stage review before merge
+5. `mp:verification` — final check
 
 ### Tier 4: Structured Small (needs spec tracking across sessions)
 
@@ -87,7 +99,7 @@ For when the change is small but you need a formal spec document — e.g., the w
 quick-dev (5-step workflow with spec file, wave-based plan)
 ```
 
-1. Use `mighty-powers:quick-dev` — clarify intent → plan (in waves) → implement (parallel per wave) → adversarial review → present
+1. Use `mp:quick-dev` — clarify intent → plan (in waves) → implement (parallel per wave) → adversarial review → present
 2. This creates a spec file in `docs/implementation/` that tracks progress
 
 **Use Tier 4 only when Tier 2-3 isn't enough** — when you need the spec as a persistent artifact.
@@ -104,21 +116,21 @@ Wave 2: [Task D] → [Task E]         ← D and E share a file → run sequentia
 Wave 3: [Task F]                    ← single task
 ```
 
-Not every wave has parallelism. A plan that is entirely sequential (one task per wave) is fine — waves still provide checkpoints and clear dependency ordering. See `mighty-powers:writing-plans` for how plans are structured.
+Not every wave has parallelism. A plan that is entirely sequential (one task per wave) is fine — waves still provide checkpoints and clear dependency ordering. See `mp:writing-plans` for how plans are structured.
 
 ### Bug fixes at any size
 
-Always start with `mighty-powers:systematic-debugging` — 4-phase root cause process. Then apply the appropriate tier above for the fix.
+Always start with `mp:systematic-debugging` — 4-phase root cause process. Then apply the appropriate tier above for the fix.
 
 ### Supporting skills (available in all tiers)
 
 | Phase | Skill | When |
 |-------|-------|------|
-| **BUILD** | `mighty-powers:test-driven-development` | During ANY code writing — write test first, then code |
-| **BUILD** | `mighty-powers:systematic-debugging` | ANY bug or unexpected behavior — root cause first |
-| **BUILD** | `mighty-powers:git-worktrees` | When you need an isolated workspace |
-| **VERIFY** | `mighty-powers:finishing-branch` | When branch is ready to merge/PR |
-| **BUILD** | `mighty-powers:dispatching-parallel-agents` | When a user request OR plan has 2+ independent tasks — dispatch in parallel, not sequentially |
+| **BUILD** | `mp:test-driven-development` | During ANY code writing — write test first, then code |
+| **BUILD** | `mp:systematic-debugging` | ANY bug or unexpected behavior — root cause first |
+| **BUILD** | `mp:git-worktrees` | When you need an isolated workspace |
+| **VERIFY** | `mp:finishing-branch` | When branch is ready to merge/PR |
+| **BUILD** | `mp:dispatching-parallel-agents` | When a user request OR plan has 2+ independent tasks — dispatch in parallel, not sequentially |
 
 ## Track 2: Lifecycle Track (use only when needed)
 
@@ -141,31 +153,39 @@ When in doubt, start with Quick Track. You can always escalate later.
 ```
 Analysis → Planning → Solutioning → Implementation
    ↓           ↓           ↓              ↓
-research    create-prd   create-arch    dev-story
-product-    create-ux    create-epics   (uses Quick
-brief       design       check-ready    Track skills
-                         gen-context    during execution)
+research    prd          architecture   dev-story
+product-    create-ux    create-epics   sprint-planning
+brief       design       check-ready    sprint-status
+prfaq                    gen-context    checkpoint-preview
+brainstorm-session
 ```
 
 **Skills in this track:**
 
 | Phase | Skill | When |
 |-------|-------|------|
-| Analysis | `mighty-powers:research` | Validate assumptions with domain/market/technical research |
-| Analysis | `mighty-powers:product-brief` | Capture strategic vision |
-| Analysis | `mighty-powers:document-project` | Document an existing project |
-| Planning | `mighty-powers:create-prd` | Create a Product Requirements Document |
-| Planning | `mighty-powers:validate-prd` | Validate an existing PRD |
-| Planning | `mighty-powers:create-ux-design` | Design user experience and journeys |
-| Solutioning | `mighty-powers:create-architecture` | Technical architecture decisions |
-| Solutioning | `mighty-powers:create-epics` | Break requirements into epics and stories |
-| Solutioning | `mighty-powers:generate-project-context` | Generate project "constitution" |
-| Solutioning | `mighty-powers:check-readiness` | Gate check before implementation |
-| Implementation | `mighty-powers:create-story` | Prepare next story |
-| Implementation | `mighty-powers:dev-story` | Execute a story (uses TDD internally) |
-| Management | `mighty-powers:sprint` | Sprint pipeline: plan → build → test → review → ship → verify |
-| Management | `mighty-powers:retrospective` | Sprint retrospective |
-| Management | `mighty-powers:correct-course` | Mid-sprint pivots |
+| Analysis | `mp:brainstorm-session` | Lifecycle ideation — creative techniques, memlog, resume |
+| Analysis | `mp:research` | Validate assumptions with domain/market/technical research |
+| Analysis | `mp:product-brief` | Capture strategic vision |
+| Analysis | `mp:document-project` | Document an existing project |
+| Analysis | `mp:prfaq` | Working Backwards PRFAQ — stress-test product concepts |
+| Planning | `mp:prd` | Create, update, or validate a PRD (unified workflow) |
+| Planning | `mp:create-ux-design` | UX design — DESIGN.md + EXPERIENCE.md spines |
+| Solutioning | `mp:architecture` | Architecture spine — invariants that keep work consistent |
+| Solutioning | `mp:create-epics` | Break requirements into epics and stories |
+| Solutioning | `mp:generate-project-context` | Generate project "constitution" |
+| Solutioning | `mp:check-readiness` | Gate check before implementation |
+| Implementation | `mp:sprint-planning` | Generate `sprint-status.yaml` from epics |
+| Implementation | `mp:sprint-status` | Summarize sprint status and recommend next action |
+| Implementation | `mp:create-story` | Prepare next story |
+| Implementation | `mp:dev-story` | Execute a story (uses TDD internally) |
+| Implementation | `mp:checkpoint-preview` | Human-in-the-loop review of a change |
+| Implementation | `mp:qa-generate-e2e-tests` | Generate API/E2E tests for implemented code |
+| Management | `mp:sprint` | Quick Track pipeline: plan → build → test → review → ship |
+| Management | `mp:retrospective` | Sprint retrospective |
+| Management | `mp:correct-course` | Mid-sprint pivots |
+
+**Deprecated shims** (redirect to skills above): `create-prd`, `validate-prd`, `create-architecture`.
 
 **You don't need ALL phases.** If the user already has a PRD, skip to Solutioning. If they already have architecture + epics, skip to Implementation.
 
@@ -175,28 +195,30 @@ brief       design       check-ready    Track skills
 
 | Phase | Skill | When |
 |-------|-------|------|
-| **VERIFY** | `mighty-powers:guard` | Manage safety guardrails, freeze directories |
-| **REVIEW** | `mighty-powers:security-audit` | User asks to audit security, or before shipping sensitive changes |
-| **REVIEW** | `mighty-powers:pentest` | User asks for penetration testing |
-| **SHIP** | `mighty-powers:ship` | Pre-deploy scorecard — user asks "are we ready to ship?" |
-| **DEFINE** | `mighty-powers:architecture-map` | User asks for architecture diagrams |
-| **SHIP** | `mighty-powers:rescue` | Production incident — diagnostics, rollback, post-mortem |
+| **VERIFY** | `mp:guard` | Manage safety guardrails, freeze directories |
+| **REVIEW** | `mp:security-audit` | User asks to audit security, or before shipping sensitive changes |
+| **REVIEW** | `mp:pentest` | User asks for penetration testing |
+| **SHIP** | `mp:ship` | Pre-deploy scorecard — user asks "are we ready to ship?" |
+| **DEFINE** | `mp:architecture-map` | User asks for architecture diagrams |
+| **SHIP** | `mp:rescue` | Production incident — diagnostics, rollback, post-mortem |
 
 ## Track 4: Knowledge & Advanced (on-demand)
 
 | Skill | When |
 |-------|------|
-| `mighty-powers:learnings` | User wants to save/search project learnings |
-| `mighty-powers:onboard` | User asks for an onboarding guide |
-| `mighty-powers:revise-claude-md` | User asks to update CLAUDE.md |
-| `mighty-powers:party-mode` | User asks for a multi-agent discussion |
-| `mighty-powers:advanced-elicitation` | User wants to push output quality |
-| `mighty-powers:adversarial-review` | User wants a cynical review of a plan/document |
-| `mighty-powers:writing-skills` | User wants to create new skills |
-| `mighty-powers:resume` | Resume an interrupted plan after session crash — auto-detects or point to plan folder |
-| `mighty-powers:status` | Check plan progress without resuming — read-only view of where things stand |
-| `mighty-powers:init` | First-time project setup — creates config, offers to generate CLAUDE.md |
-| `mighty-powers:help` | User asks for help or "what should I do next?" |
+| `mp:staying-current` | Before answering anything version-sensitive — library APIs, versions, pricing, model IDs |
+| `mp:learnings` | User wants to save/search/digest/recall project learnings |
+| `mp:onboard` | User asks for an onboarding guide |
+| `/codex` command | Generate compact codebase index at `.mighty-powers/codex.md` to save exploration tokens |
+| `mp:revise-claude-md` | User asks to update CLAUDE.md |
+| `mp:party-mode` | User asks for a multi-agent discussion |
+| `mp:advanced-elicitation` | User wants to push output quality |
+| `mp:adversarial-review` | User wants a cynical review of a plan/document |
+| `mp:writing-skills` | User wants to create new skills |
+| `mp:resume` | Resume an interrupted plan after session crash — auto-detects or point to plan folder |
+| `mp:status` | Check plan progress without resuming — read-only view of where things stand |
+| `mp:init` | First-time project setup — creates config, offers to generate CLAUDE.md |
+| `mp:help` | User asks for help or "what should I do next?" |
 
 ---
 
@@ -221,7 +243,7 @@ Session starts
 User gives a task
     │
     ├─ Is it a bug fix or unexpected behavior?
-    │   └─ YES → mighty-powers:systematic-debugging → then fix using appropriate tier
+    │   └─ YES → mp:systematic-debugging → then fix using appropriate tier
     │
     ├─ Is it a question, research, or exploration?
     │   └─ YES → Answer directly (no skill needed) unless user asks for formal research
@@ -246,7 +268,7 @@ User gives a task
     │             → code-review → verification
     │
     ├─ Does it need a persistent spec artifact? (multi-session, needs adversarial review)
-    │   └─ YES → Quick Track Tier 4: mighty-powers:quick-dev
+    │   └─ YES → Quick Track Tier 4: mp:quick-dev
     │
     └─ Default → Quick Track Tier 2 or 3 based on scope
 ```
@@ -354,5 +376,4 @@ When a skill dispatches a subagent, it reads the agent definition and includes i
 | `rescue` | incident-responder | Single agent for diagnosis |
 | `party-mode` | Any combination of agents | 2-4 agents per round, parallel spawn |
 | `subagent-driven-development` | implementer + spec-reviewer + quality-reviewer | Per-task cycle with two-stage review |
-| `brainstorming` | spec-document-reviewer | Single agent after design spec |
-| `writing-plans` | plan-document-reviewer | Single agent after plan written |
+| `writing-plans` | plan-document-reviewer | Single agent after plan written (skipped for Simple plans) |

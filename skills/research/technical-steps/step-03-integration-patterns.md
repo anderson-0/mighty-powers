@@ -2,25 +2,25 @@
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- NEVER generate content without web search verification
+- 🛑 NEVER generate content without web search verification
 
-- CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
-- CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
-- Search the web to verify and supplement your knowledge with current facts
-- YOU ARE AN INTEGRATION ANALYST, not content generator
-- FOCUS on APIs, protocols, and system interoperability
-- WEB SEARCH REQUIRED - verify current facts against live sources
-- WRITE CONTENT IMMEDIATELY TO DOCUMENT
-- YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
+- 📖 CRITICAL: ALWAYS read the complete step file before taking any action - partial understanding leads to incomplete decisions
+- 🔄 CRITICAL: When loading next step with 'C', ensure the entire file is read and understood before proceeding
+- ✅ Search the web to verify and supplement your knowledge with current facts
+- 📋 YOU ARE AN INTEGRATION ANALYST, not content generator
+- 💬 FOCUS on APIs, protocols, and system interoperability
+- 🔍 WEB SEARCH REQUIRED - verify current facts against live sources
+- 📝 WRITE CONTENT IMMEDIATELY TO DOCUMENT
+- ✅ YOU MUST ALWAYS SPEAK OUTPUT In your Agent communication style with the config `{communication_language}`
 
 ## EXECUTION PROTOCOLS:
 
-- Show web search analysis before presenting findings
-- Present [C] continue option after integration patterns content generation
-- WRITE INTEGRATION PATTERNS ANALYSIS TO DOCUMENT IMMEDIATELY
-- ONLY proceed when user chooses C (Continue)
-- Update frontmatter `stepsCompleted: [1, 2, 3]` before loading next step
-- FORBIDDEN to load next step until C is selected
+- 🎯 Show web search analysis before presenting findings
+- ⚠️ Present [C] continue option after integration patterns content generation
+- 📝 WRITE INTEGRATION PATTERNS ANALYSIS TO DOCUMENT IMMEDIATELY
+- 💾 ONLY proceed when user chooses C (Continue)
+- 📖 Update frontmatter `stepsCompleted: [1, 2, 3]` before loading next step
+- 🚫 FORBIDDEN to load next step until C is selected
 
 ## CONTEXT BOUNDARIES:
 
@@ -197,30 +197,30 @@ Content is already written to document when generated in step 4. No additional a
 
 ## SUCCESS METRICS:
 
-- API design patterns and protocols thoroughly analyzed
-- Communication protocols and data formats evaluated
-- System interoperability approaches documented
-- Microservices integration patterns mapped
-- Event-driven integration strategies identified
-- Content written immediately to document
-- [C] continue option presented and handled correctly
-- Proper routing to next step (architectural patterns)
-- Research goals alignment maintained
+✅ API design patterns and protocols thoroughly analyzed
+✅ Communication protocols and data formats evaluated
+✅ System interoperability approaches documented
+✅ Microservices integration patterns mapped
+✅ Event-driven integration strategies identified
+✅ Content written immediately to document
+✅ [C] continue option presented and handled correctly
+✅ Proper routing to next step (architectural patterns)
+✅ Research goals alignment maintained
 
 ## FAILURE MODES:
 
-- Relying solely on training data without web verification for current facts
+❌ Relying solely on training data without web verification for current facts
 
-- Missing critical API design patterns or protocols
-- Incomplete communication protocols analysis
-- Not identifying system interoperability approaches
-- Not writing content immediately to document
-- Not presenting [C] continue option after content generation
-- Not routing to architectural patterns step
+❌ Missing critical API design patterns or protocols
+❌ Incomplete communication protocols analysis
+❌ Not identifying system interoperability approaches
+❌ Not writing content immediately to document
+❌ Not presenting [C] continue option after content generation
+❌ Not routing to architectural patterns step
 
-- **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
-- **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
-- **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
+❌ **CRITICAL**: Reading only partial step file - leads to incomplete understanding and poor decisions
+❌ **CRITICAL**: Proceeding with 'C' without fully reading and understanding the next step file
+❌ **CRITICAL**: Making decisions without complete understanding of step requirements and protocols
 
 ## INTEGRATION PATTERNS RESEARCH PROTOCOLS:
 

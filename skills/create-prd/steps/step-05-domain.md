@@ -141,8 +141,8 @@ Acknowledge the domain and explore what makes it complex:
 Display: "**Select:** [A] Advanced Elicitation [P] Party Mode [C] Continue - Save and Proceed to Innovation (Step 6 of 13)"
 
 #### Menu Handling Logic:
-- IF A: Invoke the `mighty-powers:advanced-elicitation` skill, and when finished redisplay the menu
-- IF P: Invoke the `mighty-powers:party-mode` skill, and when finished redisplay the menu
+- IF A: Invoke the `mp:advanced-elicitation` skill, and when finished redisplay the menu
+- IF P: Invoke the `mp:party-mode` skill, and when finished redisplay the menu
 - IF C: Save content to {outputFile}, update frontmatter, then read fully and follow: ./step-06-innovation.md
 - IF Any other comments or queries: help user respond then [Redisplay Menu Options](#n-present-menu-options)
 

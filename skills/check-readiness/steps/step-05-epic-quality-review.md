@@ -6,7 +6,7 @@ outputFile: '{planning_artifacts}/implementation-readiness-report-{{date}}.md'
 
 ## STEP GOAL:
 
-To validate epics and stories against the best practices defined in create-epics workflow, focusing on user value, independence, dependencies, and implementation readiness.
+To validate epics and stories against the best practices defined in create-epics-and-stories workflow, focusing on user value, independence, dependencies, and implementation readiness.
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
@@ -28,7 +28,7 @@ To validate epics and stories against the best practices defined in create-epics
 
 ### Step-Specific Rules:
 
-- 🎯 Apply create-epics standards rigorously
+- 🎯 Apply create-epics-and-stories standards rigorously
 - 🚫 Don't accept "technical milestones" as epics
 - 💬 Challenge every dependency on future work
 - 🚪 Verify proper story sizing and structure
@@ -44,7 +44,7 @@ To validate epics and stories against the best practices defined in create-epics
 
 ### 1. Initialize Best Practices Validation
 
-"Beginning **Epic Quality Review** against create-epics standards.
+"Beginning **Epic Quality Review** against create-epics-and-stories standards.
 
 I will rigorously validate:
 

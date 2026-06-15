@@ -106,7 +106,7 @@ The assessment found [number] issues requiring attention. Review the detailed re
 
 The implementation readiness workflow is now complete. The report contains all findings and recommendations for the user to consider.
 
-Implementation Readiness complete. Invoke the `mighty-powers:help` skill.
+Implementation Readiness complete. Invoke the `mp:help` skill.
 
 ---
 
@@ -124,3 +124,9 @@ Implementation Readiness complete. Invoke the `mighty-powers:help` skill.
 - Not reviewing previous findings
 - Incomplete summary
 - No clear recommendations
+
+## On Complete
+
+Run: `python3 ${CLAUDE_PLUGIN_ROOT}/tools/lib/resolve-customization.py --skill {skill-root} --key workflow.on_complete`
+
+If the resolved `workflow.on_complete` is non-empty, follow it as the final terminal instruction before exiting.

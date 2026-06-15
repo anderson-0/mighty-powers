@@ -41,7 +41,7 @@ completedAt: '{{current_date}}'
 
 ### 3. Next Steps Guidance
 
-Architecture complete. Invoke the `mighty-powers:help` skill.
+Architecture complete. Invoke the `mp:help` skill.
 
 Upon Completion of task output: offer to answer any questions about the Architecture Document.
 
