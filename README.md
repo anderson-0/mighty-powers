@@ -1,13 +1,17 @@
 # Mighty Powers
 
+[![GitHub stars](https://img.shields.io/github/stars/anderson-0/mighty-powers?style=social)](https://github.com/anderson-0/mighty-powers)
+
 Unified Claude Code plugin for full-lifecycle software development. Combines the best of [Superpowers](https://github.com/obra/superpowers), [Ultraship](https://github.com/Houseofmvps/ultraship), and [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) into a single coherent plugin.
 
 ## Quick Start
 
 ```bash
-claude plugin marketplace add ./mighty-powers
+claude plugin marketplace add anderson-0/mighty-powers
 claude plugin install mighty-powers
 ```
+
+For local development from a clone, use `claude plugin marketplace add ./mighty-powers` instead of the GitHub slug above.
 
 Then in your project:
 
@@ -17,10 +21,10 @@ Then in your project:
 
 ## What's Included
 
-- **56 skills** covering analysis, planning, solutioning, implementation, auditing, and deployment
-- **21 Node.js tools** for security scanning, code profiling, architecture mapping, and more
+- **54 skills** covering analysis, planning, solutioning, implementation, auditing, and deployment
+- **22 Node.js tools** for security scanning, code profiling, architecture mapping, and more
 - **6 named agents** (Reese, Sasha, Winston, Jordan, Quinn, Morgan) for reviews, audits, and multi-agent discussions
-- **36 slash commands** for quick access to common workflows
+- **34 slash commands** for quick access to common workflows
 - **Safety guardrails** that block destructive commands automatically
 - **Session resilience** — if your IDE crashes, `/resume` picks up exactly where you stopped
 - **Wave-based execution** — plans organized into waves with checkpoints; independent tasks within a wave run in parallel

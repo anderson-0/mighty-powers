@@ -1,5 +1,6 @@
 {
   "name": "mighty-powers",
+  "description": "Full-lifecycle Claude Code plugin — analysis, planning, solutioning, implementation, auditing, and deployment.",
   "owner": {
     "name": "anderson-0",
     "url": "https://github.com/anderson-0"
@@ -7,7 +8,7 @@
   "plugins": [
     {
       "name": "mighty-powers",
-      "description": "Full-lifecycle development plugin: analysis, planning, solutioning, implementation, auditing, and deployment. 42 skills, 20 tools, 6 agents.",
+      "description": "Full-lifecycle development plugin: analysis, planning, solutioning, implementation, auditing, and deployment. 54 skills, 22 tools, 6 agents, 34 commands.",
       "source": "./",
       "keywords": [
         "tdd",
