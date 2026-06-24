@@ -26,12 +26,15 @@ from pathlib import Path
 try:
     import tomllib
 except ImportError:
-    sys.stderr.write(
-        "error: Python 3.11+ is required (stdlib `tomllib` not found).\n"
-        "Install a newer Python or run the resolution manually per the\n"
-        "fallback instructions in the skill's SKILL.md.\n"
-    )
-    sys.exit(3)
+    try:
+        import tomli as tomllib  # type: ignore[no-redef]
+    except ImportError:
+        sys.stderr.write(
+            "error: Python 3.11+ is required (stdlib `tomllib` not found).\n"
+            "Fix: install the backport with:  pip install tomli\n"
+            "Or upgrade to Python 3.11+.\n"
+        )
+        sys.exit(3)
 
 
 _MISSING = object()
