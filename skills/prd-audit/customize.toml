@@ -1,0 +1,58 @@
+# DO NOT EDIT -- overwritten on every update.
+#
+# Workflow customization surface for prd-audit. Override in:
+#   {project-root}/.mighty-powers/custom/prd-audit.toml       (team)
+#   {project-root}/.mighty-powers/custom/prd-audit.user.toml  (personal)
+#
+# Merge rules: scalars override, arrays append, arrays-of-tables keyed by
+# `code`/`id` replace matching entries and append new ones.
+
+[workflow]
+
+# ── Directory configuration ────────────────────────────────────────────────
+
+# Path to PRD files, relative to project root.
+# Index files (00-*.md, index.md, README.md) are excluded automatically.
+prd_dir = "prd"
+
+# Path to the frontend source, relative to project root.
+# Set to "" if no frontend exists (backend-only project).
+frontend_dir = "frontend"
+
+# Path to the backend source, relative to project root.
+# Set to "" if no backend exists (frontend-only project).
+backend_dir = "apps/wails3"
+
+# Short human-readable description of the stack — used in subagent prompts
+# so they know what to look for. Example: "React/TS frontend, Go/Wails3 backend"
+stack_notes = "React/TypeScript frontend, Go backend (Wails3)"
+
+# ── Audit tuning ──────────────────────────────────────────────────────────
+
+# Number of PRDs per parallel subagent batch.
+# Lower = more granular findings per agent, higher token cost.
+# Higher = less cost, but each agent covers more ground (may be shallower).
+# Recommended: 4-6 for projects with 20-50 PRDs; 8-10 for 50+ PRDs.
+batch_size = 5
+
+# ── Activation hooks ──────────────────────────────────────────────────────
+
+# Steps to run before config load and greet.
+activation_steps_prepend = []
+
+# Steps to run after greet, before the main workflow.
+activation_steps_append = []
+
+# ── Persistent facts ──────────────────────────────────────────────────────
+# Loaded as context for the entire run.
+# Entries prefixed `file:` are paths/globs under {project-root}.
+
+persistent_facts = [
+  "file:{project-root}/**/project-context.md",
+  "file:{project-root}/CLAUDE.md",
+]
+
+# ── Completion hook ───────────────────────────────────────────────────────
+# Executed when the workflow reaches its final step.
+# Leave empty for no custom post-completion behavior.
+on_complete = ""
